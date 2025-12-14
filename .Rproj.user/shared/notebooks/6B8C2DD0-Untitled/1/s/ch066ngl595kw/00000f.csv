@@ -1,3 +1,0 @@
-"0","flc_amt <- read.csv(""flc_amt.csv"")"
-"0","flc_amt %>% group_by(実験) %>% "
-"0","  gt()"
