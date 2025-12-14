@@ -1,0 +1,49 @@
+---
+title: "浄水処理実験 実験レポート"
+author: "03250114 大隅伸明"
+format:
+  pdf:
+    pdf-engine: lualatex
+    documentclass: ltjsarticle
+    classoption: [10pt]
+editor: visual
+---
+
+```{r}
+#| include: false
+#| echo: false
+library(dplyr)
+library(gt)
+```
+
+<!--# ここに表紙用のraw latexコード -->
+
+## 目的
+
+## 実験方法
+
+## 結果
+
+### 課題D 凝集沈殿
+
+まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果は以下のようになった。
+
+```{r}
+#| echo: false
+flc_amt <- read.csv("flc_amt.csv")
+flc_amt %>% group_by(実験) %>% 
+  gt()
+```
+
+<!--# 何アルカリ度だっけ? -->
+
+また、m-アルカリ度
+
+以上の実験から
+
+```{r}
+#| echo: false
+flc_ph <- read.csv("flc_ph.csv")
+flc_ph %>% group_by(試料) %>% 
+  gt()
+```

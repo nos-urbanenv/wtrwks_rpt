@@ -1,0 +1,4 @@
+"0","#| echo: false"
+"0","flc_ph <- read.csv(""flc_ph.csv"")"
+"0","flc_ph %>% group_by(試料) %>% "
+"0","  gt()"
