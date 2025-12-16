@@ -69,7 +69,10 @@ ozn_calib %>% group_by(班) %>% gt()
 ozn_calib %>% 
   ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
   geom_point()+
-  theme_classic()+
+  geom_smooth(method="lm")+
+  theme_bw(axis.title=element_text(family="Hiragino Maru Gothic Pro"),
+           title=element_text(family="Hiragino Maru Gothic Pro"),
+           axis.text=element_text(family="Hiragino Maru Gothic Pro"))+
   facet_wrap(~班)
 ```
 
@@ -95,7 +98,9 @@ ozone %>%
 ozone %>% select("時間.分.","メチレンブルー濃度","班") %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
   geom_point()+
-  theme_classic()+
+  theme_bw(axis.title=element_text(family="Hiragino Maru Gothic Pro"),
+           title=element_text(family="Hiragino Maru Gothic Pro"),
+           axis.text=element_text(family="Hiragino Maru Gothic Pro"))+
   facet_wrap(~班)
 ```
 
