@@ -1,9 +1,13 @@
 ---
 title: "浄水処理実験 実験レポート"
 author: "03250114 大隅伸明"
-format:
-  markdown_github: default
+format: 
+  #typst:
+   # toc: true
   pdf:
+    #include-in-header: 
+     # - text: \usepackage{longatable}
+      #- file: packages.tex
     pdf-engine: lualatex
     documentclass: ltjsarticle
     classoption: [10pt]
@@ -42,7 +46,7 @@ library(ggplot2)
 
 ### 実験概要
 
-概要をここに書いていく。。
+オゾン処理は主に高度処理で用いられ、
 
 ### 結果
 
@@ -69,20 +73,27 @@ ozn_calib %>% group_by(班) %>% gt()
 ozn_calib %>% 
   ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
   geom_point()+
-  geom_smooth(method="lm")+
-  theme_bw(axis.title=element_text(family="Hiragino Maru Gothic Pro"),
-           title=element_text(family="Hiragino Maru Gothic Pro"),
-           axis.text=element_text(family="Hiragino Maru Gothic Pro"))+
+  geom_smooth(method="lm",color="black")+
+  labs(
+    title="メチレンブルー濃度の検量線",
+    x="メチレンブルー濃度(mg/L)",
+    y="吸光度"
+  )+
+  #theme_bw(base_family = "Hiragino Maru Gothic Pro")+
+  theme_bw()+
   facet_wrap(~班)
 ```
 
 上記の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
 
+<!--# ここの部分の計算は完全に嘘！修正してから出す！(このコメントは修正したら消す) -->
+
 ```{r}
 #| echo: false
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
+#今のところ、数値が出ることを確認するための嘘の式しか入っていない。
 ozone <- ozone %>% 
-  mutate(メチレンブルー濃度=吸光度*吸光度_希釈,
+  mutate(メチレンブルー濃度=1,
          TOC濃度 = NA)
 
 #表示
@@ -91,16 +102,20 @@ ozone %>%
   group_by(班,条件) %>% gt()
 ```
 
-吸光度の時間変化を図示すると以下のようになった。
+上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
 
 ```{r}
 #| echo: false
 ozone %>% select("時間.分.","メチレンブルー濃度","班") %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
   geom_point()+
-  theme_bw(axis.title=element_text(family="Hiragino Maru Gothic Pro"),
-           title=element_text(family="Hiragino Maru Gothic Pro"),
-           axis.text=element_text(family="Hiragino Maru Gothic Pro"))+
+  labs(
+    title="メチレンブルー濃度の経時変化",
+    x="時間(分)",
+    y="メチレンブルー濃度(mg/L)"
+  )+
+  #theme_bw(base_family = "Hiragino Maru Gothic Pro")+
+  theme_bw()+
   facet_wrap(~班)
 ```
 
@@ -163,7 +178,8 @@ flc_ph <- read.csv("flc_ph.csv") %>%
 
 flc_ph %>% 
   group_by(試料) %>% 
-  gt()
+  gt() %>% 
+  tab_header(title="凝集剤添加実験の結果")
 ```
 
 ### 考察
@@ -174,6 +190,27 @@ flc_ph %>%
 
 ### 実験概要
 
+2種類の消毒方法に関して実験を行う。
+
 ### 結果
+
+```{r}
+#| echo: false
+colony <- read.csv("colony.csv")
+
+colony %>% 
+  tidyr::pivot_wider(
+    names_from = "採水時刻", 
+    values_from = c("希釈倍率","コロニー数")) %>% 
+  #text_transform(
+  #  locations = cells_body(columns = 希釈倍率)
+  #) %>% 
+  group_by(班,実験名) %>%
+  gt() %>% 
+  tab_header(title="大腸菌コロニー数の計数結果") %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  )
+```
 
 ### 考察

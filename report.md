@@ -31,23 +31,23 @@
 
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
 
-<div id="vkjvuejxel" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vkjvuejxel table {
+<div id="wkuksakmgm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#wkuksakmgm table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vkjvuejxel thead, #vkjvuejxel tbody, #vkjvuejxel tfoot, #vkjvuejxel tr, #vkjvuejxel td, #vkjvuejxel th {
+#wkuksakmgm thead, #wkuksakmgm tbody, #wkuksakmgm tfoot, #wkuksakmgm tr, #wkuksakmgm td, #wkuksakmgm th {
   border-style: none;
 }
 
-#vkjvuejxel p {
+#wkuksakmgm p {
   margin: 0;
   padding: 0;
 }
 
-#vkjvuejxel .gt_table {
+#wkuksakmgm .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -73,12 +73,12 @@
   border-left-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_caption {
+#wkuksakmgm .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vkjvuejxel .gt_title {
+#wkuksakmgm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -90,7 +90,7 @@
   border-bottom-width: 0;
 }
 
-#vkjvuejxel .gt_subtitle {
+#wkuksakmgm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -102,7 +102,7 @@
   border-top-width: 0;
 }
 
-#vkjvuejxel .gt_heading {
+#wkuksakmgm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -114,13 +114,13 @@
   border-right-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_bottom_border {
+#wkuksakmgm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_col_headings {
+#wkuksakmgm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -135,7 +135,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_col_heading {
+#wkuksakmgm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -155,7 +155,7 @@
   overflow-x: hidden;
 }
 
-#vkjvuejxel .gt_column_spanner_outer {
+#wkuksakmgm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -167,15 +167,15 @@
   padding-right: 4px;
 }
 
-#vkjvuejxel .gt_column_spanner_outer:first-child {
+#wkuksakmgm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vkjvuejxel .gt_column_spanner_outer:last-child {
+#wkuksakmgm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vkjvuejxel .gt_column_spanner {
+#wkuksakmgm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -187,11 +187,11 @@
   width: 100%;
 }
 
-#vkjvuejxel .gt_spanner_row {
+#wkuksakmgm .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vkjvuejxel .gt_group_heading {
+#wkuksakmgm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -217,7 +217,7 @@
   text-align: left;
 }
 
-#vkjvuejxel .gt_empty_group_heading {
+#wkuksakmgm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -232,15 +232,15 @@
   vertical-align: middle;
 }
 
-#vkjvuejxel .gt_from_md > :first-child {
+#wkuksakmgm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vkjvuejxel .gt_from_md > :last-child {
+#wkuksakmgm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vkjvuejxel .gt_row {
+#wkuksakmgm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -259,7 +259,7 @@
   overflow-x: hidden;
 }
 
-#vkjvuejxel .gt_stub {
+#wkuksakmgm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -272,7 +272,7 @@
   padding-right: 5px;
 }
 
-#vkjvuejxel .gt_stub_row_group {
+#wkuksakmgm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -286,15 +286,15 @@
   vertical-align: top;
 }
 
-#vkjvuejxel .gt_row_group_first td {
+#wkuksakmgm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vkjvuejxel .gt_row_group_first th {
+#wkuksakmgm .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vkjvuejxel .gt_summary_row {
+#wkuksakmgm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -304,16 +304,16 @@
   padding-right: 5px;
 }
 
-#vkjvuejxel .gt_first_summary_row {
+#wkuksakmgm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_first_summary_row.thick {
+#wkuksakmgm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vkjvuejxel .gt_last_summary_row {
+#wkuksakmgm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -323,7 +323,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_grand_summary_row {
+#wkuksakmgm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -333,7 +333,7 @@
   padding-right: 5px;
 }
 
-#vkjvuejxel .gt_first_grand_summary_row {
+#wkuksakmgm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -343,7 +343,7 @@
   border-top-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_last_grand_summary_row_top {
+#wkuksakmgm .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -353,11 +353,11 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_striped {
+#wkuksakmgm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vkjvuejxel .gt_table_body {
+#wkuksakmgm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -366,7 +366,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_footnotes {
+#wkuksakmgm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -380,7 +380,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_footnote {
+#wkuksakmgm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -389,7 +389,7 @@
   padding-right: 5px;
 }
 
-#vkjvuejxel .gt_sourcenotes {
+#wkuksakmgm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -403,7 +403,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vkjvuejxel .gt_sourcenote {
+#wkuksakmgm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -411,72 +411,72 @@
   padding-right: 5px;
 }
 
-#vkjvuejxel .gt_left {
+#wkuksakmgm .gt_left {
   text-align: left;
 }
 
-#vkjvuejxel .gt_center {
+#wkuksakmgm .gt_center {
   text-align: center;
 }
 
-#vkjvuejxel .gt_right {
+#wkuksakmgm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vkjvuejxel .gt_font_normal {
+#wkuksakmgm .gt_font_normal {
   font-weight: normal;
 }
 
-#vkjvuejxel .gt_font_bold {
+#wkuksakmgm .gt_font_bold {
   font-weight: bold;
 }
 
-#vkjvuejxel .gt_font_italic {
+#wkuksakmgm .gt_font_italic {
   font-style: italic;
 }
 
-#vkjvuejxel .gt_super {
+#wkuksakmgm .gt_super {
   font-size: 65%;
 }
 
-#vkjvuejxel .gt_footnote_marks {
+#wkuksakmgm .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vkjvuejxel .gt_asterisk {
+#wkuksakmgm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vkjvuejxel .gt_indent_1 {
+#wkuksakmgm .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vkjvuejxel .gt_indent_2 {
+#wkuksakmgm .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vkjvuejxel .gt_indent_3 {
+#wkuksakmgm .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vkjvuejxel .gt_indent_4 {
+#wkuksakmgm .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vkjvuejxel .gt_indent_5 {
+#wkuksakmgm .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vkjvuejxel .katex-display {
+#wkuksakmgm .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vkjvuejxel div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#wkuksakmgm div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -516,27 +516,30 @@
 
 上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。
 
+    `geom_smooth()` using formula = 'y ~ x'
+
 ![](report.markdown_github_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 上記の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
 
-<div id="vtgewbqvzy" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#vtgewbqvzy table {
+<!--# ここの部分の計算は完全に嘘！修正してから出す！(このコメントは修正したら消す) -->
+<div id="zgdohrfsjj" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zgdohrfsjj table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#vtgewbqvzy thead, #vtgewbqvzy tbody, #vtgewbqvzy tfoot, #vtgewbqvzy tr, #vtgewbqvzy td, #vtgewbqvzy th {
+#zgdohrfsjj thead, #zgdohrfsjj tbody, #zgdohrfsjj tfoot, #zgdohrfsjj tr, #zgdohrfsjj td, #zgdohrfsjj th {
   border-style: none;
 }
 
-#vtgewbqvzy p {
+#zgdohrfsjj p {
   margin: 0;
   padding: 0;
 }
 
-#vtgewbqvzy .gt_table {
+#zgdohrfsjj .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -562,12 +565,12 @@
   border-left-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_caption {
+#zgdohrfsjj .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#vtgewbqvzy .gt_title {
+#zgdohrfsjj .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -579,7 +582,7 @@
   border-bottom-width: 0;
 }
 
-#vtgewbqvzy .gt_subtitle {
+#zgdohrfsjj .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -591,7 +594,7 @@
   border-top-width: 0;
 }
 
-#vtgewbqvzy .gt_heading {
+#zgdohrfsjj .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -603,13 +606,13 @@
   border-right-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_bottom_border {
+#zgdohrfsjj .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_col_headings {
+#zgdohrfsjj .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -624,7 +627,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_col_heading {
+#zgdohrfsjj .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -644,7 +647,7 @@
   overflow-x: hidden;
 }
 
-#vtgewbqvzy .gt_column_spanner_outer {
+#zgdohrfsjj .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -656,15 +659,15 @@
   padding-right: 4px;
 }
 
-#vtgewbqvzy .gt_column_spanner_outer:first-child {
+#zgdohrfsjj .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#vtgewbqvzy .gt_column_spanner_outer:last-child {
+#zgdohrfsjj .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#vtgewbqvzy .gt_column_spanner {
+#zgdohrfsjj .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -676,11 +679,11 @@
   width: 100%;
 }
 
-#vtgewbqvzy .gt_spanner_row {
+#zgdohrfsjj .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#vtgewbqvzy .gt_group_heading {
+#zgdohrfsjj .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -706,7 +709,7 @@
   text-align: left;
 }
 
-#vtgewbqvzy .gt_empty_group_heading {
+#zgdohrfsjj .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -721,15 +724,15 @@
   vertical-align: middle;
 }
 
-#vtgewbqvzy .gt_from_md > :first-child {
+#zgdohrfsjj .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#vtgewbqvzy .gt_from_md > :last-child {
+#zgdohrfsjj .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#vtgewbqvzy .gt_row {
+#zgdohrfsjj .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -748,7 +751,7 @@
   overflow-x: hidden;
 }
 
-#vtgewbqvzy .gt_stub {
+#zgdohrfsjj .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -761,7 +764,7 @@
   padding-right: 5px;
 }
 
-#vtgewbqvzy .gt_stub_row_group {
+#zgdohrfsjj .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -775,15 +778,15 @@
   vertical-align: top;
 }
 
-#vtgewbqvzy .gt_row_group_first td {
+#zgdohrfsjj .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#vtgewbqvzy .gt_row_group_first th {
+#zgdohrfsjj .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#vtgewbqvzy .gt_summary_row {
+#zgdohrfsjj .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -793,16 +796,16 @@
   padding-right: 5px;
 }
 
-#vtgewbqvzy .gt_first_summary_row {
+#zgdohrfsjj .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_first_summary_row.thick {
+#zgdohrfsjj .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#vtgewbqvzy .gt_last_summary_row {
+#zgdohrfsjj .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -812,7 +815,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_grand_summary_row {
+#zgdohrfsjj .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -822,7 +825,7 @@
   padding-right: 5px;
 }
 
-#vtgewbqvzy .gt_first_grand_summary_row {
+#zgdohrfsjj .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -832,7 +835,7 @@
   border-top-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_last_grand_summary_row_top {
+#zgdohrfsjj .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -842,11 +845,11 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_striped {
+#zgdohrfsjj .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#vtgewbqvzy .gt_table_body {
+#zgdohrfsjj .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -855,7 +858,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_footnotes {
+#zgdohrfsjj .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -869,7 +872,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_footnote {
+#zgdohrfsjj .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -878,7 +881,7 @@
   padding-right: 5px;
 }
 
-#vtgewbqvzy .gt_sourcenotes {
+#zgdohrfsjj .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -892,7 +895,7 @@
   border-right-color: #D3D3D3;
 }
 
-#vtgewbqvzy .gt_sourcenote {
+#zgdohrfsjj .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -900,72 +903,72 @@
   padding-right: 5px;
 }
 
-#vtgewbqvzy .gt_left {
+#zgdohrfsjj .gt_left {
   text-align: left;
 }
 
-#vtgewbqvzy .gt_center {
+#zgdohrfsjj .gt_center {
   text-align: center;
 }
 
-#vtgewbqvzy .gt_right {
+#zgdohrfsjj .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#vtgewbqvzy .gt_font_normal {
+#zgdohrfsjj .gt_font_normal {
   font-weight: normal;
 }
 
-#vtgewbqvzy .gt_font_bold {
+#zgdohrfsjj .gt_font_bold {
   font-weight: bold;
 }
 
-#vtgewbqvzy .gt_font_italic {
+#zgdohrfsjj .gt_font_italic {
   font-style: italic;
 }
 
-#vtgewbqvzy .gt_super {
+#zgdohrfsjj .gt_super {
   font-size: 65%;
 }
 
-#vtgewbqvzy .gt_footnote_marks {
+#zgdohrfsjj .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#vtgewbqvzy .gt_asterisk {
+#zgdohrfsjj .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#vtgewbqvzy .gt_indent_1 {
+#zgdohrfsjj .gt_indent_1 {
   text-indent: 5px;
 }
 
-#vtgewbqvzy .gt_indent_2 {
+#zgdohrfsjj .gt_indent_2 {
   text-indent: 10px;
 }
 
-#vtgewbqvzy .gt_indent_3 {
+#zgdohrfsjj .gt_indent_3 {
   text-indent: 15px;
 }
 
-#vtgewbqvzy .gt_indent_4 {
+#zgdohrfsjj .gt_indent_4 {
   text-indent: 20px;
 }
 
-#vtgewbqvzy .gt_indent_5 {
+#zgdohrfsjj .gt_indent_5 {
   text-indent: 25px;
 }
 
-#vtgewbqvzy .katex-display {
+#zgdohrfsjj .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#vtgewbqvzy div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#zgdohrfsjj div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -973,93 +976,90 @@
 | 時間.分.       | 吸光度 | 吸光度_希釈 | pH    | O3_conc | メチレンブルー濃度 | TOC濃度 |
 |----------------|--------|-------------|-------|---------|--------------------|---------|
 | 3 - 酸性       |        |             |       |         |                    |         |
-| 0              | 0.478  | 3           | 2.17  | 1.06    | 1.434              | NA      |
-| 2              | NA     | 2           | NA    | NA      | NA                 | NA      |
-| 4              | 0.001  | 1           | NA    | NA      | 0.001              | NA      |
-| 6              | -0.001 | 1           | NA    | NA      | -0.001             | NA      |
-| 8              | 0.001  | 1           | NA    | NA      | 0.001              | NA      |
-| 10             | -0.004 | 1           | NA    | NA      | -0.004             | NA      |
-| 15             | -0.007 | 1           | NA    | NA      | -0.007             | NA      |
-| 20             | -0.003 | 1           | 2.11  | 0.83    | -0.003             | NA      |
+| 0              | 0.478  | 3           | 2.17  | 1.06    | 1                  | NA      |
+| 2              | NA     | 2           | NA    | NA      | 1                  | NA      |
+| 4              | 0.001  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | -0.001 | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.001  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | -0.004 | 1           | NA    | NA      | 1                  | NA      |
+| 15             | -0.007 | 1           | NA    | NA      | 1                  | NA      |
+| 20             | -0.003 | 1           | 2.11  | 0.83    | 1                  | NA      |
 | 3 - 中性       |        |             |       |         |                    |         |
-| 0              | 5.799  | 3           | 7.00  | 1.06    | 17.397             | NA      |
-| 2              | 0.354  | 1           | NA    | NA      | 0.354              | NA      |
-| 4              | 0.153  | 1           | NA    | NA      | 0.153              | NA      |
-| 6              | 0.025  | 1           | NA    | NA      | 0.025              | NA      |
-| 8              | -0.001 | 1           | NA    | NA      | -0.001             | NA      |
-| 10             | 0.002  | 1           | NA    | NA      | 0.002              | NA      |
-| 15             | -0.005 | 1           | NA    | NA      | -0.005             | NA      |
-| 20             | -0.002 | 1           | 7.01  | 0.03    | -0.002             | NA      |
+| 0              | 5.799  | 3           | 7.00  | 1.06    | 1                  | NA      |
+| 2              | 0.354  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.153  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.025  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | -0.001 | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.002  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | -0.005 | 1           | NA    | NA      | 1                  | NA      |
+| 20             | -0.002 | 1           | 7.01  | 0.03    | 1                  | NA      |
 | 3 - アルカリ性 |        |             |       |         |                    |         |
-| 0              | 5.217  | 3           | 12.25 | 1.06    | 15.651             | NA      |
-| 2              | 0.379  | 1           | NA    | NA      | 0.379              | NA      |
-| 4              | 0.256  | 1           | NA    | NA      | 0.256              | NA      |
-| 6              | 0.140  | 1           | NA    | NA      | 0.140              | NA      |
-| 8              | 0.068  | 1           | NA    | NA      | 0.068              | NA      |
-| 10             | 0.053  | 1           | NA    | NA      | 0.053              | NA      |
-| 15             | 0.017  | 1           | NA    | NA      | 0.017              | NA      |
-| 20             | 0.005  | 1           | 11.88 | 0.00    | 0.005              | NA      |
+| 0              | 5.217  | 3           | 12.25 | 1.06    | 1                  | NA      |
+| 2              | 0.379  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.256  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.140  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.068  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.053  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.017  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.005  | 1           | 11.88 | 0.00    | 1                  | NA      |
 | 1 - 酸性       |        |             |       |         |                    |         |
-| 0              | 1.743  | 4           | 2.51  | 0.54    | 6.972              | NA      |
-| 2              | 1.287  | 1           | NA    | NA      | 1.287              | NA      |
-| 4              | 0.317  | 1           | NA    | NA      | 0.317              | NA      |
-| 6              | 0.065  | 1           | NA    | NA      | 0.065              | NA      |
-| 8              | 0.019  | 1           | NA    | NA      | 0.019              | NA      |
-| 10             | 0.007  | 1           | NA    | NA      | 0.007              | NA      |
-| 15             | 0.007  | 1           | NA    | NA      | 0.007              | NA      |
-| 20             | 0.007  | 1           | 2.53  | 0.10    | 0.007              | NA      |
+| 0              | 1.743  | 4           | 2.51  | 0.54    | 1                  | NA      |
+| 2              | 1.287  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.317  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.065  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.019  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.007  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.007  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.007  | 1           | 2.53  | 0.10    | 1                  | NA      |
 | 1 - 中性       |        |             |       |         |                    |         |
-| 0              | 1.439  | 4           | 7.10  | 0.54    | 5.756              | NA      |
-| 2              | 1.627  | 1           | NA    | NA      | 1.627              | NA      |
-| 4              | 0.087  | 1           | NA    | NA      | 0.087              | NA      |
-| 6              | 0.017  | 1           | NA    | NA      | 0.017              | NA      |
-| 8              | 0.011  | 1           | NA    | NA      | 0.011              | NA      |
-| 10             | 0.005  | 1           | NA    | NA      | 0.005              | NA      |
-| 15             | 0.001  | 1           | NA    | NA      | 0.001              | NA      |
-| 20             | 0.000  | 1           | 6.97  | 0.02    | 0.000              | NA      |
+| 0              | 1.439  | 4           | 7.10  | 0.54    | 1                  | NA      |
+| 2              | 1.627  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.087  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.017  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.011  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.005  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.001  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.000  | 1           | 6.97  | 0.02    | 1                  | NA      |
 | 1 - アルカリ性 |        |             |       |         |                    |         |
-| 0              | 1.627  | 4           | 12.25 | 0.54    | 6.508              | NA      |
-| 2              | 1.727  | 1           | NA    | NA      | 1.727              | NA      |
-| 4              | 0.252  | 1           | NA    | NA      | 0.252              | NA      |
-| 6              | 0.107  | 1           | NA    | NA      | 0.107              | NA      |
-| 8              | 0.073  | 1           | NA    | NA      | 0.073              | NA      |
-| 10             | 0.050  | 1           | NA    | NA      | 0.050              | NA      |
-| 15             | 0.011  | 1           | NA    | NA      | 0.011              | NA      |
-| 20             | 0.007  | 1           | 12.08 | 0.01    | 0.007              | NA      |
+| 0              | 1.627  | 4           | 12.25 | 0.54    | 1                  | NA      |
+| 2              | 1.727  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.252  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.107  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.073  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.050  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.011  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.007  | 1           | 12.08 | 0.01    | 1                  | NA      |
 | 4 - 酸性       |        |             |       |         |                    |         |
-| 0              | 8.500  | 4           | 2.43  | 1.06    | 34.000             | NA      |
-| 2              | 1.498  | 1           | NA    | NA      | 1.498              | NA      |
-| 4              | 0.341  | 1           | NA    | NA      | 0.341              | NA      |
-| 6              | 0.091  | 1           | NA    | NA      | 0.091              | NA      |
-| 8              | 0.023  | 1           | NA    | NA      | 0.023              | NA      |
-| 10             | 0.011  | 1           | NA    | NA      | 0.011              | NA      |
-| 15             | 0.009  | 1           | NA    | NA      | 0.009              | NA      |
-| 20             | 0.008  | 1           | 2.41  | 0.35    | 0.008              | NA      |
+| 0              | 8.500  | 4           | 2.43  | 1.06    | 1                  | NA      |
+| 2              | 1.498  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.341  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.091  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.023  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.011  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.009  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.008  | 1           | 2.41  | 0.35    | 1                  | NA      |
 | 4 - 中性       |        |             |       |         |                    |         |
-| 0              | 8.340  | 4           | 7.07  | 1.06    | 33.360             | NA      |
-| 2              | 1.277  | 1           | NA    | NA      | 1.277              | NA      |
-| 4              | 0.070  | 1           | NA    | NA      | 0.070              | NA      |
-| 6              | 0.038  | 1           | NA    | NA      | 0.038              | NA      |
-| 8              | 0.026  | 1           | NA    | NA      | 0.026              | NA      |
-| 10             | 0.014  | 1           | NA    | NA      | 0.014              | NA      |
-| 15             | 0.234  | 1           | NA    | NA      | 0.234              | NA      |
-| 20             | 0.015  | 1           | 7.03  | 0.17    | 0.015              | NA      |
+| 0              | 8.340  | 4           | 7.07  | 1.06    | 1                  | NA      |
+| 2              | 1.277  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.070  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.038  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.026  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.014  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.234  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.015  | 1           | 7.03  | 0.17    | 1                  | NA      |
 | 4 - アルカリ性 |        |             |       |         |                    |         |
-| 0              | 8.745  | 5           | 12.30 | 1.06    | 43.725             | NA      |
-| 2              | 1.055  | 1           | NA    | NA      | 1.055              | NA      |
-| 4              | 0.307  | 1           | NA    | NA      | 0.307              | NA      |
-| 6              | 0.121  | 1           | NA    | NA      | 0.121              | NA      |
-| 8              | 0.088  | 1           | NA    | NA      | 0.088              | NA      |
-| 10             | 0.052  | 1           | NA    | NA      | 0.052              | NA      |
-| 15             | 0.053  | 1           | NA    | NA      | 0.053              | NA      |
-| 20             | 0.058  | 1           | 12.13 | 0.07    | 0.058              | NA      |
+| 0              | 8.745  | 5           | 12.30 | 1.06    | 1                  | NA      |
+| 2              | 1.055  | 1           | NA    | NA      | 1                  | NA      |
+| 4              | 0.307  | 1           | NA    | NA      | 1                  | NA      |
+| 6              | 0.121  | 1           | NA    | NA      | 1                  | NA      |
+| 8              | 0.088  | 1           | NA    | NA      | 1                  | NA      |
+| 10             | 0.052  | 1           | NA    | NA      | 1                  | NA      |
+| 15             | 0.053  | 1           | NA    | NA      | 1                  | NA      |
+| 20             | 0.058  | 1           | 12.13 | 0.07    | 1                  | NA      |
 
 </div>
 
-吸光度の時間変化を図示すると以下のようになった。
-
-    Warning: Removed 1 row containing missing values or values outside the scale range
-    (`geom_point()`).
+上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
 
 ![](report.markdown_github_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
@@ -1091,23 +1091,23 @@
 
 まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果は以下のようになった。
 
-<div id="fkbrsyclkk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fkbrsyclkk table {
+<div id="xkdwmlalfs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xkdwmlalfs table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fkbrsyclkk thead, #fkbrsyclkk tbody, #fkbrsyclkk tfoot, #fkbrsyclkk tr, #fkbrsyclkk td, #fkbrsyclkk th {
+#xkdwmlalfs thead, #xkdwmlalfs tbody, #xkdwmlalfs tfoot, #xkdwmlalfs tr, #xkdwmlalfs td, #xkdwmlalfs th {
   border-style: none;
 }
 
-#fkbrsyclkk p {
+#xkdwmlalfs p {
   margin: 0;
   padding: 0;
 }
 
-#fkbrsyclkk .gt_table {
+#xkdwmlalfs .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1133,12 +1133,12 @@
   border-left-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_caption {
+#xkdwmlalfs .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fkbrsyclkk .gt_title {
+#xkdwmlalfs .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1150,7 +1150,7 @@
   border-bottom-width: 0;
 }
 
-#fkbrsyclkk .gt_subtitle {
+#xkdwmlalfs .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1162,7 +1162,7 @@
   border-top-width: 0;
 }
 
-#fkbrsyclkk .gt_heading {
+#xkdwmlalfs .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1174,13 +1174,13 @@
   border-right-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_bottom_border {
+#xkdwmlalfs .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_col_headings {
+#xkdwmlalfs .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1195,7 +1195,7 @@
   border-right-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_col_heading {
+#xkdwmlalfs .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1215,7 +1215,7 @@
   overflow-x: hidden;
 }
 
-#fkbrsyclkk .gt_column_spanner_outer {
+#xkdwmlalfs .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1227,15 +1227,15 @@
   padding-right: 4px;
 }
 
-#fkbrsyclkk .gt_column_spanner_outer:first-child {
+#xkdwmlalfs .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fkbrsyclkk .gt_column_spanner_outer:last-child {
+#xkdwmlalfs .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fkbrsyclkk .gt_column_spanner {
+#xkdwmlalfs .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1247,11 +1247,11 @@
   width: 100%;
 }
 
-#fkbrsyclkk .gt_spanner_row {
+#xkdwmlalfs .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fkbrsyclkk .gt_group_heading {
+#xkdwmlalfs .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1277,7 +1277,7 @@
   text-align: left;
 }
 
-#fkbrsyclkk .gt_empty_group_heading {
+#xkdwmlalfs .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1292,15 +1292,15 @@
   vertical-align: middle;
 }
 
-#fkbrsyclkk .gt_from_md > :first-child {
+#xkdwmlalfs .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fkbrsyclkk .gt_from_md > :last-child {
+#xkdwmlalfs .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fkbrsyclkk .gt_row {
+#xkdwmlalfs .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1319,7 +1319,7 @@
   overflow-x: hidden;
 }
 
-#fkbrsyclkk .gt_stub {
+#xkdwmlalfs .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1332,7 +1332,7 @@
   padding-right: 5px;
 }
 
-#fkbrsyclkk .gt_stub_row_group {
+#xkdwmlalfs .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1346,15 +1346,15 @@
   vertical-align: top;
 }
 
-#fkbrsyclkk .gt_row_group_first td {
+#xkdwmlalfs .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fkbrsyclkk .gt_row_group_first th {
+#xkdwmlalfs .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fkbrsyclkk .gt_summary_row {
+#xkdwmlalfs .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1364,16 +1364,16 @@
   padding-right: 5px;
 }
 
-#fkbrsyclkk .gt_first_summary_row {
+#xkdwmlalfs .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_first_summary_row.thick {
+#xkdwmlalfs .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fkbrsyclkk .gt_last_summary_row {
+#xkdwmlalfs .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1383,7 +1383,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_grand_summary_row {
+#xkdwmlalfs .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1393,7 +1393,7 @@
   padding-right: 5px;
 }
 
-#fkbrsyclkk .gt_first_grand_summary_row {
+#xkdwmlalfs .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1403,7 +1403,7 @@
   border-top-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_last_grand_summary_row_top {
+#xkdwmlalfs .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1413,11 +1413,11 @@
   border-bottom-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_striped {
+#xkdwmlalfs .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fkbrsyclkk .gt_table_body {
+#xkdwmlalfs .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1426,7 +1426,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_footnotes {
+#xkdwmlalfs .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1440,7 +1440,7 @@
   border-right-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_footnote {
+#xkdwmlalfs .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1449,7 +1449,7 @@
   padding-right: 5px;
 }
 
-#fkbrsyclkk .gt_sourcenotes {
+#xkdwmlalfs .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1463,7 +1463,7 @@
   border-right-color: #D3D3D3;
 }
 
-#fkbrsyclkk .gt_sourcenote {
+#xkdwmlalfs .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1471,72 +1471,72 @@
   padding-right: 5px;
 }
 
-#fkbrsyclkk .gt_left {
+#xkdwmlalfs .gt_left {
   text-align: left;
 }
 
-#fkbrsyclkk .gt_center {
+#xkdwmlalfs .gt_center {
   text-align: center;
 }
 
-#fkbrsyclkk .gt_right {
+#xkdwmlalfs .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fkbrsyclkk .gt_font_normal {
+#xkdwmlalfs .gt_font_normal {
   font-weight: normal;
 }
 
-#fkbrsyclkk .gt_font_bold {
+#xkdwmlalfs .gt_font_bold {
   font-weight: bold;
 }
 
-#fkbrsyclkk .gt_font_italic {
+#xkdwmlalfs .gt_font_italic {
   font-style: italic;
 }
 
-#fkbrsyclkk .gt_super {
+#xkdwmlalfs .gt_super {
   font-size: 65%;
 }
 
-#fkbrsyclkk .gt_footnote_marks {
+#xkdwmlalfs .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fkbrsyclkk .gt_asterisk {
+#xkdwmlalfs .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fkbrsyclkk .gt_indent_1 {
+#xkdwmlalfs .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fkbrsyclkk .gt_indent_2 {
+#xkdwmlalfs .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fkbrsyclkk .gt_indent_3 {
+#xkdwmlalfs .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fkbrsyclkk .gt_indent_4 {
+#xkdwmlalfs .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fkbrsyclkk .gt_indent_5 {
+#xkdwmlalfs .gt_indent_5 {
   text-indent: 25px;
 }
 
-#fkbrsyclkk .katex-display {
+#xkdwmlalfs .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#fkbrsyclkk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#xkdwmlalfs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -1569,23 +1569,23 @@
 
 次に、上記で求めた最適量の凝集剤を添加した上で、pHを酸性~アルカリ性の数段階で変化場合の各化学指標の経時変化を以下に示す。
 
-<div id="drvwrssufs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#drvwrssufs table {
+<div id="brelnkezto" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#brelnkezto table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#drvwrssufs thead, #drvwrssufs tbody, #drvwrssufs tfoot, #drvwrssufs tr, #drvwrssufs td, #drvwrssufs th {
+#brelnkezto thead, #brelnkezto tbody, #brelnkezto tfoot, #brelnkezto tr, #brelnkezto td, #brelnkezto th {
   border-style: none;
 }
 
-#drvwrssufs p {
+#brelnkezto p {
   margin: 0;
   padding: 0;
 }
 
-#drvwrssufs .gt_table {
+#brelnkezto .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1611,12 +1611,12 @@
   border-left-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_caption {
+#brelnkezto .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#drvwrssufs .gt_title {
+#brelnkezto .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1628,7 +1628,7 @@
   border-bottom-width: 0;
 }
 
-#drvwrssufs .gt_subtitle {
+#brelnkezto .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1640,7 +1640,7 @@
   border-top-width: 0;
 }
 
-#drvwrssufs .gt_heading {
+#brelnkezto .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1652,13 +1652,13 @@
   border-right-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_bottom_border {
+#brelnkezto .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_col_headings {
+#brelnkezto .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1673,7 +1673,7 @@
   border-right-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_col_heading {
+#brelnkezto .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1693,7 +1693,7 @@
   overflow-x: hidden;
 }
 
-#drvwrssufs .gt_column_spanner_outer {
+#brelnkezto .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1705,15 +1705,15 @@
   padding-right: 4px;
 }
 
-#drvwrssufs .gt_column_spanner_outer:first-child {
+#brelnkezto .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#drvwrssufs .gt_column_spanner_outer:last-child {
+#brelnkezto .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#drvwrssufs .gt_column_spanner {
+#brelnkezto .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1725,11 +1725,11 @@
   width: 100%;
 }
 
-#drvwrssufs .gt_spanner_row {
+#brelnkezto .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#drvwrssufs .gt_group_heading {
+#brelnkezto .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1755,7 +1755,7 @@
   text-align: left;
 }
 
-#drvwrssufs .gt_empty_group_heading {
+#brelnkezto .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1770,15 +1770,15 @@
   vertical-align: middle;
 }
 
-#drvwrssufs .gt_from_md > :first-child {
+#brelnkezto .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#drvwrssufs .gt_from_md > :last-child {
+#brelnkezto .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#drvwrssufs .gt_row {
+#brelnkezto .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1797,7 +1797,7 @@
   overflow-x: hidden;
 }
 
-#drvwrssufs .gt_stub {
+#brelnkezto .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1810,7 +1810,7 @@
   padding-right: 5px;
 }
 
-#drvwrssufs .gt_stub_row_group {
+#brelnkezto .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1824,15 +1824,15 @@
   vertical-align: top;
 }
 
-#drvwrssufs .gt_row_group_first td {
+#brelnkezto .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#drvwrssufs .gt_row_group_first th {
+#brelnkezto .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#drvwrssufs .gt_summary_row {
+#brelnkezto .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1842,16 +1842,16 @@
   padding-right: 5px;
 }
 
-#drvwrssufs .gt_first_summary_row {
+#brelnkezto .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_first_summary_row.thick {
+#brelnkezto .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#drvwrssufs .gt_last_summary_row {
+#brelnkezto .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1861,7 +1861,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_grand_summary_row {
+#brelnkezto .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1871,7 +1871,7 @@
   padding-right: 5px;
 }
 
-#drvwrssufs .gt_first_grand_summary_row {
+#brelnkezto .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1881,7 +1881,7 @@
   border-top-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_last_grand_summary_row_top {
+#brelnkezto .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1891,11 +1891,11 @@
   border-bottom-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_striped {
+#brelnkezto .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#drvwrssufs .gt_table_body {
+#brelnkezto .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1904,7 +1904,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_footnotes {
+#brelnkezto .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1918,7 +1918,7 @@
   border-right-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_footnote {
+#brelnkezto .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1927,7 +1927,7 @@
   padding-right: 5px;
 }
 
-#drvwrssufs .gt_sourcenotes {
+#brelnkezto .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1941,7 +1941,7 @@
   border-right-color: #D3D3D3;
 }
 
-#drvwrssufs .gt_sourcenote {
+#brelnkezto .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1949,72 +1949,72 @@
   padding-right: 5px;
 }
 
-#drvwrssufs .gt_left {
+#brelnkezto .gt_left {
   text-align: left;
 }
 
-#drvwrssufs .gt_center {
+#brelnkezto .gt_center {
   text-align: center;
 }
 
-#drvwrssufs .gt_right {
+#brelnkezto .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#drvwrssufs .gt_font_normal {
+#brelnkezto .gt_font_normal {
   font-weight: normal;
 }
 
-#drvwrssufs .gt_font_bold {
+#brelnkezto .gt_font_bold {
   font-weight: bold;
 }
 
-#drvwrssufs .gt_font_italic {
+#brelnkezto .gt_font_italic {
   font-style: italic;
 }
 
-#drvwrssufs .gt_super {
+#brelnkezto .gt_super {
   font-size: 65%;
 }
 
-#drvwrssufs .gt_footnote_marks {
+#brelnkezto .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#drvwrssufs .gt_asterisk {
+#brelnkezto .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#drvwrssufs .gt_indent_1 {
+#brelnkezto .gt_indent_1 {
   text-indent: 5px;
 }
 
-#drvwrssufs .gt_indent_2 {
+#brelnkezto .gt_indent_2 {
   text-indent: 10px;
 }
 
-#drvwrssufs .gt_indent_3 {
+#brelnkezto .gt_indent_3 {
   text-indent: 15px;
 }
 
-#drvwrssufs .gt_indent_4 {
+#brelnkezto .gt_indent_4 {
   text-indent: 20px;
 }
 
-#drvwrssufs .gt_indent_5 {
+#brelnkezto .gt_indent_5 {
   text-indent: 25px;
 }
 
-#drvwrssufs .katex-display {
+#brelnkezto .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#drvwrssufs div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#brelnkezto div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
