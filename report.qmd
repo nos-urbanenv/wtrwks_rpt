@@ -199,15 +199,25 @@ flc_ph %>%
 colony <- read.csv("colony.csv")
 
 colony %>% 
-  tidyr::pivot_wider(
-    names_from = "採水時刻", 
-    values_from = c("希釈倍率","コロニー数")) %>% 
+  #tidyr::pivot_wider(
+  #  names_from = "採水時刻", 
+  #  values_from = c("希釈倍率","コロニー数")) %>% 
   #text_transform(
   #  locations = cells_body(columns = 希釈倍率)
   #) %>% 
-  group_by(班,実験名) %>%
+  mutate(コロニー数=as.character(コロニー数),
+         コロニー数=paste0(
+           "\\textbf{",コロニー数,"}","(×$10^",希釈倍率,"$)"
+           )) %>% 
+  group_by(班,実験名,サンプル名,採水時刻) %>%
+  mutate(結果=paste(コロニー数,collapse = ", ")) %>% 
+  summarise(計測結果=unique(結果)) %>% 
   gt() %>% 
   tab_header(title="大腸菌コロニー数の計数結果") %>% 
+  fmt_passthrough(
+    columns = 計測結果,
+    escape=FALSE
+  ) %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
