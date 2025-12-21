@@ -5,9 +5,6 @@ format:
   #typst:
    # toc: true
   pdf:
-    #include-in-header: 
-     # - text: \usepackage{longatable}
-      #- file: packages.tex
     pdf-engine: lualatex
     documentclass: ltjsarticle
     classoption: [10pt]
@@ -17,9 +14,10 @@ editor: visual
 ```{r}
 #| include: false
 #| echo: false
-library(dplyr)
+library(tidyverse)
 library(gt)
-library(ggplot2)
+
+hiragino <- "Hiragino Maru Gothic Pro"
 ```
 
 <!--# ここに表紙用のraw latexコード -->
@@ -50,38 +48,65 @@ library(ggplot2)
 
 ### 結果
 
-```{r}
+```{r read_ozone_data}
 #| echo: false
 #| message: false
+# this chunk is to be later removed
 ozone <- read.csv("ozone.csv")
 ozn_calib <- read.csv("ozone_calib.csv")
 ```
 
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
 
-```{r}
+```{r ozn_calib_calc}
 #| echo: false
-ozn_calib %>% group_by(班) %>% gt()
+
+# 検量線の元データの表
+ozn_clb_tbl <- ozn_calib %>% 
+  arrange(班,メチレンブルー濃度.mg.L.) %>% 
+  mutate(班=paste0(班,"班")) %>% 
+  pivot_wider(names_from=班,values_from=吸光度) %>% 
+  gt() %>% 
+  tab_spanner(
+    label="665nm吸光度",
+    columns=ends_with("班")
+  ) %>% 
+  cols_align(
+    align="center",
+    columns=everything()
+  ) %>% 
+  cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)")
+
+# 回帰式を計算
+
+
+# 生データを表示
 ```
 
 <!--# ここの表現もうちょっと洗練させたいなぁ。。 -->
 
 上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。
 
-```{r}
+```{r ozn_calib_plot}
 #| echo: false
-ozn_calib %>% 
+
+# 検量線プロット
+ozn_clb_plt <- ozn_calib %>% 
   ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
   geom_point()+
   geom_smooth(method="lm",color="black")+
   labs(
     title="メチレンブルー濃度の検量線",
     x="メチレンブルー濃度(mg/L)",
-    y="吸光度"
+    y="665nm吸光度"
   )+
-  #theme_bw(base_family = "Hiragino Maru Gothic Pro")+
   theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
   facet_wrap(~班)
+
+# 検量線を表示
+ozn_clb_plt
 ```
 
 上記の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
@@ -121,7 +146,7 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 考察
 
-## 課題B
+## 課題B 急速濾過における目詰まり状況と処理性能の解析
 
 ### 実験概要
 
@@ -129,7 +154,7 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 考察
 
-## 課題C
+## 課題C 活性炭による色度成分の吸着
 
 ### 実験概要
 
@@ -150,15 +175,23 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 ```{r}
 #| echo: false
 flc_amt <- read.csv("flc_amt.csv")
-#ファクター指定(とりあえずテストのために1。実験日・実験グループごとに変える必要があるのでリストにする予定。)
+# ファクター指定
+# とりあえずテストのために1。
+# 実験日・実験グループごとに変える必要があるのでリストにする予定。
 factor = 1
 #m-アルカリ度計算
 flc_amt <- flc_amt %>% mutate(mアルカリ度 = (滴定_前 - 滴定_後) * factor) %>% 
   group_by(実験) %>% 
   select(-c("滴定_前", "滴定_後", "滴定試料量"))
 
-flc_amt %>% gt()
+flc_amt %>% 
+  gt() %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  )
 ```
+
+: This is a table
 
 <!--# 何アルカリ度だっけ? -->
 
@@ -194,28 +227,32 @@ flc_ph %>%
 
 ### 結果
 
-```{r}
-#| echo: false
+```{r read_colony_data}
+# to be removed after I changed the csvs to a single excel file
 colony <- read.csv("colony.csv")
+```
 
+```{r conony_table}
+#| echo: false
+#| message: false
+
+# table formatting
 colony %>% 
   group_by(班,実験名,サンプル名,採水時刻,希釈倍率) %>%
-  mutate(結果=paste(コロニー数,collapse = "/")) %>% 
-  summarise(結果=unique(結果)) %>% 
-  mutate(結果=paste0(
-    "\\textbf{",結果,"}","(×$10^",希釈倍率,"$)"
-  )) %>% 
-  ungroup() %>% 
-  group_by(班,実験名,サンプル名,採水時刻) %>%
-  mutate(結果=paste0(結果, collapse=", ")) %>% 
-  summarise(結果=unique(結果)) %>% 
+  mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
+  summarise(コロニー数=unique(コロニー数)) %>% 
+  mutate(コロニー数=paste0(
+    "\\textbf{",コロニー数,"}","(×$10^",希釈倍率,"$)"
+    ),
+    コロニー数=paste0(コロニー数, collapse=", ")) %>% 
+  summarise(コロニー数=unique(コロニー数)) %>% 
   gt() %>% 
   tab_header(title="大腸菌コロニー数の計数結果") %>% 
   fmt_passthrough(
-    columns = 結果,
+    columns = コロニー数,
     escape=FALSE
   ) %>% 
-  cols_align(align="center", columns=結果) %>% 
+  cols_align(align="center", columns=c("コロニー数","採水時刻")) %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
