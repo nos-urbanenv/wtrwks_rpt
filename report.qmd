@@ -7,11 +7,12 @@ format:
   pdf:
     pdf-engine: lualatex
     documentclass: ltjsarticle
+#    mainfont: "Hiragino Maru Gothic Pro"
     classoption: [10pt]
 editor: visual
 ---
 
-```{r}
+```{r read_packages}
 #| include: false
 #| echo: false
 library(tidyverse)
@@ -87,8 +88,9 @@ ozn_clb_tbl <- ozn_calib %>%
 
 上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。
 
-```{r ozn_calib_plot}
+```{r ozn_calib_plot, dev='jpeg'}
 #| echo: false
+#| warning: false
 
 # 検量線プロット
 ozn_clb_plt <- ozn_calib %>% 
@@ -160,6 +162,28 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 結果
 
+```{bash convert_DAT_files}
+iconv -f CP932 -t utf-8 GLC1203.DAT > GLC1203.txt
+iconv -f CP932 -t utf-8 GW1203.DAT > GW1203.txt
+```
+
+```{r read_belsorp_data}
+GLC_bel_lines <- readLines("GLC1203.txt")
+GLC_bel_lines <- GLC_bel_lines %>% 
+  stringr::str_split('\t')
+GW_bel_lines <- readLines("GW1203.txt")
+GW_bel_lines <- GW_bel_lines %>% 
+  stringr::str_split('\t')
+
+GLC_bel_lines[37:83] %>% unlist() %>% matrix(ncol=6,byrow = TRUE)
+GLC_bel_lines[37:83] %>% unlist() %>% matrix(ncol=6,byrow = TRUE) %>% as.table() %>% t() %>% View()
+
+#プロットしてみる
+GLC_plt <- ggplot() +
+  geom_line() +
+  geom_point() 
+```
+
 ### 考察
 
 ## 課題D 凝集沈殿における最適条件の決定
@@ -172,23 +196,44 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果は以下のようになった。
 
-```{r}
+```{r ttr_fctr_calc}
 #| echo: false
-flc_amt <- read.csv("flc_amt.csv")
+
+# ファクターのことは後で書くわけだが、先に計算しておく必要がある。
+
 # ファクター指定
 # とりあえずテストのために1。
 # 実験日・実験グループごとに変える必要があるのでリストにする予定。
-factor = 1
-#m-アルカリ度計算
-flc_amt <- flc_amt %>% mutate(mアルカリ度 = (滴定_前 - 滴定_後) * factor) %>% 
-  group_by(実験) %>% 
-  select(-c("滴定_前", "滴定_後", "滴定試料量"))
+ttr_amt <- 17.94
+ttr_fctr <- 20 / ttr_amt 
+```
 
-flc_amt %>% 
+```{r flc_amt_tbl}
+#| echo: false
+flc_amt <- read.csv("flc_amt.csv")
+
+# m-アルカリ度計算
+flc_amt <- flc_amt %>%
+  mutate(mアルカリ度 = (滴定_前 - 滴定_後) * ttr_fctr) %>% 
+  #group_by(班,実験) %>% 
+  group_by(実験) #%>% 
+
+# 表の作成
+
+ttr_cols <- c("滴定_前","滴定_後","滴定試料量") #滴定生データの列
+
+flc_amt_tbl <- flc_amt %>% 
   gt() %>% 
+  fmt_number(columns="mアルカリ度", decimals=2) %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  cols_move_to_end(columns = ttr_cols) %>%
+  tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
+  tab_header(title="凝集剤添加量の決定") %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
+
+flc_amt_tbl
 ```
 
 : This is a table
@@ -203,16 +248,23 @@ flc_amt %>%
 
 次に、上記で求めた最適量の凝集剤を添加した上で、pHを酸性\~アルカリ性の数段階で変化場合の各化学指標の経時変化を以下に示す。
 
-```{r}
+```{r flc_ph_tbl}
 #| echo: false
-#factorは当然、凝集剤添加量決定時と同じものを使用する。
+#ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
 flc_ph <- read.csv("flc_ph.csv") %>% 
-  mutate(mアルカリ度 = (滴定_前 - 滴定_後) * factor)
+  mutate(mアルカリ度 = (滴定_前 - 滴定_後) * ttr_fctr)
 
-flc_ph %>% 
+# 添加量決定の際と同じ処理にしよう。
+flc_ph_tbl <- flc_ph %>% 
   group_by(試料) %>% 
   gt() %>% 
-  tab_header(title="凝集剤添加実験の結果")
+  fmt_number(columns="mアルカリ度", decimals=2) %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  cols_move_to_end(columns = ttr_cols) %>%
+  tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
+  tab_header(title="各phでの反応の比較")
+
+flc_ph_tbl
 ```
 
 ### 考察
