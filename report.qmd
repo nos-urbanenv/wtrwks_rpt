@@ -17,6 +17,7 @@ editor: visual
 #| echo: false
 library(tidyverse)
 library(gt)
+library(gridExtra)
 
 hiragino <- "Hiragino Maru Gothic Pro"
 ```
@@ -131,18 +132,18 @@ ozone %>%
 
 上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
 
-```{r}
+```{r MB_conc_plt dev='jpeg'}
 #| echo: false
 ozone %>% select("時間.分.","メチレンブルー濃度","班") %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
-  geom_point()+
+  geom_point() +
   labs(
     title="メチレンブルー濃度の経時変化",
     x="時間(分)",
     y="メチレンブルー濃度(mg/L)"
-  )+
-  #theme_bw(base_family = "Hiragino Maru Gothic Pro")+
-  theme_bw()+
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino)) +
   facet_wrap(~班)
 ```
 
@@ -160,28 +161,88 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 実験概要
 
+BELLSORP miniによる解析
+
 ### 結果
 
+また、BELLSORP miniにより活性炭の細孔分布について解析した結果を示す。
+
+まず以下はそれぞれの活性炭の等温吸着曲線である。
+
 ```{bash convert_DAT_files}
+# RのreadLines()で読み込みがうまくいかなかったのでシェルで変換。
 iconv -f CP932 -t utf-8 GLC1203.DAT > GLC1203.txt
 iconv -f CP932 -t utf-8 GW1203.DAT > GW1203.txt
 ```
 
 ```{r read_belsorp_data}
-GLC_bel_lines <- readLines("GLC1203.txt")
-GLC_bel_lines <- GLC_bel_lines %>% 
-  stringr::str_split('\t')
-GW_bel_lines <- readLines("GW1203.txt")
-GW_bel_lines <- GW_bel_lines %>% 
-  stringr::str_split('\t')
+#| echo: false
 
-GLC_bel_lines[37:83] %>% unlist() %>% matrix(ncol=6,byrow = TRUE)
-GLC_bel_lines[37:83] %>% unlist() %>% matrix(ncol=6,byrow = TRUE) %>% as.table() %>% t() %>% View()
+# GLCのデータ読み込み
+GLC_bel_lines <- readLines("GLC1203.txt") %>% 
+  stringr::str_split('\t')
+GLC_df <- GLC_bel_lines[37:83] %>% #現実的妥協（汗）
+  unlist() %>% 
+  matrix(ncol=6,byrow = TRUE) %>% 
+  as.data.frame.array() %>% 
+  select(-c("V1","V6")) %>% 
+  `colnames<-`(c("Pe","P0","Vd","V")) %>% 
+  mutate_all(as.numeric)
+rm(GLC_bel_lines)
 
-#プロットしてみる
-GLC_plt <- ggplot() +
-  geom_line() +
-  geom_point() 
+# GWのデータ読み込み
+GW_bel_lines <- readLines("GW1203.txt") %>% 
+  stringr::str_split('\t')
+GW_df <- GW_bel_lines[37:74] %>% #現実的妥協（汗）
+  unlist() %>% 
+  matrix(ncol=6,byrow = TRUE) %>% 
+  as.data.frame.array() %>% 
+  select(-c("V1","V6")) %>% 
+  `colnames<-`(c("Pe","P0","Vd","V")) %>% 
+  mutate_all(as.numeric)
+rm(GW_bel_lines)
+```
+
+```{r abs_isthm_plt, dev='jpeg'}
+GLC_isthm <- GLC_df %>% 
+  mutate(prsr = Pe / P0)
+GW_isthm <- GW_df %>% 
+  mutate(prsr = Pe / P0)
+
+GLC_isthm_plt <- GLC_isthm %>% 
+  ggplot(mapping=aes(x=prsr, y=V))+
+  geom_point()+
+  labs(
+    title = "GLC活性炭の等温吸着曲線",
+    x="相対圧",
+    y="吸着量"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
+GW_isthm_plt <- GW_isthm %>% 
+  ggplot(mapping=aes(x=prsr, y=V))+
+  geom_point()+
+  labs(
+    title = "GW活性炭の等温吸着曲線",
+    x="相対圧",
+    y="吸着量"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
+grid.arrange(GLC_isthm_plt,GW_isthm_plt, nrow=1)
+```
+
+次に、t-plotを示す。
+
+```{r t_plot, dev='jpeg'}
+GLC_tplt <- GLC_df %>% 
+  mutate()
+GW_tplt <- GW_df %>% 
+  mutate()
+
+
 ```
 
 ### 考察
