@@ -237,12 +237,38 @@ grid.arrange(GLC_isthm_plt,GW_isthm_plt, nrow=1)
 次に、t-plotを示す。
 
 ```{r t_plot, dev='jpeg'}
-GLC_tplt <- GLC_df %>% 
-  mutate()
-GW_tplt <- GW_df %>% 
-  mutate()
+#| echo: false
+de_Boer <- function(P, P0){
+  return(354 * (-5 / log(P / P0)) ^ (1/3))
+}
+GLC_tplt_df <- GLC_df %>% 
+  mutate(t_nm = de_Boer(Pe, P0))
+GW_tplt_df <- GW_df %>% 
+  mutate(t_nm = de_Boer(Pe, P0))
 
+GLC_tplt <- GLC_tplt_df %>% 
+  ggplot(mapping = aes(x=t_nm,y=V))+
+  geom_point()+
+  labs(
+    title = "GLC活性炭のt-プロット",
+    x="t(nm)",
+    y="吸着量? V"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+  
+GW_tplt <- GW_tplt_df %>% 
+  ggplot(mapping = aes(x=t_nm,y=V))+
+  geom_point()+
+  labs(
+    title = "GW活性炭のt-プロット",
+    x="t(nm)",
+    y="吸着量? V"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
 
+grid.arrange(GLC_tplt, GW_tplt, nrow=1)
 ```
 
 ### 考察
