@@ -30,7 +30,7 @@ hiragino <- "Hiragino Maru Gothic Pro"
 
 1.  オゾンによる有機物分解
 
-2.  
+2.  急速濾過における目詰まり状況の解析
 
 3.  活性炭の吸着特性の解析
 
@@ -154,7 +154,35 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 結果
 
+マノメータ水位は以下のように変化した。
+
+```{r clogg_state}
+# さすがにここはcsv入力しないときつそう。
+```
+
+逆洗時に採水を行い、SSを測定すると以下のようになった。
+
+```{r reverse_}
+# csv用意するのがめんどくさいので直接入力
+reverse_SS <- tribble(
+  ~time, ~bef_mg, ~aft_mg, ~amt_ml,
+  1, 0.4036, 1, 100,
+  2, 0.4000, 1, 100, 
+  3, 0.4134, 1, 100,
+  4, 0.3999, 1, 100,
+  5, 0.4012, 1, 100,
+  6, 0.4069, 1, 100,
+  7, 0.4069, 1, 100
+) %>% 
+  mutate(SS = (aft_mg - bef_mg) / amt_ml)
+
+reverse_SS %>% 
+  gt() 
+```
+
 ### 考察
+
+マノメータの
 
 ## 課題C 活性炭による色度成分の吸着
 
@@ -164,9 +192,9 @@ BELSORP miniによる解析
 
 ### 結果
 
-また、BELSORP miniにより活性炭の細孔分布について解析した結果を示す。
+また、BELSORP miniにより活性炭の細孔分布について解析した結果を示す。BELSORP miniの計測結果は、指定したディレクトリに"GLC1203.DAT"のようなファイル名のテキストファイルとして保存されている。以下では、そのファイルから取り出した、圧力と体積の実測データを使用して解析を行う。
 
-まず以下はそれぞれの活性炭の等温吸着曲線である。
+まず以下にそれぞれの活性炭の等温吸着曲線を示す。
 
 ```{bash convert_DAT_files}
 # RのreadLines()で読み込みがうまくいかなかったのでシェルで変換。
@@ -243,7 +271,19 @@ GW_isthm_plt <- GW_df %>%
 grid.arrange(GLC_isthm_plt,GW_isthm_plt, nrow=1)
 ```
 
-次に、t-plotを示す。
+GW活性炭(浄水処理用)は、
+
+一方で、GLC活性炭には、相対圧が1付近でも吸着量の立ち上がりが見られ、大きめの細孔も吸着作用に寄与していることが示唆される結果となった。
+
+次に、t-plotを示す。t-plotとは…
+
+tの算出には以下の式を用いた。
+
+※ここに出典を入れないと駄目。
+
+$$
+t = 354(\frac{-5}{ln(P_e/P_0)})^{1/3}
+$$ {#eq-de_Boer}
 
 ```{r t_plot, dev='jpeg'}
 #| echo: false
@@ -273,6 +313,14 @@ grid.arrange(GLC_tplt, GW_tplt, nrow=1)
 ```
 
 また、以下のようなBETプロットを描画することで、表面積を概算することができる。
+
+BETプロットとは以下の式で表され、直線
+
+※ここにサイトなどで良いので出典を入れる。
+
+$$
+BET=P_0
+$$
 
 ```{r BET_plt, dev='jpeg'}
 GLC_BET_plt <- GLC_df %>% 
@@ -370,7 +418,7 @@ flc_amt <- flc_amt %>%
 
 ttr_cols <- c("滴定_前","滴定_後","滴定試料量") #滴定生データの列
 
-flc_amt_tbl <- flc_amt %>% 
+flc_amt %>% #latexのlongtable出力がうまくいかないのでobj格納はしない。
   gt() %>% 
   fmt_number(columns="mアルカリ度", decimals=2) %>% 
   cols_align(align = "center", columns = everything()) %>% 
@@ -380,8 +428,6 @@ flc_amt_tbl <- flc_amt %>%
   tab_options(
     latex.use_longtable = TRUE
   )
-
-flc_amt_tbl
 ```
 
 : This is a table
