@@ -28,13 +28,13 @@ hiragino <- "Hiragino Maru Gothic Pro"
 
 上水実験課題では以下の項目を扱い、浄水処理の物理化学的な原理について定性的・定量的な両面から理解を深めることを目的とする。
 
-1.  オゾンによる有機物分解
+1.  凝集沈殿における最適条件の決定
 
 2.  急速濾過における目詰まり状況の解析
 
-3.  活性炭の吸着特性の解析
+3.  オゾンによる有機物分解
 
-4.  凝集沈殿における最適条件の決定
+4.  活性炭の吸着特性の解析
 
 5.  消毒
 
@@ -115,7 +115,7 @@ ozn_clb_plt
 
 <!--# ここの部分の計算は完全に嘘！修正してから出す！(このコメントは修正したら消す) -->
 
-```{r}
+```{r MB_conc_calc}
 #| echo: false
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 #今のところ、数値が出ることを確認するための嘘の式しか入っていない。
@@ -126,7 +126,9 @@ ozone <- ozone %>%
 #表示
 ozone %>%
   select(-c("TOC_vial","TOC_filename")) %>% 
-  group_by(班,条件) %>% gt()
+  group_by(班,条件) %>% 
+  gt() %>% 
+  cols_align(align = "center", columns = everything())
 ```
 
 上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
@@ -165,7 +167,7 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 ```{r reverse_}
 # csv用意するのがめんどくさいので直接入力
 reverse_SS <- tribble(
-  ~time, ~bef_mg, ~aft_mg, ~amt_ml,
+  ~time, ~bef_g, ~aft_g, ~amt_ml,
   1, 0.4036, 1, 100,
   2, 0.4000, 1, 100, 
   3, 0.4134, 1, 100,
@@ -174,10 +176,17 @@ reverse_SS <- tribble(
   6, 0.4069, 1, 100,
   7, 0.4069, 1, 100
 ) %>% 
-  mutate(SS = (aft_mg - bef_mg) / amt_ml)
+  # SSの単位はmg/mL
+  # 差(g)に1000掛けてmgに変換し、濾過量(mL?)で割る
+  mutate(SS = (aft_g - bef_g) * 1000 / amt_ml)
 
 reverse_SS %>% 
-  gt() 
+  gt() %>% 
+  # 有効数字についてはデータ出てから要修正。
+  fmt_number(columns = "SS", decimals = 2) %>% 
+  #見た目はなかなか悩ましい問題。
+  cols_align(align = "center", columns = c(-"time")) %>% 
+  cols_align(align = "left", columns = "time")
 ```
 
 ### 考察
@@ -352,7 +361,7 @@ BETプロットが直線形になる範囲において、近似曲線を最小�
 
 ```{r BET_calc, dev='jpeg'}
 GLC_BET_calc_plt <- GLC_df %>% 
-  filter(prsr<0.30) %>% 
+  filter(prsr<0.10) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
   geom_smooth(method="lm",color="black")+
@@ -365,7 +374,7 @@ GLC_BET_calc_plt <- GLC_df %>%
   theme(text=element_text(family=hiragino))
 
 GW_BET_calc_plt <- GW_df %>% 
-  filter(prsr<0.30) %>% 
+  filter(prsr<0.15) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
   geom_smooth(method="lm",color="black")+
@@ -392,25 +401,41 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 
 まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果は以下のようになった。
 
+なお、m-アルカリ度の測定にあたっては、滴定に用いる0.01mol/L硫酸を…
+
+<!--# ファクター導出のところが、自分でやってないのでよくわからない。要説明。 -->
+
+標定を行った結果、ファクターは (※ここに数値埋め込み) となった。
+
+<!--# 三四郎原水の生データがおかしいので要修正。それ以外は班EXCELとも一致確認済み。 -->
+
 ```{r ttr_fctr_calc}
 #| echo: false
 
-# ファクターのことは後で書くわけだが、先に計算しておく必要がある。
-
-# ファクター指定
-# とりあえずテストのために1。
-# 実験日・実験グループごとに変える必要があるのでリストにする予定。
-ttr_amt <- 17.94
+# 滴定に用いた0.01M硫酸の濃度補正のためのファクター
+ttr_amt <- 17.94 # 他班を取り込む場合はリストにするかも?
 ttr_fctr <- 20 / ttr_amt 
 ```
 
 ```{r flc_amt_tbl}
 #| echo: false
+# あとで消す(データ読み込み)
 flc_amt <- read.csv("flc_amt.csv")
 
 # m-アルカリ度計算
+# pH4.8に達するまでに必要な酸の量をCaCO3の質量として求める(1Lあたり)
+# 前期は滴定量が100mL指定だったが今期は可変なので注意。
+
+# CaCO3当量(mg/L)に換算する
+# 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
+# 100.09 * 1000を掛ければCaCO3当量(mg)が得られる
+# 試料1LあたりのCaCO3当量を得るために、(試料量/1000)で割る
 flc_amt <- flc_amt %>%
-  mutate(mアルカリ度 = (滴定_前 - 滴定_後) * ttr_fctr) %>% 
+  mutate(mアルカリ度 = 
+           (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
+           100.09 * 1000 /
+           (滴定試料量/1000)
+         ) %>% #モル質量100とした時に班EXCELとの一致を確認済み。
   #group_by(班,実験) %>% 
   group_by(実験) #%>% 
 
@@ -418,9 +443,13 @@ flc_amt <- flc_amt %>%
 
 ttr_cols <- c("滴定_前","滴定_後","滴定試料量") #滴定生データの列
 
-flc_amt %>% #latexのlongtable出力がうまくいかないのでobj格納はしない。
+flc_amt %>%
   gt() %>% 
-  fmt_number(columns="mアルカリ度", decimals=2) %>% 
+  #アルカリ度は有効数字3桁。
+  # カオリン75以外は小数点以下1桁でうまくいく。
+  # カオリン75だけ別指定したいんだがやり方は不明。
+  # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
+  fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
   cols_move_to_end(columns = ttr_cols) %>%
   tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
@@ -430,42 +459,48 @@ flc_amt %>% #latexのlongtable出力がうまくいかないのでobj格納は�
   )
 ```
 
-: This is a table
-
-<!--# 何アルカリ度だっけ? -->
-
-また、m-アルカリ度
-
-標定を行った結果、ファクターは (※ここに数値埋め込み) となった。
-
-最適な凝集剤添加条件は以下のように求められた。
+濁度の除去性能を比較した結果、最適な凝集剤濃度は三四郎池の場合は??、カオリン原水の場合は??であるということがわかった。
 
 <!--# 全班一緒ならmax()で数値埋め込み。そうでなければ表を作る。 -->
 
-次に、上記で求めた最適量の凝集剤を添加した上で、pHを酸性\~アルカリ性の数段階で変化場合の各化学指標の経時変化を以下に示す。
+次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果は以下のようになった。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
+
+<!--# m-アルカリ度を測定しないところに試料量のデータが入っている。空欄にしてNA一括処理を噛ましたいので要修正。 -->
 
 ```{r flc_ph_tbl}
 #| echo: false
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
 flc_ph <- read.csv("flc_ph.csv") %>% 
-  mutate(mアルカリ度 = (滴定_前 - 滴定_後) * ttr_fctr)
+  mutate(mアルカリ度 = 
+           (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
+           100.09 * 1000 /
+           (滴定試料量/1000)
+         )
 
 # 添加量決定の際と同じ処理にしよう。
-flc_ph_tbl <- flc_ph %>% 
+flc_ph %>% 
   group_by(試料) %>% 
   gt() %>% 
-  fmt_number(columns="mアルカリ度", decimals=2) %>% 
+  # pH11のところが有効数字がおかしいので個別で指定する必要あり。
+  fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
   cols_move_to_end(columns = ttr_cols) %>%
   tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
-  tab_header(title="各phでの反応の比較")
-
-flc_ph_tbl
+  tab_header(title="各phでの反応の比較") %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  )
 ```
 
 ### 考察
 
-考察をここに書く
+理論上、アルカリ度の減少は以下のようになる。
+
+```{r alkaline_theory_calc}
+#| include: false
+#| echo: false
+# このセルはただの計算機代わり。
+```
 
 ## 課題E 消毒
 
