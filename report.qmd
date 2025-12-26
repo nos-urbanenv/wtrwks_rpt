@@ -304,10 +304,10 @@ BETプロットが直線形になる範囲において、近似曲線を最小�
 
 ```{r BET_calc, dev='jpeg'}
 GLC_BET_calc_plt <- GLC_df %>% 
-  filter(prsr<0.35) %>% 
+  filter(prsr<0.30) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
-  geom_smooth(method="lm",color="black")
+  geom_smooth(method="lm",color="black")+
   labs(
     title = "GLC活性炭のBET-プロット(直線近似)",
     x="相対圧",
@@ -315,7 +315,21 @@ GLC_BET_calc_plt <- GLC_df %>%
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino))
-GLC_BET_calc_plt
+
+GW_BET_calc_plt <- GW_df %>% 
+  filter(prsr<0.30) %>% 
+  ggplot(mapping=aes(x=prsr,y=BET))+
+  geom_point()+
+  geom_smooth(method="lm",color="black")+
+  labs(
+    title = "GW活性炭のBET-プロット(直線近似)",
+    x="相対圧",
+    y="??"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
+grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 ```
 
 ### 考察
