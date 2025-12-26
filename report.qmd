@@ -30,9 +30,9 @@ hiragino <- "Hiragino Maru Gothic Pro"
 
 1.  オゾンによる有機物分解
 
-2.  a
+2.  
 
-3.  a
+3.  活性炭の吸着特性の解析
 
 4.  凝集沈殿における最適条件の決定
 
@@ -91,7 +91,6 @@ ozn_clb_tbl <- ozn_calib %>%
 
 ```{r ozn_calib_plot, dev='jpeg'}
 #| echo: false
-#| warning: false
 
 # 検量線プロット
 ozn_clb_plt <- ozn_calib %>% 
@@ -132,7 +131,7 @@ ozone %>%
 
 上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
 
-```{r MB_conc_plt dev='jpeg'}
+```{r MB_conc_plt, dev='jpeg'}
 #| echo: false
 ozone %>% select("時間.分.","メチレンブルー濃度","班") %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
@@ -161,11 +160,11 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 ### 実験概要
 
-BELLSORP miniによる解析
+BELSORP miniによる解析
 
 ### 結果
 
-また、BELLSORP miniにより活性炭の細孔分布について解析した結果を示す。
+また、BELSORP miniにより活性炭の細孔分布について解析した結果を示す。
 
 まず以下はそれぞれの活性炭の等温吸着曲線である。
 
@@ -201,15 +200,25 @@ GW_df <- GW_bel_lines[37:74] %>% #現実的妥協（汗）
   `colnames<-`(c("Pe","P0","Vd","V")) %>% 
   mutate_all(as.numeric)
 rm(GW_bel_lines)
+
+# データ描画用のmanipulation
+# t-plotに用いるde Boir式
+de_Boer <- function(P, P0){
+  return(354 * (-5 / log(P / P0)) ^ (1/3) / 100) #pm->nm
+}
+
+GLC_df <- GLC_df %>% 
+  mutate(prsr = Pe / P0,
+         t_nm = de_Boer(Pe, P0),
+         BET = Pe / (V * (P0 - Pe)))
+GW_df <- GW_df %>% 
+  mutate(prsr = Pe / P0,
+         t_nm = de_Boer(Pe, P0),
+         BET = Pe / (V * (P0 - Pe)))
 ```
 
 ```{r abs_isthm_plt, dev='jpeg'}
-GLC_isthm <- GLC_df %>% 
-  mutate(prsr = Pe / P0)
-GW_isthm <- GW_df %>% 
-  mutate(prsr = Pe / P0)
-
-GLC_isthm_plt <- GLC_isthm %>% 
+GLC_isthm_plt <- GLC_df %>% 
   ggplot(mapping=aes(x=prsr, y=V))+
   geom_point()+
   labs(
@@ -220,7 +229,7 @@ GLC_isthm_plt <- GLC_isthm %>%
   theme_bw()+
   theme(text=element_text(family=hiragino))
 
-GW_isthm_plt <- GW_isthm %>% 
+GW_isthm_plt <- GW_df %>% 
   ggplot(mapping=aes(x=prsr, y=V))+
   geom_point()+
   labs(
@@ -238,15 +247,7 @@ grid.arrange(GLC_isthm_plt,GW_isthm_plt, nrow=1)
 
 ```{r t_plot, dev='jpeg'}
 #| echo: false
-de_Boer <- function(P, P0){
-  return(354 * (-5 / log(P / P0)) ^ (1/3))
-}
-GLC_tplt_df <- GLC_df %>% 
-  mutate(t_nm = de_Boer(Pe, P0))
-GW_tplt_df <- GW_df %>% 
-  mutate(t_nm = de_Boer(Pe, P0))
-
-GLC_tplt <- GLC_tplt_df %>% 
+GLC_tplt <- GLC_df %>% 
   ggplot(mapping = aes(x=t_nm,y=V))+
   geom_point()+
   labs(
@@ -257,7 +258,7 @@ GLC_tplt <- GLC_tplt_df %>%
   theme_bw()+
   theme(text=element_text(family=hiragino))
   
-GW_tplt <- GW_tplt_df %>% 
+GW_tplt <- GW_df %>% 
   ggplot(mapping = aes(x=t_nm,y=V))+
   geom_point()+
   labs(
@@ -269,6 +270,52 @@ GW_tplt <- GW_tplt_df %>%
   theme(text=element_text(family=hiragino))
 
 grid.arrange(GLC_tplt, GW_tplt, nrow=1)
+```
+
+また、以下のようなBETプロットを描画することで、表面積を概算することができる。
+
+```{r BET_plt, dev='jpeg'}
+GLC_BET_plt <- GLC_df %>% 
+  ggplot(mapping=aes(x=prsr,y=BET))+
+  geom_point()+
+  labs(
+    title = "GLC活性炭のBET-プロット",
+    x="相対圧",
+    y="??"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
+GW_BET_plt <- GW_df %>% 
+  ggplot(mapping=aes(x=prsr,y=BET))+
+  geom_point()+
+  labs(
+    title = "GW活性炭のBET-プロット",
+    x="相対圧",
+    y="??"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
+grid.arrange(GLC_BET_plt, GW_BET_plt, nrow=1)
+```
+
+BETプロットが直線形になる範囲において、近似曲線を最小二乗法で求めると以下のようになった。
+
+```{r BET_calc, dev='jpeg'}
+GLC_BET_calc_plt <- GLC_df %>% 
+  filter(prsr<0.35) %>% 
+  ggplot(mapping=aes(x=prsr,y=BET))+
+  geom_point()+
+  geom_smooth(method="lm",color="black")
+  labs(
+    title = "GLC活性炭のBET-プロット(直線近似)",
+    x="相対圧",
+    y="??"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+GLC_BET_calc_plt
 ```
 
 ### 考察
@@ -328,6 +375,8 @@ flc_amt_tbl
 <!--# 何アルカリ度だっけ? -->
 
 また、m-アルカリ度
+
+標定を行った結果、ファクターは (※ここに数値埋め込み) となった。
 
 最適な凝集剤添加条件は以下のように求められた。
 
