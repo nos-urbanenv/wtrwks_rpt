@@ -22,6 +22,13 @@ library(gridExtra)
 hiragino <- "Hiragino Maru Gothic Pro"
 ```
 
+```{r make_csv_mirrors}
+# readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
+# 今回も、
+
+#まず
+```
+
 <!--# ここに表紙用のraw latexコード -->
 
 ## 目的
@@ -53,7 +60,6 @@ hiragino <- "Hiragino Maru Gothic Pro"
 ```{r read_ozone_data}
 #| echo: false
 #| message: false
-# this chunk is to be later removed
 ozone <- read.csv("ozone.csv")
 ozn_calib <- read.csv("ozone_calib.csv")
 ```
@@ -158,8 +164,9 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
 
 マノメータ水位は以下のように変化した。
 
-```{r clogg_state}
+```{r read_manometer_data}
 # さすがにここはcsv入力しないときつそう。
+
 ```
 
 逆洗時に採水を行い、SSを測定すると以下のようになった。
