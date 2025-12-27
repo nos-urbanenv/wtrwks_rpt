@@ -24,9 +24,19 @@ hiragino <- "Hiragino Maru Gothic Pro"
 
 ```{r make_csv_mirrors}
 # readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
-# 今回も、
+# ./data_rawディレクトリにあるxlsxなどの形式の入力ファイルを、使用目的ごとにcsvに分割してミラーとし、githubでの更新履歴追跡を容易にする。
 
-#まず
+# 機器分析の結果 よほどのことがない限りいじらない。
+# 今回はTOCのみ(※belsorp)
+
+# 手入力
+```
+
+```{bash convert_DAT_files}
+# Rで文字コードを扱うのは面倒なのでbashで変換しておく。
+# data_rawディレクトリのものを変換し、dataディレクトリに格納する
+iconv -f CP932 -t utf-8 data_raw/GLC1203.DAT > data/GLC1203.txt
+iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
 ```
 
 <!--# ここに表紙用のraw latexコード -->
@@ -211,12 +221,6 @@ BELSORP miniによる解析
 また、BELSORP miniにより活性炭の細孔分布について解析した結果を示す。BELSORP miniの計測結果は、指定したディレクトリに"GLC1203.DAT"のようなファイル名のテキストファイルとして保存されている。以下では、そのファイルから取り出した、圧力と体積の実測データを使用して解析を行う。
 
 まず以下にそれぞれの活性炭の等温吸着曲線を示す。
-
-```{bash convert_DAT_files}
-# RのreadLines()で読み込みがうまくいかなかったのでシェルで変換。
-iconv -f CP932 -t utf-8 data_raw/GLC1203.DAT > data/GLC1203.txt
-iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
-```
 
 ```{r read_belsorp_data}
 #| echo: false
