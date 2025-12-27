@@ -60,8 +60,8 @@ hiragino <- "Hiragino Maru Gothic Pro"
 ```{r read_ozone_data}
 #| echo: false
 #| message: false
-ozone <- read.csv("ozone.csv")
-ozn_calib <- read.csv("ozone_calib.csv")
+ozone <- read.csv("data/ozone.csv")
+ozn_calib <- read.csv("data/ozone_calib.csv")
 ```
 
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
@@ -214,8 +214,8 @@ BELSORP miniによる解析
 
 ```{bash convert_DAT_files}
 # RのreadLines()で読み込みがうまくいかなかったのでシェルで変換。
-iconv -f CP932 -t utf-8 GLC1203.DAT > GLC1203.txt
-iconv -f CP932 -t utf-8 GW1203.DAT > GW1203.txt
+iconv -f CP932 -t utf-8 data_raw/GLC1203.DAT > data/GLC1203.txt
+iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
 ```
 
 ```{r read_belsorp_data}
@@ -427,7 +427,7 @@ ttr_fctr <- 20 / ttr_amt
 ```{r flc_amt_tbl}
 #| echo: false
 # あとで消す(データ読み込み)
-flc_amt <- read.csv("flc_amt.csv")
+flc_amt <- read.csv("data/flc_amt.csv")
 
 # m-アルカリ度計算
 # pH4.8に達するまでに必要な酸の量をCaCO3の質量として求める(1Lあたり)
@@ -477,7 +477,7 @@ flc_amt %>%
 ```{r flc_ph_tbl}
 #| echo: false
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
-flc_ph <- read.csv("flc_ph.csv") %>% 
+flc_ph <- read.csv("data/flc_ph.csv") %>% 
   mutate(mアルカリ度 = 
            (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
            100.09 * 1000 /
@@ -518,8 +518,7 @@ flc_ph %>%
 ### 結果
 
 ```{r read_colony_data}
-# to be removed after I changed the csvs to a single excel file
-colony <- read.csv("colony.csv")
+colony <- read.csv("data/colony.csv")
 ```
 
 ```{r conony_table}
