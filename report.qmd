@@ -80,20 +80,17 @@ ozn_calib <- read.csv("data/ozone_calib.csv")
 #| echo: false
 
 # 検量線の元データの表
-ozn_clb_tbl <- ozn_calib %>% 
-  arrange(班,メチレンブルー濃度.mg.L.) %>% 
-  mutate(班=paste0(班,"班")) %>% 
-  pivot_wider(names_from=班,values_from=吸光度) %>% 
+ozn_calib %>% 
+  filter(班==3) %>% 
+  arrange(メチレンブルー濃度.mg.L.) %>% 
+  select(-c("班")) %>% 
   gt() %>% 
-  tab_spanner(
-    label="665nm吸光度",
-    columns=ends_with("班")
-  ) %>% 
   cols_align(
     align="center",
     columns=everything()
   ) %>% 
-  cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)")
+  cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)",
+             吸光度="665nm吸光度")
 
 # 回帰式を計算
 
@@ -109,7 +106,8 @@ ozn_clb_tbl <- ozn_calib %>%
 #| echo: false
 
 # 検量線プロット
-ozn_clb_plt <- ozn_calib %>% 
+ozn_calib %>% 
+  filter(班==3) %>% 
   ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
   geom_point()+
   geom_smooth(method="lm",color="black")+
@@ -120,11 +118,7 @@ ozn_clb_plt <- ozn_calib %>%
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino),
-        plot.title=element_text(hjust = 0.5))+
-  facet_wrap(~班)
-
-# 検量線を表示
-ozn_clb_plt
+        plot.title=element_text(hjust = 0.5))
 ```
 
 上記の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
@@ -141,8 +135,9 @@ ozone <- ozone %>%
 
 #表示
 ozone %>%
-  select(-c("TOC_vial","TOC_filename")) %>% 
-  group_by(班,条件) %>% 
+  filter(班==3) %>% 
+  select(-c("班","TOC_vial","TOC_filename")) %>% 
+  group_by(条件) %>% 
   gt() %>% 
   cols_align(align = "center", columns = everything())
 ```
@@ -151,7 +146,7 @@ ozone %>%
 
 ```{r MB_conc_plt, dev='jpeg'}
 #| echo: false
-ozone %>% select("時間.分.","メチレンブルー濃度","班") %>% 
+ozone %>% select("時間.分.","メチレンブルー濃度") %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
   geom_point() +
   labs(
@@ -160,8 +155,7 @@ ozone %>% select("時間.分.","メチレンブルー濃度","班") %>%
     y="メチレンブルー濃度(mg/L)"
   ) +
   theme_bw() +
-  theme(text=element_text(family=hiragino)) +
-  facet_wrap(~班)
+  theme(text=element_text(family=hiragino))
 ```
 
 ### 考察
@@ -440,6 +434,7 @@ flc_amt <- read.csv("data/flc_amt.csv")
 # CaCO3当量(mg/L)に換算する
 #モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
 flc_amt <- flc_amt %>%
+  #filter(班==3) %>% 
   mutate(mアルカリ度 = 
            # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
            (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
@@ -447,15 +442,15 @@ flc_amt <- flc_amt %>%
            100.09 * 1000 / 
            # 試料1LあたりのCaCO3当量を得るために、(試料量/1000)で割る
            (滴定試料量/1000)
-         ) %>% 
-  #group_by(班,実験) %>% 
-  group_by(実験) #%>% 
+         )
 
 # 表の作成
 
 ttr_cols <- c("滴定_前","滴定_後","滴定試料量") #滴定生データの列
 
 flc_amt %>%
+  select(-c("班")) %>% 
+  group_by(実験) %>% 
   gt() %>% 
   #アルカリ度は有効数字3桁。
   # カオリン75以外は小数点以下1桁でうまくいく。
@@ -483,6 +478,7 @@ flc_amt %>%
 #| echo: false
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
 flc_ph <- read.csv("data/flc_ph.csv") %>% 
+  #filter(班==3) %>% 
   mutate(mアルカリ度 = 
            (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
            100.09 * 1000 /
@@ -491,6 +487,7 @@ flc_ph <- read.csv("data/flc_ph.csv") %>%
 
 # 添加量決定の際と同じ処理にしよう。
 flc_ph %>% 
+  select(-c("班")) %>% 
   group_by(試料) %>% 
   gt() %>% 
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
