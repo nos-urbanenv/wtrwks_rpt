@@ -25,7 +25,11 @@ hiragino <- "Hiragino Maru Gothic Pro"
 ```{r make_csv_mirrors}
 # readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
 # ./data_rawディレクトリにあるxlsxなどの形式の入力ファイルを、使用目的ごとにcsvに分割してミラーとし、githubでの更新履歴追跡を容易にする。
-
+# readxlのドキュメントで推奨されているそのままのコード。
+input_path <- "data_raw/input.xlsx"
+read_then_csv <- function(sheet, path){
+  
+}
 # 機器分析の結果 よほどのことがない限りいじらない。
 # 今回はTOCのみ(※belsorp)
 
@@ -146,7 +150,8 @@ ozone %>%
 
 ```{r MB_conc_plt, dev='jpeg'}
 #| echo: false
-ozone %>% select("時間.分.","メチレンブルー濃度") %>% 
+ozone %>% 
+  select(c("時間.分.","メチレンブルー濃度")) %>% 
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
   geom_point() +
   labs(
@@ -487,7 +492,7 @@ flc_ph <- read.csv("data/flc_ph.csv") %>%
 
 # 添加量決定の際と同じ処理にしよう。
 flc_ph %>% 
-  select(-c("班")) %>% 
+  #select(-c("班")) %>% 
   group_by(試料) %>% 
   gt() %>% 
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
@@ -529,7 +534,8 @@ colony <- read.csv("data/colony.csv")
 
 # table formatting
 colony %>% 
-  group_by(班,実験名,サンプル名,採水時刻,希釈倍率) %>%
+  filter(班==3) %>% 
+  group_by(実験名,サンプル名,採水時刻,希釈倍率) %>%
   mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
   summarise(コロニー数=unique(コロニー数)) %>% 
   mutate(コロニー数=paste0(
@@ -550,3 +556,11 @@ colony %>%
 ```
 
 ### 考察
+
+# 付録 他班のデータ
+
+考察において他班のデータを参照したため、全班の生データ比較が可能なよう、以下に全班のデータを示す。
+
+```{r}
+
+```
