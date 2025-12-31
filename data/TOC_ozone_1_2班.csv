@@ -1,0 +1,94 @@
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","STD Conc","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)"
+"46003.693402777775","[TC-1]1","0","TC","200","3","3","3","0","0","mg/L","2.1989999999999998","0","0","0.29980000000000001","13.634073000000001"
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.",NA,NA,NA,NA,NA,NA
+"1","0","121","122","0","3.234",NA,"50","1","E",NA,NA,NA,NA,NA,NA
+"2","122","245","124","0","2.411",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"3","246","362","117","0","1.9870000000000001",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","STD Conc","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)"
+"46003.701249999998","[TC-1]2","0","TC","200","2","3","2","1","0","mg/L","8.5229999999999997","0","0","8.48E-2","0.99557499999999999"
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.",NA,NA,NA,NA,NA,NA
+"1","0","136","137","0","8.5830000000000002",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"2","137","275","139","0","8.4629999999999992",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","STD Conc","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)"
+"46003.709386574075","[TC-1]3","0","TC","200","2","3","2","10","0","mg/L","56.35","0","0","0.84850000000000003","1.505817"
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.",NA,NA,NA,NA,NA,NA
+"1","0","156","157","0","55.75",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"2","157","312","156","0","56.95",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","STD Conc","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)"
+"46003.717777777776","[TC-1]4","0","TC","200","2","3","2","25","0","mg/L","138.44999999999999","0","0","0.35349999999999998","0.25536500000000001"
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.",NA,NA,NA,NA,NA,NA
+"1","0","165","166","0","138.19999999999999",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"2","166","327","162","0","138.69999999999999",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","STD Conc","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)"
+"46003.726458333331","[TC-1]5","0","TC","200","2","3","2","50","0","mg/L","283.2","0","0","2.1213000000000002","0.749054"
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.",NA,NA,NA,NA,NA,NA
+"1","0","192","193","0","284.7",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"2","193","352","160","0","281.7",NA,"50","1",NA,NA,NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.734930555554","251212","6","NPOC","200","2","3","2","20.351120000000002","mg/L","115.4","0.328125","1.6123190000000001","1.8384","1.593135",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","163","164","20.119101000000001","114.1",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"2","164","325","162","20.583138999999999","116.7",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.743252314816","251212","7","NPOC","200","2","3","2","17.923832000000001","mg/L","101.8","0.227164","1.2673859999999999","1.2726999999999999","1.2502869999999999",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","166","167","18.084461000000001","102.7",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"2","167","311","145","17.763203000000001","100.9",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.753865740742","251212","8","NPOC","200","3","3","3","17.330397000000001","mg/L","98.474999999999994","1.1168899999999999","6.4446880000000002","6.2577999999999996","6.354806",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","156","157","13.845632999999999","78.95",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","157","321","165","16.540635999999999","94.05",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","322","498","177","18.120156999999999","102.9",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.764143518521","251212","9","NPOC","200","3","3","3","15.186888","mg/L","86.465000000000003","0.58431599999999995","3.8475069999999998","3.2738999999999998","3.7863920000000002",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","160","161","16.742315000000001","95.18",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","161","314","154","15.600061","88.78",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","315","464","150","14.773713000000001","84.15",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.774629629632","251212","10","NPOC","200","3","3","3","15.995388","mg/L","90.995000000000005","1.3883E-2","8.6792999999999995E-2","7.7700000000000005E-2","8.5478999999999999E-2",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","161","162","17.727509000000001","100.7",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","162","320","159","16.005205","91.05",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","321","481","161","15.985571999999999","90.94",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.785208333335","251212","11","NPOC","200","3","3","3","11.469212000000001","mg/L","65.635000000000005","0.167849","1.4634739999999999","0.94040000000000001","1.4328510000000001",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","171","172","12.574876","71.83",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","172","336","165","11.587897999999999","66.3",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","337","489","153","11.350524","64.97",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.796006944445","251212","12","NPOC","200","3","3","3","13.872404","mg/L","79.099999999999994","0.466949","3.366025","2.6162000000000001","3.307579",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","164","165","11.536139","66.010000000000005",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","165","337","173","13.542222000000001","77.25",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","338","508","171","14.202586999999999","80.95",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.806388888886","251212","13","NPOC","200","3","3","3","12.849731","mg/L","73.37","0.55781499999999995","4.3410599999999997","3.1254","4.2597950000000004",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","156","157","14.356077000000001","81.81",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","157","320","164","13.244165000000001","75.58",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","321","472","152","12.455297","71.16",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.817152777781","251212","14","NPOC","200","3","3","3","16.935963000000001","mg/L","96.265000000000001","0.19813700000000001","1.169921","1.1101000000000001","1.1532309999999999",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","171","172","18.512806000000001","105.1",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","172","332","161","16.795857999999999","95.48",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","333","505","173","17.076066999999998","97.05",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.827731481484","251212","15","NPOC","200","3","3","3","11.792254","mg/L","67.444999999999993","0.28648000000000001","2.4293900000000002","1.6051","2.3799130000000002",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","158","159","12.733720999999999","72.72",NA,"50","1","E","TC1",NA,NA,NA,NA,NA
+"2","159","323","165","11.994826","68.58",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"3","324","489","166","11.589683000000001","66.31",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.836550925924","251212","16","NPOC","200","2","3","2","18.619892","mg/L","105.7","0.25240499999999999","1.355567","1.4141999999999999","1.33795",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","174","175","18.798369999999998","106.7",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"2","175","351","177","18.441416","104.7",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"Date","Sample Name","VialNo","Meas Mode","Peak Scale","Inj#","Max Inj#","Inj. Counts","Ave. Conc","Unit","Ave. Area","SD(Conc)","CV(Conc)","SD(Area)","CV(Area)",NA
+"46003.844976851855","251212","17","NPOC","200","2","3","2","16.178325999999998","mg/L","92.02","0.146395","0.90488100000000005","0.82020000000000004","0.89137599999999995",NA
+"Injection #","Start ID","End ID","Data Counts","Conc","Area","Remark","Inj. Vol.","Dil. Factor","Ex.","Cal#",NA,NA,NA,NA,NA
+"1","0","164","165","16.281842999999999","92.6",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
+"2","165","321","157","16.074809999999999","91.44",NA,"50","1",NA,"TC1",NA,NA,NA,NA,NA
