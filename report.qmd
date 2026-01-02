@@ -101,8 +101,10 @@ ozn_calib <- read.csv("data/ozone_calib.csv")
 
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
 
-```{r ozn_calib_calc}
+```{r ozn_calib_tbl}
 #| echo: false
+#| label: "ozone-calib-raw"
+#| tbl-cap: "オゾン検量線の元データ"
 
 # 検量線の元データの表
 ozn_calib %>% 
@@ -116,11 +118,6 @@ ozn_calib %>%
   ) %>% 
   cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)",
              吸光度="665nm吸光度")
-
-# 回帰式を計算
-
-
-# 生データを表示
 ```
 
 <!--# ここの表現もうちょっと洗練させたいなぁ。。 -->
@@ -129,6 +126,8 @@ ozn_calib %>%
 
 ```{r ozn_calib_plot, dev='jpeg'}
 #| echo: false
+#| label: "ozn_calib_plot"
+#| fig-cap: "メチレンブルー濃度の検量線"
 
 # 検量線プロット
 ozn_calib %>% 
@@ -137,7 +136,7 @@ ozn_calib %>%
   geom_point()+
   geom_smooth(method="lm",color="black")+
   labs(
-    title="メチレンブルー濃度の検量線",
+    #title="メチレンブルー濃度の検量線",
     x="メチレンブルー濃度(mg/L)",
     y="665nm吸光度"
   )+
@@ -146,7 +145,7 @@ ozn_calib %>%
         plot.title=element_text(hjust = 0.5))
 ```
 
-上記の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
+図 @ozn_calib_plot の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
 
 <!--# ここの部分の計算は完全に嘘！修正してから出す！(このコメントは修正したら消す) -->
 
@@ -154,8 +153,15 @@ ozn_calib %>%
 #| echo: false
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 #今のところ、数値が出ることを確認するための嘘の式しか入っていない。
+
+# 回帰式の作成
+
+lm_ozn_dat <- ozn_calib %>% 
+  filter(班==3) 
+lm_ozn <- lm(lm_ozn_dat$メチレンブルー濃度.mg.L.~lm_ozn_dat$吸光度)
+  
 ozone <- ozone %>% 
-  mutate(メチレンブルー濃度=1,
+  mutate(メチレンブルー濃度 = predict.lm(lm_ozn, 吸光度),
          TOC濃度 = NA)
 
 #表示
