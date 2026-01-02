@@ -154,14 +154,46 @@ ozn_calib %>%
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 #今のところ、数値が出ることを確認するための嘘の式しか入っていない。
 
-# 回帰式の作成
-
+# 回帰モデルの作成
 lm_ozn_dat <- ozn_calib %>% 
   filter(班==3) 
-lm_ozn <- lm(lm_ozn_dat$メチレンブルー濃度.mg.L.~lm_ozn_dat$吸光度)
-  
+lm_ozn <- lm(lm_ozn_dat$吸光度~lm_ozn_dat$メチレンブルー濃度.mg.L.,
+             model = TRUE)
+
+# 推定用関数
+inverse_pred.calc <- function(y, alpha, beta){
+  return((y - beta) / alpha)
+}
+
+inverse_pred <- function(y, lm_mod){
+  alpha <- unname(lm_mod$coefficients[2])
+  beta <- unname(lm_mod$coefficients[1])
+    
+  lower_lim <- inverse_pred.calc(y = min(lm_mod$model[[1]]),
+                                  alpha = alpha,
+                                  beta = beta)
+  upper_lim <- inverse_pred.calc(y = max(lm_mod$model[[1]]),
+                                  alpha = alpha,
+                                  beta = beta)
+  pred.val <- inverse_pred.calc(y = y,
+                                alpha = alpha,
+                                beta = beta)
+  if(is.na(y)){
+    return(NA)
+  }
+  else if(pred.val < lower_lim){
+    return("検出下限")
+  }
+  else if(pred.val > upper_lim){
+    return(paste0(pred.val, "*"))
+  }
+  else{
+    return(pred.val)
+  }
+}
+
 ozone <- ozone %>% 
-  mutate(メチレンブルー濃度 = predict.lm(lm_ozn, 吸光度),
+  mutate(メチレンブルー濃度 = map(吸光度, inverse_pred, lm_mod = lm_ozn),
          TOC濃度 = NA)
 
 #表示
@@ -173,7 +205,7 @@ ozone %>%
   cols_align(align = "center", columns = everything())
 ```
 
-上記の検量線を用いてメチレンブルー濃度を計算し、時間変化を図示すると以下のようになった。
+メチレンブルー濃度の時間変化を図示すると以下のようになった。
 
 ```{r MB_conc_plt, dev='jpeg'}
 #| echo: false
@@ -182,7 +214,7 @@ ozone %>%
   ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
   geom_point() +
   labs(
-    title="メチレンブルー濃度の経時変化",
+    #title="メチレンブルー濃度の経時変化",
     x="時間(分)",
     y="メチレンブルー濃度(mg/L)"
   ) +
