@@ -193,7 +193,8 @@ inverse_pred <- function(y, lm_mod){
 }
 
 ozone <- ozone %>% 
-  mutate(メチレンブルー濃度 = map(吸光度, inverse_pred, lm_mod = lm_ozn),
+  mutate(メチレンブルー濃度 = 
+           map(吸光度, inverse_pred, lm_mod = lm_ozn) * 吸光度_希釈,
          TOC濃度 = NA)
 
 #表示
@@ -233,7 +234,7 @@ ozone %>%
 マノメータ水位は以下のように変化した。
 
 ```{r read_manometer_data}
-# さすがにここはcsv入力しないときつそう。
+manometer <- read.csv("data/manometer.csv")
 
 ```
 
