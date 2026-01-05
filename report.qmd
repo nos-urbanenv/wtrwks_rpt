@@ -284,7 +284,7 @@ BELSORP miniによる解析
 #| echo: false
 
 # GLCのデータ読み込み
-GLC_bel_lines <- readLines("GLC1203.txt") %>% 
+GLC_bel_lines <- readLines("data/GLC1203.txt") %>% 
   stringr::str_split('\t')
 GLC_df <- GLC_bel_lines[37:83] %>% #現実的妥協（汗）
   unlist() %>% 
@@ -296,7 +296,7 @@ GLC_df <- GLC_bel_lines[37:83] %>% #現実的妥協（汗）
 rm(GLC_bel_lines)
 
 # GWのデータ読み込み
-GW_bel_lines <- readLines("GW1203.txt") %>% 
+GW_bel_lines <- readLines("data/GW1203.txt") %>% 
   stringr::str_split('\t')
 GW_df <- GW_bel_lines[37:74] %>% #現実的妥協（汗）
   unlist() %>% 
@@ -314,39 +314,30 @@ de_Boer <- function(P, P0){
 }
 
 GLC_df <- GLC_df %>% 
-  mutate(prsr = Pe / P0,
+  mutate(sample = "GLC",
+         prsr = Pe / P0,
          t_nm = de_Boer(Pe, P0),
          BET = Pe / (V * (P0 - Pe)))
 GW_df <- GW_df %>% 
-  mutate(prsr = Pe / P0,
+  mutate(sample = "GW",
+         prsr = Pe / P0,
          t_nm = de_Boer(Pe, P0),
          BET = Pe / (V * (P0 - Pe)))
 ```
 
 ```{r abs_isthm_plt, dev='jpeg'}
-GLC_isthm_plt <- GLC_df %>% 
-  ggplot(mapping=aes(x=prsr, y=V))+
+isthm_plt <- rbind(GLC_df, GW_df) %>% 
+  ggplot(mapping=aes(x=prsr, y=V, color=sample))+
   geom_point()+
   labs(
-    title = "GLC活性炭の等温吸着曲線",
-    x="相対圧",
-    y="吸着量"
+    #title = "2種の活性炭の等温吸着曲線",
+    x="相対圧 P/P0",
+    y="吸着量" # 正確な定義を記入する必要あり！
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino))
 
-GW_isthm_plt <- GW_df %>% 
-  ggplot(mapping=aes(x=prsr, y=V))+
-  geom_point()+
-  labs(
-    title = "GW活性炭の等温吸着曲線",
-    x="相対圧",
-    y="吸着量"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-grid.arrange(GLC_isthm_plt,GW_isthm_plt, nrow=1)
+isthm_plt
 ```
 
 GW活性炭(浄水処理用)は、
@@ -365,29 +356,18 @@ $$ {#eq-de_Boer}
 
 ```{r t_plot, dev='jpeg'}
 #| echo: false
-GLC_tplt <- GLC_df %>% 
-  ggplot(mapping = aes(x=t_nm,y=V))+
+tplt <- rbind(GLC_df, GW_df) %>% 
+  ggplot(mapping = aes(x=t_nm,y=V,color=sample))+
   geom_point()+
   labs(
-    title = "GLC活性炭のt-プロット",
+    title = "2種の活性炭のt-プロット",
     x="t(nm)",
     y="吸着量? V"
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino))
   
-GW_tplt <- GW_df %>% 
-  ggplot(mapping = aes(x=t_nm,y=V))+
-  geom_point()+
-  labs(
-    title = "GW活性炭のt-プロット",
-    x="t(nm)",
-    y="吸着量? V"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-grid.arrange(GLC_tplt, GW_tplt, nrow=1)
+tplt
 ```
 
 また、以下のようなBETプロットを描画することで、表面積を概算することができる。
@@ -401,6 +381,17 @@ BET=P_0
 $$
 
 ```{r BET_plt, dev='jpeg'}
+BET_plt <- rbind(GLC_df, GW_df) %>% 
+  ggplot(mapping=aes(x=prsr,y=BET,color=sample))+
+  geom_point()+
+  labs(
+    title = "2種の活性炭のBET-プロット",
+    x="相対圧",
+    y="??"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+
 GLC_BET_plt <- GLC_df %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
@@ -423,7 +414,8 @@ GW_BET_plt <- GW_df %>%
   theme_bw()+
   theme(text=element_text(family=hiragino))
 
-grid.arrange(GLC_BET_plt, GW_BET_plt, nrow=1)
+# grid.arrange(GLC_BET_plt, GW_BET_plt, nrow=1)
+BET_plt
 ```
 
 BETプロットが直線形になる範囲において、近似曲線を最小二乗法で求めると以下のようになった。
