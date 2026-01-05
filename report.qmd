@@ -34,20 +34,20 @@ output_dir <- paste0(cur_dir, "/data") #データ出力先
 xlsx_path <- paste0(rawdata_dir, "/input.xlsx") #excelのパス
 
 read_then_csv <- function(sheet, path, opt_dir){
-  sheet_dat <- read_xlsx(sheet = sheet, path = path)
+  sheet_dat <- readxl::read_xlsx(sheet = sheet, path = path)
   csv_path <- paste0(opt_dir ,"/" ,sheet,".csv")
   write.csv(sheet_dat, file = csv_path, row.names = FALSE)
 }
 
 # 実験ノートから手入力したデータ
-excel_sheets(xlsx_path) %>% 
+readxl::excel_sheets(xlsx_path) %>% 
   map(read_then_csv, path = xlsx_path, opt_dir = output_dir) 
 
 # 機器分析の結果 絶対にいじらない。
 # 今回はTOCのみ(※belsorpはbashで別に処理)
 list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>% 
   set_names() %>%  #よくわからないがチュートリアルに従って入れた。
-  map(~read_xlsx(.x)) %>% 
+  map(~readxl::read_xlsx(.x)) %>% 
   imap(function(x, idx)
        write.csv(x, file=paste0(
          output_dir, "/",
