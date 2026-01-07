@@ -6,7 +6,7 @@ format:
    # toc: true
   pdf:
     pdf-engine: lualatex
-    documentclass: ltjsarticle
+    documentclass: ltjsreport
 #    mainfont: "Hiragino Maru Gothic Pro"
     classoption: [10pt]
 editor: visual
@@ -14,7 +14,7 @@ editor: visual
 
 <!--# 注意：あくまでも他授業とのバランスを大切に！このレポートのせいで他が倒れてしまっては元も子もないぞ！！！！！ -->
 
-```{r read_packages}
+```{r util-read_packages}
 #| include: false
 #| echo: false
 library(tidyverse)
@@ -24,7 +24,7 @@ library(gridExtra)
 hiragino <- "Hiragino Maru Gothic Pro"
 ```
 
-```{r make_csv_mirrors}
+```{r util-make_csv_mirrors}
 #| include: false
 #| echo: false
 # readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
@@ -59,14 +59,9 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
          ))
 ```
 
-```{bash convert_DAT_files}
-# Rで文字コードを扱うのは面倒なのでbashで変換しておく。
-# data_rawディレクトリのものを変換し、dataディレクトリに格納する
-iconv -f CP932 -t utf-8 data_raw/GLC1203.DAT > data/GLC1203.txt
-iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
-```
-
 <!--# ここに表紙用のraw latexコード -->
+
+ここにhtml版へのリンクを貼りたい。
 
 ## 目的
 
@@ -94,11 +89,10 @@ iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
 
 ### 結果
 
-まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
+まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値を @tbl-ozn-calib に示す。
 
-```{r ozn_calib_tbl}
+```{r tbl-ozn-calib}
 #| echo: false
-#| label: "ozone-calib-raw"
 #| tbl-cap: "オゾン検量線の元データ"
 
 # オゾンのデータ読み込み
@@ -122,9 +116,9 @@ ozn_calib %>%
 
 上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。
 
-```{r ozn_calib_plot, dev='jpeg'}
+```{r fig-ozn-calib, dev='jpeg'}
 #| echo: false
-#| label: "ozn_calib_plot"
+#| warning: false
 #| fig-cap: "メチレンブルー濃度の検量線"
 
 # 検量線プロット
@@ -143,10 +137,11 @@ ozn_calib %>%
         plot.title=element_text(hjust = 0.5))
 ```
 
-図 @ozn_calib_plot の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
+図 @fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
 
-```{r MB_conc_calc}
+```{r calc-MB-conc}
 #| echo: false
+
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 # 回帰モデルの作成
 lm_ozn_dat <- ozn_calib %>% 
@@ -155,6 +150,7 @@ lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.
              model = TRUE)
 
 # 推定用関数
+# 解析コードの流れを邪魔しているので、.Rファイルとして分離する予定。
 inverse_pred.calc <- function(y, alpha, beta){
   return((y - beta) / alpha)
 }
@@ -194,6 +190,11 @@ ozone <- ozone %>%
          TOC濃度 = NA) %>% 
   unnest(ozn_mdlfit) %>% 
   mutate(MB_conc = MB_conc * 吸光度_希釈)
+```
+
+```{r tbl-ozone}
+#| echo: false
+#| tbl-cap: "オゾン処理時の各水質指標の測定結果"
 
 # 実験データの表組み
 ozone %>%
@@ -215,10 +216,11 @@ ozone %>%
   cols_align(align = "center", columns = everything())
 ```
 
-メチレンブルー濃度の時間変化を図示すると以下のようになった。
+メチレンブルー濃度の時間変化を図示すると @fig-MB-conc のようになった。
 
-```{r MB_conc_plt, dev='jpeg'}
+```{r fig-MB-conc, dev='jpeg'}
 #| echo: false
+#| warning: false
 #| fig-cap: "メチレンブルー濃度の経時変化"
 
 ozone %>% 
@@ -244,16 +246,26 @@ ozone %>%
 
 ### 結果
 
-マノメータ水位は以下のように変化した。
+マノメータ水位の変化を @tbl-manometer に示す。
 
-```{r read_manometer_data}
+```{r tbl-manometer}
+#| echo: false
+#| tbl-cap: "マノメータ水位の変化"
+
+# データ読み込み
 manometer <- read.csv("data/manometer.csv")
 
+# マノメータ水位データの表組み
+manometer %>% 
+  gt()
 ```
 
-逆洗時に採水を行い、SSを測定すると以下のようになった。
+逆洗時に採水を行い、SSを測定した結果を @tbl-reverse-SS に示す。
 
-```{r reverse_}
+```{r tbl-reverse-SS}
+#| echo: false
+#| tbl-cap: "逆洗排水のSS濃度の経時変化"
+
 # csv用意するのがめんどくさいので直接入力
 reverse_SS <- tribble(
   ~time, ~bef_g, ~aft_g, ~amt_ml,
@@ -290,13 +302,47 @@ BELSORP miniによる解析
 
 ### 結果
 
-まず、
+活性炭を投入し、経時的に665nm吸光度を計測した結果を以下に示す。
+
+次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib には3種類の検量線データについて図示した。
+
+```{r fig-abs-calib, dev='jpeg'}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "メチレンブルー濃度の検量線"
+
+# データ読み込み
+abs_calib <- read.csv("data/abs_calib.csv")
+
+# 検量線可視化
+abs_calib %>% 
+  mutate(model = paste(group, "班-", day, "日目")) %>% 
+  ggplot(aes(x=ABS, y=MB_conc)) +
+  geom_point() +
+  geom_smooth(method="lm",color="black")+
+  labs(
+    x="メチレンブルー濃度(mg/L)",
+    y="665nm吸光度"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(model))
+```
+
+```{r tbl-abs}
+#| echo: false
+
+# データ読み込み
+abs <- read.csv("data/abs.csv")
+```
 
 また、BELSORP miniにより活性炭の細孔分布について解析した結果を示す。BELSORP miniの計測結果は、指定したディレクトリに"GLC1203.DAT"のようなファイル名のテキストファイルとして保存されている。以下では、そのファイルから取り出した、圧力と体積の実測データを使用して解析を行う。
 
-まず以下にそれぞれの活性炭の等温吸着曲線を示す。
+まず、それぞれの活性炭の等温吸着曲線は @fig-abs-isthm のようになった。
 
-```{r read_belsorp_data}
+```{r calc-belsorp-data}
 #| echo: false
 
 # GLCのデータ読み込み
@@ -341,7 +387,10 @@ GW_df <- GW_df %>%
          BET = Pe / (V * (P0 - Pe)))
 ```
 
-```{r abs_isthm_plt, dev='jpeg'}
+```{r fig-abs-isthm, dev='jpeg'}
+#| echo: false
+#| warning: false
+
 isthm_plt <- rbind(GLC_df, GW_df) %>% 
   ggplot(mapping=aes(x=prsr, y=V, color=sample))+
   geom_point()+
@@ -360,7 +409,7 @@ GW活性炭(浄水処理用)は、
 
 一方で、GLC活性炭には、相対圧が1付近でも吸着量の立ち上がりが見られ、大きめの細孔も吸着作用に寄与していることが示唆される結果となった。
 
-次に、t-plotを示す。t-plotとは…
+次に、@fig-t-plot に各活性炭のt-plotを示す。t-plotとは…
 
 tの算出には以下の式を用いた。
 
@@ -370,8 +419,10 @@ $$
 t = 354(\frac{-5}{ln(P_e/P_0)})^{1/3}
 $$ {#eq-de_Boer}
 
-```{r t_plot, dev='jpeg'}
+```{r fig-t-plot, dev='jpeg'}
 #| echo: false
+#| warning: false
+
 tplt <- rbind(GLC_df, GW_df) %>% 
   ggplot(mapping = aes(x=t_nm,y=V,color=sample))+
   geom_point()+
@@ -396,7 +447,10 @@ $$
 BET=P_0
 $$
 
-```{r BET_plt, dev='jpeg'}
+```{r fig-BET-plt, dev='jpeg'}
+#| echo: false
+#| warning: false
+
 BET_plt <- rbind(GLC_df, GW_df) %>% 
   ggplot(mapping=aes(x=prsr,y=BET,color=sample))+
   geom_point()+
@@ -434,9 +488,13 @@ GW_BET_plt <- GW_df %>%
 BET_plt
 ```
 
-BETプロットが直線形になる範囲において、近似曲線を最小二乗法で求めると以下のようになった。
+BETプロットが直線形になる範囲において、近似曲線を最小二乗法で求めた結果を @fig-BET-calc に示す。
 
-```{r BET_calc, dev='jpeg'}
+```{r fig-BET-calc, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "BET法の近似直線導出"
+
 GLC_BET_calc_plt <- GLC_df %>% 
   filter(prsr<0.10) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
@@ -476,7 +534,7 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 
 ### 結果
 
-まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果は以下のようになった。
+まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果を @tbl-flc-amt に示す。
 
 なお、m-アルカリ度の測定にあたっては、滴定に用いる0.01mol/L硫酸を…
 
@@ -486,7 +544,7 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 
 <!--# 三四郎原水の生データがおかしいので要修正。それ以外は班EXCELとも一致確認済み。 -->
 
-```{r ttr_fctr_calc}
+```{r calc-ttr_fctr}
 #| echo: false
 
 # 滴定に用いた0.01M硫酸の濃度補正のためのファクター
@@ -494,9 +552,11 @@ ttr_amt <- 17.94 # 他班を取り込む場合はリストにするかも?
 ttr_fctr <- 20 / ttr_amt 
 ```
 
-```{r flc_amt_tbl}
+```{r tbl-flc-amt}
 #| echo: false
-# あとで消す(データ読み込み)
+#| tbl-cap: "凝集剤添加量の決定"
+
+# データ読み込み
 flc_amt <- read.csv("data/flc_amt.csv")
 
 # m-アルカリ度計算
@@ -506,7 +566,7 @@ flc_amt <- read.csv("data/flc_amt.csv")
 # CaCO3当量(mg/L)に換算する
 #モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
 flc_amt <- flc_amt %>%
-  #filter(班==3) %>% 
+  filter(班==3) %>% 
   mutate(mアルカリ度 = 
            # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
            (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
@@ -516,11 +576,9 @@ flc_amt <- flc_amt %>%
            (滴定試料量/1000)
          )
 
-# 表の作成
-
-ttr_cols <- c("滴定_前","滴定_後","滴定試料量") #滴定生データの列
-
+# 凝集剤投入量決定実験の表組み
 flc_amt %>%
+  filter(班==3) %>% 
   select(-c("班")) %>% 
   group_by(実験) %>% 
   gt() %>% 
@@ -530,9 +588,10 @@ flc_amt %>%
   # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
   fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = ttr_cols) %>%
-  tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
-  tab_header(title="凝集剤添加量の決定") %>% 
+  cols_move_to_end(columns = starts_with("滴定")) %>%
+  tab_spanner(label = "滴定の生データ",
+              columns = starts_with("滴定")) %>% 
+  #tab_header(title="凝集剤添加量の決定") %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -542,12 +601,14 @@ flc_amt %>%
 
 <!--# 全班一緒ならmax()で数値埋め込み。そうでなければ表を作る。 -->
 
-次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果は以下のようになった。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
+次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果を @tbl-flc-ph に示す。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
 
 <!--# m-アルカリ度を測定しないところに試料量のデータが入っている。空欄にしてNA一括処理を噛ましたいので要修正。 -->
 
-```{r flc_ph_tbl}
+```{r tbl-flc-ph}
 #| echo: false
+#| tbl-cap: "各pH条件下での反応の比較"
+
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
 flc_ph <- read.csv("data/flc_ph.csv") %>% 
   #filter(班==3) %>% 
@@ -565,9 +626,10 @@ flc_ph %>%
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
   fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = ttr_cols) %>%
-  tab_spanner(label = "滴定の生データ",columns = ttr_cols) %>% 
-  tab_header(title="各phでの反応の比較") %>% 
+  cols_move_to_end(columns = starts_with("滴定")) %>%
+  tab_spanner(label = "滴定の生データ",
+              columns = starts_with("滴定")) %>% 
+  #tab_header(title="各phでの反応の比較") %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -577,7 +639,7 @@ flc_ph %>%
 
 理論上、アルカリ度の減少は以下のようになる。
 
-```{r alkaline_theory_calc}
+```{r calc-alkaline_theory}
 #| include: false
 #| echo: false
 # このセルはただの計算機代わり。
@@ -591,13 +653,17 @@ flc_ph %>%
 
 ### 結果
 
-```{r read_colony_data}
+各条件下でのコロニー数の計数結果を @tbl-colony に示す。
+
+```{r util-read-colony}
+#| echo: false
 colony <- read.csv("data/colony.csv")
 ```
 
-```{r conony_table}
+```{r tbl-colony}
 #| echo: false
 #| message: false
+#| tbl-cap: "大腸菌コロニー数の計数結果"
 
 # table formatting
 colony %>% 
@@ -611,7 +677,7 @@ colony %>%
     コロニー数=paste0(コロニー数, collapse=", ")) %>% 
   summarise(コロニー数=unique(コロニー数)) %>% 
   gt() %>% 
-  tab_header(title="大腸菌コロニー数の計数結果") %>% 
+  #tab_header(title="大腸菌コロニー数の計数結果") %>% 
   fmt_passthrough(
     columns = コロニー数,
     escape=FALSE
@@ -624,10 +690,30 @@ colony %>%
 
 ### 考察
 
-# 付録 他班のデータ
+# 付録1 他班のデータ
 
 考察において他班のデータを参照したため、全班の生データ比較が可能なよう、以下に全班のデータを示す。
 
 ```{r}
 
+```
+
+# 付録2 本レポートのソースコード・解析環境の開示
+
+## 本レポートの作成環境について
+
+<!--# リンクを貼るのを忘れずに！ QuartoやRのパッケージにもリンクを貼り、引用文献扱いとしよう。-->
+
+本レポートは組版システム[Quarto](https://quarto.org/)を用いて作成しました。表組み・図の作成は、Quarto Document内にR言語の解析コードを埋め込むことで自動化しています（図表作成には[ggplot2](https://ggplot2.tidyverse.org/)、[gt](https://gt.rstudio.com/index.html)パッケージを使用）。この方法には、実験データが差し替えとなった場合でも図表を再生成することができることや、実験ノートからの転記作業を除いてExcelによる手作業が入り込む余地が一切なくなった結果、データ処理過程の検証・修正がしやすくなることなどの利点があります。
+
+<!--# (もしできたならこの文言を入れる) 今回は図表生成をスクリプトで完全に自動化することで、自班以外のデータや、分析機器の生データを積極的に取り入れた考察を行うことが可能となりました。 -->
+
+ソースコードは　（ここにgithubのリンクを貼る）から閲覧可能です。なお、冒頭にリンクを示したhtml版については、提出期限後の内容の改変は一切行っていません。編集履歴はgithub上のソースコード
+
+## 解析環境の開示
+
+R言語の実行環境は以下の通り。
+
+```{r}
+sessionInfo()
 ```
