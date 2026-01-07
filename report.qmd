@@ -92,13 +92,6 @@ iconv -f CP932 -t utf-8 data_raw/GW1203.DAT > data/GW1203.txt
 
 ### 結果
 
-```{r read_ozone_data}
-#| echo: false
-#| message: false
-ozone <- read.csv("data/ozone.csv")
-ozn_calib <- read.csv("data/ozone_calib.csv")
-```
-
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値は以下の通り。
 
 ```{r ozn_calib_tbl}
@@ -106,7 +99,10 @@ ozn_calib <- read.csv("data/ozone_calib.csv")
 #| label: "ozone-calib-raw"
 #| tbl-cap: "オゾン検量線の元データ"
 
-# 検量線の元データの表
+# オゾンのデータ読み込み
+ozn_calib <- read.csv("data/ozone_calib.csv")
+
+# 検量線用の希釈列データの表組み
 ozn_calib %>% 
   filter(班==3) %>% 
   arrange(メチレンブルー濃度.mg.L.) %>% 
@@ -147,17 +143,13 @@ ozn_calib %>%
 
 図 @ozn_calib_plot の検量線を用いて、各時刻でのメチレンブルー濃度の変化を導出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、以下に結果を示す。
 
-<!--# ここの部分の計算は完全に嘘！修正してから出す！(このコメントは修正したら消す) -->
-
 ```{r MB_conc_calc}
 #| echo: false
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
-#今のところ、数値が出ることを確認するための嘘の式しか入っていない。
-
 # 回帰モデルの作成
 lm_ozn_dat <- ozn_calib %>% 
   filter(班==3) 
-lm_ozn <- lm(lm_ozn_dat$吸光度~lm_ozn_dat$メチレンブルー濃度.mg.L.,
+lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.,
              model = TRUE)
 
 # 推定用関数
@@ -179,30 +171,45 @@ inverse_pred <- function(y, lm_mod){
                                 alpha = alpha,
                                 beta = beta)
   if(is.na(y)){
-    return(NA)
+    return(tibble(MB_conc=NA, MB_info=NA))
   }
   else if(pred.val < lower_lim){
-    return("検出下限")
+    return(tibble(MB_conc=NA, MB_info="検出下限"))
   }
   else if(pred.val > upper_lim){
-    return(paste0(pred.val, "*"))
+    return(tibble(MB_conc=pred.val, MB_info="外挿"))
   }
   else{
-    return(pred.val)
+    return(tibble(MB_conc=pred.val, MB_info="検量線範囲内"))
   }
 }
 
-ozone <- ozone %>% 
-  mutate(メチレンブルー濃度 = 
-           map(吸光度, inverse_pred, lm_mod = lm_ozn) * 吸光度_希釈,
-         TOC濃度 = NA)
 
-#表示
+# 実験データの読み込みと検量線モデル適用
+ozone <- read.csv("data/ozone.csv")
+ozone <- ozone %>% 
+  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn),
+         TOC濃度 = NA) %>% 
+  unnest(ozn_mdlfit) %>% 
+  mutate(MB_conc = MB_conc * 吸光度_希釈)
+
+# 実験データの表組み
 ozone %>%
   filter(班==3) %>% 
   select(-c("班","TOC_vial","TOC_filename")) %>% 
   group_by(条件) %>% 
   gt() %>% 
+  text_transform(
+    locations = cells_body(columns = starts_with("MB_"),
+                           rows = MB_info == "検出下限"),
+    fn = function(x) {x = "検出下限"}
+  ) %>% 
+  #fmt_number() %>% 
+  #text_transform(
+  #  locations = cells_body(columns = starts_with("MB_"),
+  #                         rown = MB_info == "外挿")
+  #) %>% 
+  cols_hide(columns = c("MB_info")) %>% 
   cols_align(align = "center", columns = everything())
 ```
 
@@ -210,10 +217,14 @@ ozone %>%
 
 ```{r MB_conc_plt, dev='jpeg'}
 #| echo: false
+#| fig-cap: "メチレンブルー濃度の経時変化"
+
 ozone %>% 
-  select(c("時間.分.","メチレンブルー濃度")) %>% 
-  ggplot(mapping=aes(x=時間.分. ,y=メチレンブルー濃度)) +
+  filter(班==3) %>% 
+  select(c("時間.分.","MB_conc","条件")) %>% 
+  ggplot(mapping=aes(x=時間.分. , y=MB_conc, color=条件)) +
   geom_point() +
+  geom_line() +
   labs(
     #title="メチレンブルー濃度の経時変化",
     x="時間(分)",
