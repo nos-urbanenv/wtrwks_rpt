@@ -304,7 +304,7 @@ BELSORP miniによる解析
 
 活性炭を投入し、経時的に665nm吸光度を計測した結果を以下に示す。
 
-次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib には3種類の検量線データについて図示した。
+次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib には3種類の検量線データについて図示した。また、各検量線の回帰式とR\^2値を @tbl-abs-models に示した。
 
 ```{r fig-abs-calib, dev='jpeg'}
 #| echo: false
@@ -329,6 +329,41 @@ abs_calib %>%
   theme(text=element_text(family=hiragino),
         plot.title=element_text(hjust = 0.5))+
   facet_wrap(vars(model))
+```
+
+```{r tbl-abs-models}
+#| echo: false
+#| tbl-cap: "検量線の回帰式とR^2値"
+
+# 検量線モデル作成
+# 参考:tidyr::nest()の公式リファレンス
+abs_models <- abs_calib %>% 
+  group_by(group, day) %>% 
+  nest() %>% 
+  mutate(model = paste0(group, "班-", day, "日目"),
+         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) %>% 
+  ungroup() %>% 
+  select(-c("group", "day"))
+
+# 検量線の式の表組み
+abs_models %>% 
+  ungroup() %>% 
+  mutate(rgrsn = map_chr(lm, 
+                     function(lm_mod){
+                       alpha <- format(unname(lm_mod$coefficients[2]),
+                                       digits=3)
+                       beta <- format(unname(lm_mod$coefficients[1]),
+                                      digits=3)
+                       R2 <- format(summary(lm_mod)$r.squared,
+                                    digits=4)
+                       
+                       return(paste0("y = ",alpha,"x + ",beta,
+                                     ", R^2 = ",R2))
+                     })) %>% 
+  select(c("model", "rgrsn")) %>% 
+  gt() %>% 
+  cols_label(model="検量線",
+             rgrsn="回帰式とR^2値")
 ```
 
 ```{r tbl-abs}
