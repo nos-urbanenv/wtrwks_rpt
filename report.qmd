@@ -63,7 +63,7 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
 
 ここにhtml版へのリンクを貼りたい。
 
-## 目的
+# 本実験演習の目的
 
 上水実験課題では以下の項目を扱い、浄水処理の物理化学的な原理について定性的・定量的な両面から理解を深めることを目的とする。
 
@@ -81,13 +81,13 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
 
     2.  紫外線消毒
 
-## 課題A オゾンによる有機物分解
+# 課題A オゾンによる有機物分解
 
-### 実験概要
+## 実験概要
 
 オゾン処理は主に高度処理で用いられ、
 
-### 結果
+## 結果
 
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値を @tbl-ozn-calib に示す。
 
@@ -114,7 +114,7 @@ ozn_calib %>%
 
 <!--# ここの表現もうちょっと洗練させたいなぁ。。 -->
 
-上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。
+上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。検量線モデルは、R言語の`lm`関数により、吸光度を目的変数、メチレンブルー濃度を説明変数とした線形回帰を行うことにより導出した（以下同様）。
 
 ```{r fig-ozn-calib, dev='jpeg'}
 #| echo: false
@@ -139,6 +139,18 @@ ozn_calib %>%
 
 図 @fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
 
+検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ のような定義が用いられるとのことである。
+
+<!--# ここ、出典必要！ -->
+
+$$
+LOD(Limit\ of\ Detection) = a + 3\sigma\\
+LOQ(Limit\ of\ Quantification) = a + 6\sigma\\ 
+ただし、a: ブランクの平均、\sigma: ブランクの標準偏差  
+$$ {#eq-LOD-and-LOQ}
+
+しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的に正確な検出限界ならびに定量限界を求められない。そこで今回は仕方なくではあるが、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。（表 @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、測定結果が負となったサンプルが「測定限界」として表記されている。）
+
 ```{r calc-MB-conc}
 #| echo: false
 
@@ -158,7 +170,8 @@ inverse_pred.calc <- function(y, alpha, beta){
 inverse_pred <- function(y, lm_mod){
   alpha <- unname(lm_mod$coefficients[2])
   beta <- unname(lm_mod$coefficients[1])
-    
+  
+  blank_y <- min(lm_mod$model[[1]])
   lower_lim <- inverse_pred.calc(y = min(lm_mod$model[[1]]),
                                   alpha = alpha,
                                   beta = beta)
@@ -171,14 +184,15 @@ inverse_pred <- function(y, lm_mod){
   if(is.na(y)){
     return(tibble(MB_conc=NA, MB_info=NA))
   }
-  else if(pred.val < lower_lim){
-    return(tibble(MB_conc=NA, MB_info="検出下限"))
+  #else if(pred.val < lower_lim){
+  else if(y < blank_y){
+    return(tibble(MB_conc=NA, MB_info="<LOD"))
   }
   else if(pred.val > upper_lim){
     return(tibble(MB_conc=pred.val, MB_info="外挿"))
   }
   else{
-    return(tibble(MB_conc=pred.val, MB_info="検量線範囲内"))
+    return(tibble(MB_conc=pred.val, MB_info="fine"))
   }
 }
 
@@ -186,10 +200,26 @@ inverse_pred <- function(y, lm_mod){
 # 実験データの読み込みと検量線モデル適用
 ozone <- read.csv("data/ozone.csv")
 ozone <- ozone %>% 
-  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn),
-         TOC濃度 = NA) %>% 
+  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn)) %>% 
   unnest(ozn_mdlfit) %>% 
   mutate(MB_conc = MB_conc * 吸光度_希釈)
+```
+
+```{r calc-ozone-TOC}
+#| echo: false
+
+# TOCデータ読み込みと抽出
+TOC_1_2 <- read.csv("data/TOC_ozone_1_2.csv", header = FALSE)
+TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) %>% 
+  filter(V4=="NPOC") %>% 
+  select(c("V3", "V9")) %>% 
+  `colnames<-`(c("TOC_vial","TOC_conc")) %>% 
+  mutate_all(as.numeric) #%>% 
+  #mutate(TOC_filename = "1_2")
+
+# 実験ノートのデータと統合
+ozone <- ozone %>% 
+  left_join(TOC_3_4, by="TOC_vial")
 ```
 
 ```{r tbl-ozone}
@@ -204,16 +234,21 @@ ozone %>%
   gt() %>% 
   text_transform(
     locations = cells_body(columns = starts_with("MB_"),
-                           rows = MB_info == "検出下限"),
-    fn = function(x) {x = "検出下限"}
+                           rows = MB_info == "<LOD"),
+    fn = function(x) {x = "定量限界以下"}
   ) %>% 
-  #fmt_number() %>% 
-  #text_transform(
-  #  locations = cells_body(columns = starts_with("MB_"),
-  #                         rown = MB_info == "外挿")
-  #) %>% 
+  fmt_number(decimals = 1,
+             columns = c("MB_conc", "TOC_conc")) %>% 
+  tab_spanner(label = "メチレンブルー濃度測定",
+              columns = c("吸光度","吸光度_希釈","MB_conc")) %>% 
   cols_hide(columns = c("MB_info")) %>% 
-  cols_align(align = "center", columns = everything())
+  cols_label(時間.分. = "時刻(分)",
+             吸光度_希釈 = "希釈倍率",
+             MB_conc = "濃度(mg/L)",
+             O3_conc = "オゾン濃度(mg/L)",
+             TOC_conc = "TOC濃度(mg/L)") %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  sub_missing(missing_text = "-")
 ```
 
 メチレンブルー濃度の時間変化を図示すると @fig-MB-conc のようになった。
@@ -238,13 +273,13 @@ ozone %>%
   theme(text=element_text(family=hiragino))
 ```
 
-### 考察
+## 考察
 
-## 課題B 急速濾過における目詰まり状況と処理性能の解析
+# 課題B 急速濾過における目詰まり状況と処理性能の解析
 
-### 実験概要
+## 実験概要
 
-### 結果
+## 結果
 
 マノメータ水位の変化を @tbl-manometer に示す。
 
@@ -290,19 +325,19 @@ reverse_SS %>%
   cols_align(align = "left", columns = "time")
 ```
 
-### 考察
+## 考察
 
 マノメータの
 
-## 課題C 活性炭による色度成分の吸着
+# 課題C 活性炭による色度成分の吸着
 
-### 実験概要
+## 実験概要
 
 BELSORP miniによる解析
 
-### 結果
+## 結果
 
-#### 活性炭によるメチレンブルーの吸着
+### 活性炭によるメチレンブルーの吸着
 
 活性炭を投入し、経時的に665nm吸光度を計測した結果を以下に示す。
 
@@ -456,7 +491,7 @@ abs <- read.csv("data/abs.csv") %>%
 
 ```
 
-#### Belsorpによる細孔分布解析
+### Belsorpによる細孔分布解析
 
 BELSORP miniにより活性炭の細孔分布について解析した結果について、今野さんのご協力を頂き、機器の生データを取得することができたため、。
 
@@ -644,15 +679,15 @@ GW_BET_calc_plt <- GW_df %>%
 grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 ```
 
-### 考察
+## 考察
 
-## 課題D 凝集沈殿における最適条件の決定
+# 課題D 凝集沈殿における最適条件の決定
 
-### 実験概要
+## 実験概要
 
 概要をここに書く。
 
-### 結果
+## 結果
 
 まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果を @tbl-flc-amt に示す。
 
@@ -756,7 +791,7 @@ flc_ph %>%
   )
 ```
 
-### 考察
+## 考察
 
 理論上、アルカリ度の減少は以下のようになる。
 
@@ -766,13 +801,13 @@ flc_ph %>%
 # このセルはただの計算機代わり。
 ```
 
-## 課題E 消毒
+# 課題E 消毒
 
-### 実験概要
+## 実験概要
 
 2種類の消毒方法に関して実験を行う。
 
-### 結果
+## 結果
 
 各条件下でのコロニー数の計数結果を @tbl-colony に示す。
 
@@ -809,7 +844,7 @@ colony %>%
   )
 ```
 
-### 考察
+## 考察
 
 # 付録 他班のデータ
 
