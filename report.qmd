@@ -306,9 +306,9 @@ BELSORP miniによる解析
 
 活性炭を投入し、経時的に665nm吸光度を計測した結果を以下に示す。
 
-次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib には3種類の検量線データについて図示した。また、各検量線の回帰式とR\^2値を @tbl-abs-models に示した。
+次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib-1 のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib-1 には3種類の検量線データについて図示した。また、各検量線の回帰式とR\^2値を @tbl-abs-models-1 に示した。
 
-```{r fig-abs-calib, dev='jpeg'}
+```{r fig-abs-calib-1, dev='jpeg'}
 #| echo: false
 #| message: false
 #| warning: false
@@ -334,13 +334,74 @@ abs_calib %>%
   facet_wrap(vars(model))
 ```
 
-```{r tbl-abs-models}
+```{r tbl-abs-models-1}
 #| echo: false
 #| tbl-cap: "検量線の回帰式とR^2値"
 
 # 検量線モデル作成
 # 参考:tidyr::nest()の公式リファレンス
+abs_models_all <- abs_calib %>% 
+  group_by(group, day) %>% 
+  nest() %>% 
+  mutate(model = paste0(group, "班-", day, "日目"),
+         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) %>% 
+  ungroup() %>% 
+  select(-c("group", "day"))
+
+# 検量線の式の表組み
+abs_models_all %>% 
+  ungroup() %>% 
+  mutate(rgrsn = map_chr(lm, 
+                     function(lm_mod){
+                       alpha <- format(unname(lm_mod$coefficients[2]),
+                                       digits=3)
+                       beta <- format(unname(lm_mod$coefficients[1]),
+                                      digits=3)
+                       R2 <- format(summary(lm_mod)$r.squared,
+                                    digits=4)
+                       
+                       return(paste0("y = ",alpha,"x + ",beta,
+                                     ", R^2 = ",R2))
+                     })) %>% 
+  select(c("model", "rgrsn")) %>% 
+  gt() %>% 
+  cols_label(model="検量線",
+             rgrsn="回帰式とR^2値")
+```
+
+@tbl-abs-models に示した通り、R\^2値はどれも約0.99となっているものの、これはメチレンブルー濃度が20mg/Lの希釈列に引っ張られた結果であると考えられる。そのため、20mg/Lの希釈列を除いて再度検量線を作成した結果を @fig-abs-calib-2 、 @tbl-abs-models-2 に示す。
+
+```{r fig-abs-calib-2, dev='jpeg'}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "メチレンブルー濃度の検量線(改良版)"
+
+# 検量線可視化
+abs_calib %>% 
+  filter(MB_conc < 20) %>% 
+  mutate(model = paste(group, "班-", day, "日目")) %>% 
+  ggplot(aes(x=MB_conc, y=ABS)) +
+  geom_point() +
+  geom_smooth(method="lm",color="black")+
+  labs(
+    x="メチレンブルー濃度(mg/L)",
+    y="665nm吸光度"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  #stat_poly_eq(use_label(c("eq","R2")))+ #確認用。見にくいので非表示
+  facet_wrap(vars(model))
+```
+
+```{r tbl-abs-models-2}
+#| echo: false
+#| tbl-cap: "検量線の回帰式とR^2値(改良版)"
+
+# 検量線モデル作成
 abs_models <- abs_calib %>% 
+  filter(MB_conc < 20) %>% 
   group_by(group, day) %>% 
   nest() %>% 
   mutate(model = paste0(group, "班-", day, "日目"),
@@ -369,14 +430,18 @@ abs_models %>%
              rgrsn="回帰式とR^2値")
 ```
 
-検量線を用いて濃度を計算した結果を @tbl-abs に示す。
+検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。
 
 ```{r tbl-abs}
 #| echo: false
 #| tbl-cap: "メチレンブルー濃度の経時変化"
 
 # データ読み込み
-abs <- read.csv("data/abs.csv")
+abs <- read.csv("data/abs.csv") %>% 
+  pivot_longer(cols = ABS_24hrs,
+               names_to = "time",
+               names_prefix = "ABS_",
+               values_to = "ABS")
 
 # 検量線モデルの適用
 ```
@@ -675,7 +740,8 @@ flc_ph <- read.csv("data/flc_ph.csv") %>%
 
 # 添加量決定の際と同じ処理にしよう。
 flc_ph %>% 
-  #select(-c("班")) %>% 
+  filter(班==3) %>% 
+  select(-c("班")) %>% 
   group_by(試料) %>% 
   gt() %>% 
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
@@ -745,32 +811,10 @@ colony %>%
 
 ### 考察
 
-# 付録1 他班のデータ
+# 付録 他班のデータ
 
 考察において他班のデータを参照したため、全班の生データ比較が可能なよう、以下に全班のデータを示す。
 
 ```{r}
 
-```
-
-# 付録2 本レポートのソースコード・解析環境の開示
-
-## 本レポートの作成環境について
-
-<!--# リンクを貼るのを忘れずに！ QuartoやRのパッケージにもリンクを貼り、引用文献扱いとしよう。-->
-
-本レポートは科学技術出版システム[Quarto](https://quarto.org/)を用いて作成しました。表組み・図の作成は、Quarto Document内にR言語のスクリプトを埋め込むことで自動化しています（図表作成には[ggplot2](https://ggplot2.tidyverse.org/)、[gt](https://gt.rstudio.com/index.html)パッケージを使用）。この方法には、実験データが差し替えとなった場合でも図表を再生成することができることや、実験ノートからの転記作業を除いてExcelによる手作業が入り込む余地が一切なくなった結果、データ処理過程の検証・修正がしやすくなることなどの利点があります。
-
-<!--# (もしできたならこの文言を入れる) 今回は図表生成をスクリプトで完全に自動化することで、自班以外のデータや、分析機器の生データを積極的に取り入れた考察を行うことが可能となりました。 -->
-
-<!--# また、BELSORP miniの計測結果の処理もドキュメント内に組み込んであります。Belsorpの計測結果は、実験者が指定したディレクトリに"GLC1203.DAT"のようなファイル名のテキストファイルとして保存されているのを発見しました。今回はそのDATファイルから取り出した、圧力と体積の実測データを使用して、解析を行いました。 -->
-
-ソースコードは　（ここにgithubのリンクを貼る）から閲覧可能です。なお、冒頭にリンクを示したhtml版については、提出期限後の内容の改変は一切行っていません。編集履歴はgithub上のソースコード
-
-## 解析環境の開示
-
-R言語の実行環境は以下の通り。
-
-```{r}
-sessionInfo()
 ```
