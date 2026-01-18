@@ -714,7 +714,7 @@ abs_calc <- abs_calc %>%
 
 ```{r tbl-abs}
 #| echo: false
-#| tbl-cap: "メチレンブルー濃度(mg/L)の経時変化"
+#| tbl-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 
 # 濃度の経時変化の表組み
 abs_calc %>% 
@@ -731,7 +731,7 @@ abs_calc %>%
   gt() %>% 
   cols_label(crbn_amt="活性炭添加量(g)") %>% 
   tab_spanner(columns = c(ends_with("min"),"24hrs"),
-              label = "メチレンブルー濃度(mg/L)") %>% 
+              label = "メチレンブルー濃度C(mg/L)") %>% 
   sub_missing(missing_text = "-")
 ```
 
@@ -771,11 +771,11 @@ abs_calc %>%
 
 ```{r fig-abs-2, dev='jpeg'}
 #| echo: false
-#| fig-cap: "メチレンブルー吸着量の経時変化"
+#| fig-cap: "吸着量qeの経時変化"
 #| warning: false
 
 # 吸着量を求めるため一旦wideにしてmutateで処理する
-abs_calc %>% 
+abs_calc_qe <- abs_calc %>% 
   mutate(MB_conc = case_when( 
     MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
     .default = MB_conc
@@ -783,29 +783,103 @@ abs_calc %>%
   select(-MB_info) %>% 
   pivot_wider(names_from = time,
               values_from = MB_conc) %>% 
+  # 0分からの濃度減少量を引き算で求める
   mutate(across(c(ends_with("min"),"24hrs"),
          ~ `0min` - .x)) %>% 
   pivot_longer(cols = c(ends_with("min"),"24hrs"),
                names_to = "time",
-               values_to = "MB_abs_conc") %>% 
+               values_to = "MB_conc") %>% 
+  # 吸着量に変換。予め活性炭量が0gの行を除外。
+  filter(crbn_amt > 0) %>% 
+  mutate(MB_q = MB_conc * (500/1000) / crbn_amt) %>% 
+  # あとは一つ前とまったく同じ
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
     .default = 1440
   )) %>% 
-  filter(!is.na(MB_abs_conc)) %>% 
-  ggplot(aes(x=time,y=MB_abs_conc,group=crbn_amt,color=crbn_amt))+
+  filter(!is.na(MB_q))
+
+abs_calc_qe %>% 
+  ggplot(aes(x=time,y=MB_q,group=crbn_amt,color=crbn_amt))+
   geom_point()+
   geom_line(linetype = 2)+
   scale_color_gradient(high = "red", low = "darkblue")+
   labs(
     x="経過時間(分)",
-    y="メチレンブルー吸着量(mg/L)"
+    y="吸着量q(mg/g)"
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino),
         plot.title=element_text(hjust = 0.5))+
   facet_wrap(vars(crbn, MB_init_conc))
-  
+```
+
+次に、平衡濃度Ceと平衡吸着量qeの関係を @fig-abs-3 に示す。なお、平衡濃度と平衡吸着量は、各条件での24時間後のデータを用いて算出した。
+
+<!--# 正直このグラフは何の意味があるのか…。吸着等温線と操作線の交点ってこと? -->
+
+```{r fig-abs-3, dev='jpeg'}
+#| echo: false
+#| fig-cap: "平衡濃度Ceと平衡吸着量qeの関係"
+#| warning: false
+
+abs_calc_qe %>% 
+  filter(time==1440) %>% 
+  ggplot(aes(x=MB_q,y=MB_conc))+
+  geom_point()+
+  labs(
+    x="平衡濃度Ce(mg/L)",
+    y="平衡吸着量qe(mg/g)"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(crbn))
+```
+
+@fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のようになった。
+
+```{r fig-langmuir, dev='jpeg'}
+#| echo: false
+#| fig-cap: "Langmuir-plot"
+#| warning: false
+
+abs_calc_qe %>% 
+  filter(time==1440) %>% 
+  mutate(ce_qe = MB_conc / MB_q) %>% 
+  ggplot(aes(x=MB_conc,y=ce_qe))+
+  geom_point()+
+  labs(
+    x="Ce",
+    y="Ce/qe"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(crbn))
+```
+
+また、フロイントリッヒ・プロットを @fig-freundlich に示す。
+
+```{r fig-freundlich, dev='jpeg'}
+#| echo: false
+#| fig-cap: "Freundlich-plot"
+#| warning: false
+
+abs_calc_qe %>% 
+  filter(time==1440) %>% 
+  mutate(log_qe = log(MB_q),
+         log_ce = log(MB_conc)) %>% 
+  ggplot(aes(x=log_ce,y=log_qe))+
+  geom_point()+
+  labs(
+    x="log(Ce)",
+    y="log(qe)"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(crbn))
 ```
 
 ### Belsorpによる細孔分布解析
@@ -1017,6 +1091,16 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 
 ## 考察
 
+### サンプリングによる影響について
+
+### 水の蒸発による影響について
+
+### 吸着等温線の適合性について
+
+### 活性炭の比表面積と吸着性能について
+
+### 実務の場での活性炭処理について
+
 # 課題D 凝集沈殿における最適条件の決定
 
 ## 実験概要
@@ -1058,9 +1142,10 @@ flc_amt <- read.csv("data/flc_amt.csv")
 #モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
 flc_amt <- flc_amt %>%
   filter(班==3) %>% 
+  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
   mutate(mアルカリ度 = 
            # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
-           (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
+           滴下量 / 1000 * 0.01 * ttr_fctr *
            # 100.09 * 1000を掛ければCaCO3当量(mg)が得られる
            100.09 * 1000 / 
            # 試料1LあたりのCaCO3当量を得るために、(試料量/1000)で割る
@@ -1070,7 +1155,7 @@ flc_amt <- flc_amt %>%
 # 凝集剤投入量決定実験の表組み
 flc_amt %>%
   filter(班==3) %>% 
-  select(-c("班")) %>% 
+  select(-c("班","滴定_前","滴定_後")) %>% 
   group_by(実験) %>% 
   gt() %>% 
   #アルカリ度は有効数字3桁。
@@ -1079,10 +1164,12 @@ flc_amt %>%
   # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
   fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴定")) %>%
-  tab_spanner(label = "滴定の生データ",
-              columns = starts_with("滴定")) %>% 
-  #tab_header(title="凝集剤添加量の決定") %>% 
+  cols_move_to_end(columns = starts_with("滴")) %>%
+  tab_spanner(label = "滴定生データ(mL)",
+              columns = c("滴下量","滴定試料量")) %>%
+  cols_label(凝集剤濃度="凝集剤(mg/L)",
+             pH.後.="pH",
+             ) %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -1103,8 +1190,9 @@ flc_amt %>%
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
 flc_ph <- read.csv("data/flc_ph.csv") %>% 
   #filter(班==3) %>% 
+  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
   mutate(mアルカリ度 = 
-           (滴定_前 - 滴定_後) / 1000 * 0.01 * ttr_fctr *
+           滴下量 / 1000 * 0.01 * ttr_fctr *
            100.09 * 1000 /
            (滴定試料量/1000)
          )
@@ -1112,16 +1200,19 @@ flc_ph <- read.csv("data/flc_ph.csv") %>%
 # 添加量決定の際と同じ処理にしよう。
 flc_ph %>% 
   filter(班==3) %>% 
-  select(-c("班")) %>% 
+  select(-c("班","滴定_前","滴定_後","理論pH","凝集剤添加量")) %>% 
   group_by(試料) %>% 
   gt() %>% 
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
   fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴定")) %>%
-  tab_spanner(label = "滴定の生データ",
-              columns = starts_with("滴定")) %>% 
+  cols_move_to_end(columns = starts_with("滴")) %>%
+  tab_spanner(label = "滴定生データ(mL)",
+              columns = c("滴下量","滴定試料量")) %>% 
   #tab_header(title="各phでの反応の比較") %>% 
+  cols_label(pH前="pH(前)",
+             pH後="pH(後)",
+             mアルカリ度="m-アルカリ度") %>% 
   tab_options(
     latex.use_longtable = TRUE
   )
