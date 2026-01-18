@@ -667,10 +667,8 @@ abs <- read.csv("data/abs.csv")
 
 作成した検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度変化を @fig-abs に図示した。
 
-```{r tbl-abs}
+```{r calc-abs}
 #| echo: false
-#| tbl-cap: "メチレンブルー濃度の経時変化"
-
 
 abs_calc <- abs %>% 
   as_tibble() %>% 
@@ -708,7 +706,29 @@ abs_calc <- abs_calc %>%
   select(-model, -lm, -group, -day) %>% 
   mutate(MB_conc = MB_conc * Dil) %>% 
   select(-ABS, -Dil)  
-  
+```
+
+```{r tbl-abs}
+#| echo: false
+#| tbl-cap: "メチレンブルー濃度(mg/L)の経時変化"
+
+# 濃度の経時変化の表組み
+abs_calc %>% 
+  mutate(MB = case_when(
+    MB_info == "fine" ~ as.character(round(MB_conc,0)),
+    MB_info == "<LOD" ~ "検出限界",
+    MB_info == "外挿" ~ paste0(round(MB_conc,0),"*"),
+    .default = NA
+  )) %>% 
+  select(-MB_info,-MB_conc) %>% 
+  pivot_wider(names_from = time,
+              values_from = MB) %>%
+  group_by(crbn, MB_init_conc) %>%
+  gt() %>% 
+  cols_label(crbn_amt="活性炭添加量(g)") %>% 
+  tab_spanner(columns = c(ends_with("min"),"24hrs"),
+              label = "メチレンブルー濃度(mg/L)") %>% 
+  sub_missing(missing_text = "-")
 ```
 
 ```{r fig-abs, dev='jpeg'}
