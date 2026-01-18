@@ -7,12 +7,12 @@ format:
   pdf:
     pdf-engine: lualatex
     documentclass: ltjsreport
+    #fig-pos: 'h'
+    #tbl-pos: 'h'
 #    mainfont: "Hiragino Maru Gothic Pro"
     classoption: [10pt]
 editor: visual
 ---
-
-<!--# 注意：あくまでも他授業とのバランスを大切に！このレポートのせいで他が倒れてしまっては元も子もないぞ！！！！！ -->
 
 ```{r util-read_packages}
 #| include: false
@@ -59,10 +59,6 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
          ))
 ```
 
-<!--# ここに表紙用のraw latexコード -->
-
-ここにhtml版へのリンクを貼りたい。
-
 # 本実験演習の目的
 
 上水実験課題では以下の項目を扱い、浄水処理の物理化学的な原理について定性的・定量的な両面から理解を深めることを目的とする。
@@ -103,6 +99,9 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
     以下の試薬・溶液を調整する。
 
 -   pH2, pH7.2, pH12の緩衝溶液
+    -   pH2:
+    -   pH7.2:
+    -   pH12:
 -   メチレンブルー標準原液(1g/L)
     -   緩衝溶液にはこの標準原液を、500mLあたり25mL添加した。
 
@@ -110,8 +109,10 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
     結果の章で示すように、0mg/L\~20mg/Lの範囲で標準列を作成した上で、検量線が線形性を保つ範囲のデータを採用した。
 4.  オゾン通気準備(2, 3と同時並行)\
     オゾン発生器を起動し、3\~5分間バイパスで湿気を追い出した。その後、Milli-Q水500mLに5分間通気し、溶存オゾン濃度を測定した。各条件での実験終了後も、同様にMilli-Q水に通気してオゾン濃度を測定することで、オゾン発生器から発生しているオゾン濃度が一定であるかどうかを確認した。
-5.  実験原水(緩衝溶液500mLにメチレンブルー標準原液25mLを添加)を反応器に入れ、オゾンを通気する。オゾン通気開始直前をt=0とし、2分ごとに採水する。
-6.  採水したサンプルについて、メチレンブルー濃度(全サンプル)、TOC濃度・pH・オゾン濃度(最初と最後のサンプル)を測定する。
+5.  オゾン処理\
+    実験原水(緩衝溶液500mLにメチレンブルー標準原液25mLを添加)を反応器に入れ、オゾンを通気する。オゾン通気開始直前をt=0とし、2分ごとに採水する。
+6.  水質分析\
+    採水したサンプルについて、メチレンブルー濃度(全サンプル)、TOC濃度・pH・オゾン濃度(最初と最後のサンプル)を測定する。
 
 ## 結果
 
@@ -163,11 +164,11 @@ ozn_calib %>%
         plot.title=element_text(hjust = 0.5))
 ```
 
-図 @fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
+@fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
 
 検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ のような定義が用いられるとのことである。
 
-<!--# ここ、出典必要！ -->
+<!--# ここ、出典がgolden bookとagilientのサイトの3つが必要！ -->
 
 $$
 LOD(Limit\ of\ Detection) = a + 3\sigma\\
@@ -175,7 +176,7 @@ LOQ(Limit\ of\ Quantification) = a + 6\sigma\\
 ただし、a: ブランクの平均、\sigma: ブランクの標準偏差  
 $$ {#eq-LOD-and-LOQ}
 
-しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的に正確な検出限界ならびに定量限界を求められない。そこで今回は仕方なくではあるが、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。（表 @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、測定結果が負となったサンプルが「測定限界」として表記されている。）
+しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的な検出限界ならびに定量限界を求められない。そこで今回はやむを得ず、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。本レポートにおいて検量線法を用いている他の実験においても同様の処理を行った。（例： @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、吸光度の測定結果が負となったサンプルが「測定限界」として表記されている。）
 
 ```{r calc-MB-conc}
 #| echo: false
@@ -314,17 +315,53 @@ ozone %>%
 
 急速濾過法はヨーロッパに比べて水需要が多い上、原水濁度が高いアメリカで発達したプロセスである。急速濾過池においては、硫酸アルミニウムなどを凝集剤としてフロックを形成させ、沈澱池で沈殿させた後、除去しきれなかった微細なフロックが、砂などの粒状濾材を用いて物理化学的に除去される。
 
-本演習では、濾材に原水を通水して濁質を除去する「濾過」と、逆洗浄によって濁質を洗い流す「逆洗」という急速濾過法の2つのプロセスについてモデル実験を行う。原水としてカオリン懸濁液と三四郎池の水、濾材には砂・アンスラサイトを用い、濾過工程におけるろ過抵抗の測定を行う。ろ過抵抗は、濾材に接続されたマノメータにより高さごとの損失水頭を求めることで算出する。逆洗工程においては、濾材の下方から水道水を流し、様子を観察するとともに、逆洗水を一定時間ごとに採取してSS濃度を測定する。　また、濾材の粒径についても、
+本演習では、濾材に原水を通水して濁質を除去する「濾過」と、逆洗浄によって濁質を洗い流す「逆洗」という急速濾過法の2つのプロセスについてモデル実験を行う。原水としてカオリン懸濁液と三四郎池の水、濾材には砂・アンスラサイトを用い、濾過工程におけるろ過抵抗の測定を行う。ろ過抵抗は、濾過筒に接続されたマノメータにより深さごとの損失水頭を求めることで算出する。逆洗工程においては、濾材の下方から水道水を流し、様子を観察するとともに、逆洗水を一定時間ごとに採取してSS濃度を測定する。　また、濾材について、ふるい分けによる粒径決定、仮比重・真比重の測定を行う。
 
 ### 実験手順
 
 実験手順の詳細を以下に示す。
 
-1.  a
+#### 実験機器について
 
-2.  a
+-   濾過筒の濾材構成
+
+    -   A: 指定砂60cm
+
+    -   B: 指定砂60cm
+
+    -   C: アンスラサイト30cm(上部)⇨指定砂30cm(下部)
+
+-   凝集剤：硫酸アルミニウム
+
+#### 準備・凝集沈殿操作
+
+1.  濾材の洗浄\
+    水道水を用いて逆洗浄を行う。
+
+2.  マノメータの点検\
+    逆洗後、濾過筒に水を満たした状態でマノメータのバルブをすべて開く。水が流れていない状態では損失水頭は0なので、マノメータの高さは水平に揃うはずである。揃っていない場合は気泡が配管に残っている(=気泡による圧力水頭がマノメータの読みに影響を与えている)可能性があるため、マノメータ上部からゴム球で空気を送り込み、気泡を排除する。\
+    その後、濾過筒下部の濾水流出バルブを開き、マノメータの水位が安定した後、マノメータの水位を記録する。この水位は「流出水位」に対応する。
+
+3.  原水の作成・凝集沈殿操作\
+    三四郎池の水を採取する。また、濃度が75mg/Lになるように水道水にカオリンを添加し、カオリン原水とする。前者には、実験Aで求めた最適凝集条件の通りに、後者には100mg/L凝集剤を投入し、2分程度、早めの回転数で急速撹拌する。その後、撹拌機の速度を弱め、緩速撹拌する。
+
+4.  ポンプの流量調節\
+    それぞれの濾過系統において用いるポンプの流量を、メスシリンダーを用いて流量を実測しながら、約650mL/minになるように調節する。調節後のポンプの流量を記録する。
+
+#### 急速濾過・逆洗浄実験
+
+1.  清水濾過実験\
+    3系統それぞれの濾過筒について、水道水を通水し、単位ろ層厚さあたりの損失水頭を求める。
+
+2.  急速濾過実験\
+    まず、原水の濁度・温度を測定する。ポンプを稼働させて原水を通水し、15分間隔でマノメータの水位を記録する。また、30分間隔で原水・濾過水を採取し、濁度を測定する。マノメータの読みに注意し、目詰まりが起こるまで計測を継続する。
+
+3.  逆洗浄実験(C筒のみ)\
+    排水バルブ・マノメータバルブを閉じ、水道水により500L/hの流量で逆洗浄を用いる。また、逆洗浄開始時をt=0とし、適当な時間間隔ごとに逆洗排水を採取し、SSを測定する。逆洗終了時には、逆洗用バルブよりも、水道栓を先に閉めるように注意する。
 
 ## 結果
+
+### 急速濾過
 
 マノメータ水位の変化を @tbl-manometer に示す。
 
@@ -353,6 +390,8 @@ manometer %>%
 
 上記の実測値より、損失水頭を求めた結果を @tbl-lost-head に示す。
 
+<!--# データが多いため図は考察セクションに配置するかも? -->
+
 ```{r tbl-lost-head}
 #| echo: false
 
@@ -362,15 +401,39 @@ manometer_head <- manometer %>%
                names_to = "time",
                names_prefix = "time_") %>% 
   filter(!is.na(value)) %>%
-  mutate(head_loss = tapwtr - value)
+  mutate(head_loss = tapwtr - value) #%>% 
   
-  pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
-               names_to = "sampling") #%>% 
-  pivot_wider(names_from = "manometer",
-              values_from = "value") %>% 
-  group_by(班, filter, sampling) %>% 
-  drop_na()
+#  pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
+#               names_to = "sampling") #%>% 
+#  pivot_wider(names_from = "manometer",
+#              values_from = "value") %>% 
+#  group_by(班, filter, sampling) %>% 
+#  drop_na()
 ```
+
+@tbl-lost-head の値について、横軸に単位濾層あたりの損失水頭、縦軸に濾層深さをとってプロットした結果を @fig-manometer に示す。
+
+```{r fig-manometer}
+#| echo: false
+#| fig-cap: "マノメータの目詰まり状況"
+```
+
+次に、濁度の測定結果を @tbl-filt-turb に示す。また、濁度の除去率の経時変化を求め、 @fig-filt-turb に図示した。
+
+```{r tbl-filt-turb}
+#| echo: false
+#| tbl-cap: "急速濾過実験における濁度の経時変化"
+
+
+```
+
+```{r fig-filt-turb}
+#| echo: false
+#| fig-cap: "濁度除去率の経時変化"
+
+```
+
+### 逆洗浄
 
 逆洗時に採水を行い、SSを測定した結果を @tbl-reverse-SS に示す。
 
@@ -402,23 +465,72 @@ reverse_SS %>%
   cols_align(align = "left", columns = "time")
 ```
 
-## 考察
+### ろ過筒の仕様測定
 
-マノメータの
+ふるい分けの結果を @tbl-sieve に示す。また、粒度加積曲線を @fig-sieve に示す。
+
+```{r tbl-sieve}
+#| echo: false
+#| tbl-cap: "ふるい分けの結果"
+
+
+```
+
+```{r fig-sieve}
+#| echo: false
+#| tbl-cap: "指定砂・アンスラサイトの粒度加積曲線"
+
+
+```
+
+## 考察
 
 # 課題C 活性炭による色度成分の吸着
 
 ## 実験概要
 
-BELSORP miniによる解析
+### 活性炭による色度成分吸着実験
+
+活性炭とは、木質（ヤシ殻、おが屑や石炭など）を原料として、これらの原料を炭化および賦活処理によりつくられた多孔性の炭素質の物質で
+
+<!--# ここに出典 -->
+
+その大きな内部表面積や微小細孔により、水中の有機物等を吸着することができる。浄水処理においては、異臭味物質・農薬・微量有害物質・合成洗剤・色度成分・トリハロメタン前駆物質などの除去の目的で活性炭処理が行われている。
+
+本実験演習では、色度成分としてメチレンブルーを溶解した溶液に活性炭を加えて回分実験を行う。一定時間毎に採水し、色度成分の濃度を測定することで、吸着速度について調べる。また、吸着が平衡に達した際の濃度データをプロットすることで、吸着等温線に関する理解を深める。
+
+### Belsorpによる細孔分布解析
+
+Belsorpの原理
+
+本レポートではBELSORPにより出力される「生の吸着等温線データ」についても解析を試みる。データ取得に際しては今野さんにご協力頂いた。
 
 ## 結果
 
-### 活性炭によるメチレンブルーの吸着
+### 検量線の作成
 
-活性炭を投入し、経時的に665nm吸光度を計測した結果を以下に示す。
+まず、メチレンブルー濃度の推定用の検量線を作成した結果を示す。
 
-次に、複数の希釈列を作成し、665nm吸光度を測定すると @fig-abs-calib-1 のような検量線データが得られた。なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、 @fig-abs-calib-1 には3種類の検量線データについて図示した。また、各検量線の回帰式とR\^2値を @tbl-abs-models-1 に示した。
+複数の希釈列を作成し、665nm吸光度を測定し、全データで検量線を作成した結果を @tbl-abs-calib-1 ならびに @fig-abs-calib-1 に示す。 なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、3種類の検量線データを記載した。また、この場合の各検量線の回帰式とR\^2値を @tbl-abs-models-1 に示した。
+
+```{r tbl-abs-calib-1}
+#| echo: false
+#| tbl-cap: "各希釈列ごとの吸光度"
+
+# データ読み込み
+abs_calib <- read.csv("data/abs_calib.csv")
+
+# 検量線データの表組み
+abs_calib %>% 
+  pivot_wider(names_from = c(group, day),
+              names_sep = "班_",
+              values_from = ABS) %>% 
+  gt() %>% 
+  cols_label(MB_conc = "メチレンブルー濃度(mg/L)") %>% 
+  tab_spanner(columns = c(-"MB_conc"),
+              label = "665nm吸光度") %>% 
+  sub_missing(missing_text = "-")
+```
 
 ```{r fig-abs-calib-1, dev='jpeg'}
 #| echo: false
@@ -426,8 +538,7 @@ BELSORP miniによる解析
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の検量線"
 
-# データ読み込み
-abs_calib <- read.csv("data/abs_calib.csv")
+
 
 # 検量線可視化
 abs_calib %>% 
@@ -481,7 +592,7 @@ abs_models_all %>%
              rgrsn="回帰式とR^2値")
 ```
 
-@tbl-abs-models に示した通り、R\^2値はどれも約0.99となっているものの、これはメチレンブルー濃度が20mg/Lの希釈列に引っ張られた結果であると考えられる。そのため、20mg/Lの希釈列を除いて再度検量線を作成した結果を @fig-abs-calib-2 、 @tbl-abs-models-2 に示す。
+@tbl-abs-models に示した通り、R\^2値はどれも約0.99となっているものの、これはメチレンブルー濃度が20mg/Lの希釈列に引っ張られた結果であると考えられる。そのため、20mg/Lの希釈列を除いて再度検量線を作成した結果を @fig-abs-calib-2 、 @tbl-abs-models-2 に示す。 @fig-abs-calib-1 の検量線よりも正確に線形回帰できているため、この検量線を用いて濃度計算を行う。
 
 ```{r fig-abs-calib-2, dev='jpeg'}
 #| echo: false
@@ -519,7 +630,7 @@ abs_models <- abs_calib %>%
   mutate(model = paste0(group, "班-", day, "日目"),
          lm = map(data, function(df) lm(ABS~MB_conc, data=df))) %>% 
   ungroup() %>% 
-  select(-c("group", "day"))
+  select(-c("group", "day","data"))
 
 # 検量線の式の表組み
 abs_models %>% 
@@ -542,23 +653,63 @@ abs_models %>%
              rgrsn="回帰式とR^2値")
 ```
 
-検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。
+### メチレンブルー吸着実験
+
+吸光度の経時変化を
+
+```{r tbl-abs-raw}
+#| echo: false
+#| tbl-cap: "665nm吸光度の経時変化"
+
+# データ読み込み
+abs <- read.csv("data/abs.csv")
+```
+
+作成した検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度変化を @fig-abs に図示した。
 
 ```{r tbl-abs}
 #| echo: false
 #| tbl-cap: "メチレンブルー濃度の経時変化"
 
-# データ読み込み
-abs <- read.csv("data/abs.csv") %>% 
-  pivot_longer(cols = ABS_24hrs,
-               names_to = "time",
-               names_prefix = "ABS_",
-               values_to = "ABS")
+
+abs_calc <- abs %>% 
+  as_tibble() %>% 
+  pivot_longer(cols = c(starts_with("ABS_"), starts_with("Dil_")),
+               names_to = c("abs_dat_type","time"),
+               names_pattern = "(.*)_(.*)",
+               values_to = "abs_dat_value")%>% 
+  pivot_wider(names_from = abs_dat_type,
+              values_from = abs_dat_value)
 
 # 検量線モデルの適用
+abs_calc <- abs_calc %>% 
+  mutate(day = case_when(group=="3" & time=="24hrs" ~ 2,
+                         .default = 1)) %>% 
+  #group_by(group, day) %>% 
+  #summarise(crbn=unique(crbn),
+  #          MB_init_conc = list(MB_init_conc),
+  #          crbn_amt = list(crbn_amt),
+  #         time=list(time),
+  #          ABS=list(ABS),
+  #          Dil=list(Dil),
+  #          .groups = "drop") %>% 
+  mutate(model = paste0(group,"班-",day,"日目")) %>% 
+  left_join(abs_models, by="model") %>% #検量線モデルと照合
+  #mutate(res=map2(ABS,lm,function(list,mod){
+  #  map_dfr(list,\(x) inverse_pred(x, mod))
+  #})) %>%
+  #select(-c("group","day","model","data","lm")) %>% 
+  #unnest(-crbn) %>% 
+  #ungroup()
+  rowwise() %>% 
+  mutate(res = inverse_pred(ABS, lm)) %>% 
+  ungroup() %>% 
+  unpack(res) %>% 
+  select(-model, -lm, -group, -day) %>% 
+  mutate(MB_conc = MB_conc * Dil) %>% 
+  select(-ABS, -Dil)  
+  
 ```
-
-@tbl-abs の濃度変化データを図示すると @fig-abs のようになった。
 
 ```{r fig-abs, dev='jpeg'}
 #| echo: false
@@ -569,8 +720,6 @@ abs <- read.csv("data/abs.csv") %>%
 ```
 
 ### Belsorpによる細孔分布解析
-
-BELSORP miniにより活性炭の細孔分布について解析した結果について、今野さんのご協力を頂き、機器の生データを取得することができたため、。
 
 まず、それぞれの活性炭の等温吸着曲線は @fig-abs-isthm のようになった。
 
@@ -622,12 +771,12 @@ GW_df <- GW_df %>%
 ```{r fig-abs-isthm, dev='jpeg'}
 #| echo: false
 #| warning: false
+#| fig-cap: "2種の活性炭の吸着等温線"
 
 isthm_plt <- rbind(GLC_df, GW_df) %>% 
   ggplot(mapping=aes(x=prsr, y=V, color=sample))+
   geom_point()+
   labs(
-    #title = "2種の活性炭の等温吸着曲線",
     x="相対圧 P/P0",
     y="吸着量" # 正確な定義を記入する必要あり！
   )+
@@ -654,12 +803,12 @@ $$ {#eq-de_Boer}
 ```{r fig-t-plot, dev='jpeg'}
 #| echo: false
 #| warning: false
+#| fig-cap: "2種の活性炭のt-プロット"
 
 tplt <- rbind(GLC_df, GW_df) %>% 
   ggplot(mapping = aes(x=t_nm,y=V,color=sample))+
   geom_point()+
   labs(
-    title = "2種の活性炭のt-プロット",
     x="t(nm)",
     y="吸着量? V"
   )+
@@ -720,7 +869,7 @@ GW_BET_plt <- GW_df %>%
 BET_plt
 ```
 
-BETプロットが直線形になる範囲において、近似曲線を最小二乗法で求めた結果を @fig-BET-calc に示す。
+BETプロットが直線形になる範囲において、近似直線を最小二乗法で求めた。近似結果を @fig-BET-calc と @tbl-BET-calc に示す。
 
 ```{r fig-BET-calc, dev='jpeg'}
 #| echo: false
@@ -733,7 +882,7 @@ GLC_BET_calc_plt <- GLC_df %>%
   geom_point()+
   geom_smooth(method="lm",color="black")+
   labs(
-    title = "GLC活性炭のBET-プロット(直線近似)",
+    title = "GLC",
     x="相対圧",
     y="??"
   )+
@@ -746,7 +895,7 @@ GW_BET_calc_plt <- GW_df %>%
   geom_point()+
   geom_smooth(method="lm",color="black")+
   labs(
-    title = "GW活性炭のBET-プロット(直線近似)",
+    title = "GW",
     x="相対圧",
     y="??"
   )+
@@ -755,6 +904,27 @@ GW_BET_calc_plt <- GW_df %>%
 
 grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 ```
+
+```{r calc-BET-calc}
+#| echo: false
+
+# 線形回帰
+
+# 質量あたり表面積の計算
+
+```
+
+```{r tbl-BET-calc}
+#| echo: false
+#| tbl-cap: "BETプロットの線形近似の結果"
+
+# 線形回帰モデルの式とR^2値の表組み(検量線と同様)
+
+```
+
+@fig-BET-calc に示したBETプロットから、表面積の合計は ?? と求められた。
+
+最後に、
 
 ## 考察
 
