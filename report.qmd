@@ -166,15 +166,17 @@ ozn_calib %>%
 
 @fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
 
-検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ のような定義が用いられるとのことである。
+検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ と @eq-LOQ に示したような定義が用いられるとのことである。($※ただし、a: ブランクの平均、\sigma: ブランクの標準偏差$)
 
 <!--# ここ、出典がgolden bookとagilientのサイトの3つが必要！ -->
 
 $$
-LOD(Limit\ of\ Detection) = a + 3\sigma\\
-LOQ(Limit\ of\ Quantification) = a + 6\sigma\\ 
-ただし、a: ブランクの平均、\sigma: ブランクの標準偏差  
+LOD(Limit\ of\ Detection) = a + 3\sigma\\   
 $$ {#eq-LOD-and-LOQ}
+
+$$
+LOQ(Limit\ of\ Quantification) = a + 6\sigma\\
+$$ {#eq-LOQ}
 
 しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的な検出限界ならびに定量限界を求められない。そこで今回はやむを得ず、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。本レポートにおいて検量線法を用いている他の実験においても同様の処理を行った。（例： @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、吸光度の測定結果が負となったサンプルが「測定限界」として表記されている。）
 
@@ -292,7 +294,7 @@ ozone %>%
   select(c("時間.分.","MB_conc","条件")) %>% 
   ggplot(mapping=aes(x=時間.分. , y=MB_conc, color=条件)) +
   geom_point() +
-  geom_line() +
+  geom_line(linetype = 3) +
   labs(
     x="時間(分)",
     y="メチレンブルー濃度(mg/L)"
@@ -499,6 +501,8 @@ reverse_SS %>%
 
 本実験演習では、色度成分としてメチレンブルーを溶解した溶液に活性炭を加えて回分実験を行う。一定時間毎に採水し、色度成分の濃度を測定することで、吸着速度について調べる。また、吸着が平衡に達した際の濃度データをプロットすることで、吸着等温線に関する理解を深める。
 
+### 吸着等温線について
+
 ### Belsorpによる細孔分布解析
 
 Belsorpの原理
@@ -665,7 +669,7 @@ abs_models %>%
 abs <- read.csv("data/abs.csv")
 ```
 
-作成した検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度変化を @fig-abs に図示した。
+作成した検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度の経時変化を @fig-abs に図示した。
 
 ```{r calc-abs}
 #| echo: false
@@ -736,7 +740,72 @@ abs_calc %>%
 #| fig-cap: "メチレンブルー濃度の経時変化"
 #| warning: false
 
+abs_calc %>% 
+  mutate(time = case_when(
+    str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
+    .default = 1440
+  )) %>% 
+  mutate(MB_conc = case_when( 
+    MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
+    .default = MB_conc
+  )) %>% 
+  filter(!is.na(MB_conc)) %>% 
+  ggplot(aes(x=time,y=MB_conc,group=crbn_amt,color=crbn_amt))+
+  geom_point()+
+  geom_line(linetype = 2)+
+  scale_color_gradient(high = "red", low = "darkblue")+
+  #scale_color_viridis_c(option = "viridis", direction = -1)+
+  labs(
+    x="経過時間(分)",
+    y="メチレンブルー濃度(mg/L)"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(crbn, MB_init_conc))
+```
 
+次に、活性炭への吸着量をy軸にとったグラフを @fig-abs-2 に示す。
+
+<!--# このグラフ、縦軸の取り方間違ってる！活性炭1gごとにしないとだめ！ -->
+
+```{r fig-abs-2, dev='jpeg'}
+#| echo: false
+#| fig-cap: "メチレンブルー吸着量の経時変化"
+#| warning: false
+
+# 吸着量を求めるため一旦wideにしてmutateで処理する
+abs_calc %>% 
+  mutate(MB_conc = case_when( 
+    MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
+    .default = MB_conc
+  )) %>% 
+  select(-MB_info) %>% 
+  pivot_wider(names_from = time,
+              values_from = MB_conc) %>% 
+  mutate(across(c(ends_with("min"),"24hrs"),
+         ~ `0min` - .x)) %>% 
+  pivot_longer(cols = c(ends_with("min"),"24hrs"),
+               names_to = "time",
+               values_to = "MB_abs_conc") %>% 
+  mutate(time = case_when(
+    str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
+    .default = 1440
+  )) %>% 
+  filter(!is.na(MB_abs_conc)) %>% 
+  ggplot(aes(x=time,y=MB_abs_conc,group=crbn_amt,color=crbn_amt))+
+  geom_point()+
+  geom_line(linetype = 2)+
+  scale_color_gradient(high = "red", low = "darkblue")+
+  labs(
+    x="経過時間(分)",
+    y="メチレンブルー吸着量(mg/L)"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))+
+  facet_wrap(vars(crbn, MB_init_conc))
+  
 ```
 
 ### Belsorpによる細孔分布解析
