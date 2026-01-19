@@ -23,6 +23,7 @@ editor: visual
 library(tidyverse)
 library(gt)
 library(gridExtra)
+library(ggpmisc)
 
 hiragino <- "Hiragino Maru Gothic Pro"
 ```
@@ -397,7 +398,7 @@ manometer %>%
   sub_missing(missing_text = "欠測")
 ```
 
-上記の実測値より、各マノメータごとの損失水頭を求めた結果を @tbl-lost-head に示す。なお、 @tbl-manometer に示した通り、マノメータの7番と8番は濾過プロセス全体を通してほぼ同一の値で水位している。これは、7番と8番のマノメータが濾過層よりも上部に設置されているためである。そこで、損失水頭を求めるに当たっては、7番と8番のマノメータの読みの値の平均値から、1\~6番のマノメータ水位を引くことによって求めた。
+上記の実測値より、各マノメータごとの、それぞれの濾層(10cm刻み)あたりでの損失水頭を求めた結果を @tbl-lost-head に示す。なお、 @tbl-manometer に示した通り、マノメータの7番と8番は濾過プロセス全体を通してほぼ同一の値で水位している。これは、7番と8番のマノメータが濾過層よりも上部に設置されているためである。そこで、6番の損失水頭を求めるに当たっては、7番と8番のマノメータの読みの値の平均値から、6番のマノメータ水位を引くことによって求めた。
 
 <!--# データが多いため図は考察セクションに配置するかも? -->
 
@@ -411,8 +412,17 @@ manometer_losthead <- manometer %>%
   mutate(no_loss = (`7` + `8`) / 2) %>% 
   filter(!is.na(no_loss)) %>% 
   select(-c("7","8")) %>% 
-  mutate(across(c("1","2","3","4","5","6"),
-                ~ `no_loss` - .x))
+  mutate(
+    loss_1 = `2` - `1`,
+    loss_2 = `3` - `2`,
+    loss_3 = `4` - `3`,
+    loss_4 = `5` - `4`,
+    loss_5 = `6` - `5`,
+    loss_6 = no_loss - `6`
+  ) %>% 
+  select(-c("1","2","3","4","5","6")) %>% 
+  rename_with(~ str_extract(.x, "\\d+"),
+         starts_with("loss"))
 
 # 損失水頭の表組み
 manometer_losthead %>% 
@@ -423,7 +433,6 @@ manometer_losthead %>%
   cols_hide(columns = "班") %>% 
   tab_spanner(columns = c(-sampling),
               label = "濾過による損失水頭(cm)") %>% 
-  cols_label(sampling = "") %>% 
   cols_move_to_start(columns = c("sampling")) %>% 
   sub_missing(missing_text = "欠測")
 ```
@@ -443,11 +452,14 @@ manometer_losthead %>%
   # マノメータ番号を水位に変換
   mutate(manometer = as.numeric(manometer)) %>% 
   mutate(manometer = (7 - manometer) * 10) %>% 
-  ggplot(aes(x=value,y=manometer,color=sampling))+
+  arrange(filter,sampling,manometer) %>% 
+  # ggplotで描画
+  ggplot(aes(x=value,y=manometer,color=sampling,group=sampling))+
   geom_point()+
-  geom_line(linetype=3)+
+  #geom_line(linetype=3)+
+  geom_path(linetype=3)+
   scale_y_reverse()+
-  facet_wrap(vars(filter))+
+  facet_wrap(vars(filter),scales = "free")+
   labs(
     x="損失水頭(cm)",
     y="濾過層深さ(cm)"
@@ -535,15 +547,15 @@ reverse_SS %>%
 
 その大きな内部表面積や微小細孔により、水中の有機物等を吸着することができる。浄水処理においては、異臭味物質・農薬・微量有害物質・合成洗剤・色度成分・トリハロメタン前駆物質などの除去の目的で活性炭処理が行われている。
 
-本実験演習では、色度成分としてメチレンブルーを溶解した溶液に活性炭を加えて回分実験を行う。一定時間毎に採水し、色度成分の濃度を測定することで、吸着速度について調べる。また、吸着が平衡に達した際の濃度データをプロットすることで、吸着等温線に関する理解を深める。
+本実験演習では、色度成分としてメチレンブルーを溶解した溶液に、クラレコールGLC・クラレコールGWという二種類の活性炭を加えて回分実験を行う。一定時間毎に採水し、色度成分の濃度を測定することで、吸着速度について調べる。また、吸着が平衡に達した際の濃度データをプロットし、吸着等温式を適用することで、吸着等温線に関する理解を深める。
 
 ### 吸着等温線について
 
-### Belsorpによる細孔分布解析
+### ガス吸着による細孔分布解析
 
 Belsorpの原理
 
-本レポートではBELSORPにより出力される「生の吸着等温線データ」についても解析を試みる。データ取得に際しては今野さんにご協力頂いた。
+私はBELSORPにより出力される「生の吸着等温線データ」にも個人的に興味を持ったので、機器が接続されているPCから元データ格納先のファイルを探し、解析を行った。データ取得に際しては今野さんにご協力頂いた。
 
 ## 結果
 
@@ -745,7 +757,7 @@ abs_calc <- abs_calc %>%
   unpack(res) %>% 
   select(-model, -lm, -group, -day) %>% 
   mutate(MB_conc = MB_conc * Dil) %>% 
-  select(-ABS, -Dil)  
+  select(-ABS, -Dil, -data)  
 ```
 
 ```{r tbl-abs}
@@ -773,7 +785,7 @@ abs_calc %>%
 
 ```{r fig-abs, dev='jpeg'}
 #| echo: false
-#| fig-cap: "メチレンブルー濃度の経時変化"
+#| fig-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 #| warning: false
 
 abs_calc %>% 
@@ -934,7 +946,7 @@ abs_calc_qe %>%
   facet_wrap(vars(crbn))
 ```
 
-### Belsorpによる細孔分布解析
+### ガス吸着による細孔分布解析
 
 まず、それぞれの活性炭の等温吸着曲線は @fig-abs-isthm のようになった。
 
@@ -1001,11 +1013,11 @@ isthm_plt <- rbind(GLC_df, GW_df) %>%
 isthm_plt
 ```
 
-GW活性炭(浄水処理用)は、
+<!--# IUPAC論文の出典が必要 -->
 
-一方で、GLC活性炭には、相対圧が1付近でも吸着量の立ち上がりが見られ、大きめの細孔も吸着作用に寄与していることが示唆される結果となった。
+GW活性炭(浄水処理用)は、ほぼLangmuir型の吸着等温線(IUPACのType Ⅰ)に従っていることがわかる。その一方で、GLC活性炭においては、相対圧が1付近でも吸着量の立ち上がりが見られる。これはIUPACによる分類においてはType Ⅱに近く、単分子吸着の後に多層吸着が起こっていると推測される。また、両者を比較した際、Langmuir型の単分子層吸着領域での吸着量がGW活性炭よりもGLC活性炭の方が多い結果となっている。
 
-次に、@fig-t-plot に各活性炭のt-plotを示す。t-plotとは…
+次に、@fig-t-plot に各活性炭のt-plotを示す。t-plotとは、
 
 tの算出には @eq-de_Boer を用いた。
 
@@ -1150,6 +1162,8 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 ### 吸着等温線の適合性について
 
 ### 活性炭の比表面積と吸着性能について
+
+クラレコールのwebサイトを参照したい
 
 ### 実務の場での活性炭処理について
 
