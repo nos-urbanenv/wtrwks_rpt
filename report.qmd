@@ -11,6 +11,9 @@ format:
     #tbl-pos: 'h'
 #    mainfont: "Hiragino Maru Gothic Pro"
     classoption: [10pt]
+    include-in-header: 
+      - text: |
+          \usepackage{mhchem}
 editor: visual
 ---
 
@@ -373,51 +376,84 @@ ozone %>%
 
 # データ読み込み
 manometer <- read.csv("data/manometer.csv") %>% 
-  mutate(filter = paste0(filter,"筒")) 
+  mutate(filter = paste0(filter,"筒")) %>% 
+  pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
+                 names_to = "sampling")
 
 # マノメータ水位データの表組み
 manometer %>% 
-  pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
-                 names_to = "sampling") %>% 
+  filter(!is.na(value)) %>% 
   pivot_wider(names_from = "manometer",
                 values_from = "value") %>% 
   group_by(班, filter, sampling) %>% 
-  drop_na() %>% 
   filter(班==3) %>% 
   group_by(filter) %>% 
   gt() %>% 
   cols_hide("班") %>% 
-  cols_label(sampling="")
+  cols_label(sampling="") %>% 
+  tab_spanner(columns = c(-"sampling"),
+              label = "マノメータの読み(cm)") %>% 
+  cols_move_to_start(columns = c(sampling)) %>% 
+  sub_missing(missing_text = "欠測")
 ```
 
-上記の実測値より、損失水頭を求めた結果を @tbl-lost-head に示す。
+上記の実測値より、各マノメータごとの損失水頭を求めた結果を @tbl-lost-head に示す。なお、 @tbl-manometer に示した通り、マノメータの7番と8番は濾過プロセス全体を通してほぼ同一の値で水位している。これは、7番と8番のマノメータが濾過層よりも上部に設置されているためである。そこで、損失水頭を求めるに当たっては、7番と8番のマノメータの読みの値の平均値から、1\~6番のマノメータ水位を引くことによって求めた。
 
 <!--# データが多いため図は考察セクションに配置するかも? -->
 
 ```{r tbl-lost-head}
 #| echo: false
-
+#| tbl-cap: "マノメータごとの損失水頭"
 # 損失水頭の計算
-manometer_head <- manometer %>% 
-  pivot_longer(cols = starts_with("time_"),
-               names_to = "time",
-               names_prefix = "time_") %>% 
-  filter(!is.na(value)) %>%
-  mutate(head_loss = tapwtr - value) #%>% 
-  
-#  pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
-#               names_to = "sampling") #%>% 
-#  pivot_wider(names_from = "manometer",
-#              values_from = "value") %>% 
-#  group_by(班, filter, sampling) %>% 
-#  drop_na()
+manometer_losthead <- manometer %>% 
+  pivot_wider(names_from = "manometer",
+              values_from = "value") %>% 
+  mutate(no_loss = (`7` + `8`) / 2) %>% 
+  filter(!is.na(no_loss)) %>% 
+  select(-c("7","8")) %>% 
+  mutate(across(c("1","2","3","4","5","6"),
+                ~ `no_loss` - .x))
+
+# 損失水頭の表組み
+manometer_losthead %>% 
+  filter(班==3) %>% 
+  select(-no_loss) %>% 
+  group_by(filter) %>% 
+  gt() %>% 
+  cols_hide(columns = "班") %>% 
+  tab_spanner(columns = c(-sampling),
+              label = "濾過による損失水頭(cm)") %>% 
+  cols_label(sampling = "") %>% 
+  cols_move_to_start(columns = c("sampling")) %>% 
+  sub_missing(missing_text = "欠測")
 ```
 
 @tbl-lost-head の値について、横軸に単位濾層あたりの損失水頭、縦軸に濾層深さをとってプロットした結果を @fig-manometer に示す。
 
-```{r fig-manometer}
+```{r fig-manometer, dev='jpeg'}
 #| echo: false
 #| fig-cap: "マノメータの目詰まり状況"
+
+manometer_losthead %>% 
+  filter(班==3) %>% 
+  select(-no_loss) %>% 
+  pivot_longer(cols=c("1","2","3","4","5","6"),
+               values_to = "value",
+               names_to = "manometer") %>% 
+  # マノメータ番号を水位に変換
+  mutate(manometer = as.numeric(manometer)) %>% 
+  mutate(manometer = (7 - manometer) * 10) %>% 
+  ggplot(aes(x=value,y=manometer,color=sampling))+
+  geom_point()+
+  geom_line(linetype=3)+
+  scale_y_reverse()+
+  facet_wrap(vars(filter))+
+  labs(
+    x="損失水頭(cm)",
+    y="濾過層深さ(cm)"
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino))
 ```
 
 次に、濁度の測定結果を @tbl-filt-turb に示す。また、濁度の除去率の経時変化を求め、 @fig-filt-turb に図示した。
@@ -776,28 +812,40 @@ abs_calc %>%
 
 # 吸着量を求めるため一旦wideにしてmutateで処理する
 abs_calc_qe <- abs_calc %>% 
-  mutate(MB_conc = case_when( 
+  mutate(MB_q = case_when( 
     MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
     .default = MB_conc
   )) %>% 
-  select(-MB_info) %>% 
+  select(-MB_info,-MB_conc) %>% 
   pivot_wider(names_from = time,
-              values_from = MB_conc) %>% 
+              values_from = MB_q) %>% 
   # 0分からの濃度減少量を引き算で求める
   mutate(across(c(ends_with("min"),"24hrs"),
          ~ `0min` - .x)) %>% 
   pivot_longer(cols = c(ends_with("min"),"24hrs"),
                names_to = "time",
-               values_to = "MB_conc") %>% 
+               values_to = "MB_q") %>% 
   # 吸着量に変換。予め活性炭量が0gの行を除外。
   filter(crbn_amt > 0) %>% 
-  mutate(MB_q = MB_conc * (500/1000) / crbn_amt) %>% 
+  mutate(MB_q = MB_q * (500/1000) / crbn_amt) %>% 
   # あとは一つ前とまったく同じ
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
     .default = 1440
   )) %>% 
   filter(!is.na(MB_q))
+
+# 濃度Cの情報を追加
+# abs_calc_timenumはここでのleft-join用にしか使わない。
+abs_calc_timenum <- 
+  abs_calc %>% 
+  mutate(time = case_when(
+    str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
+    .default = 1440
+  ))
+
+abs_calc_qe <- abs_calc_qe %>% 
+  left_join(abs_calc_timenum,by=c("crbn","MB_init_conc","crbn_amt","time"))
 
 abs_calc_qe %>% 
   ggplot(aes(x=time,y=MB_q,group=crbn_amt,color=crbn_amt))+
@@ -825,7 +873,7 @@ abs_calc_qe %>%
 
 abs_calc_qe %>% 
   filter(time==1440) %>% 
-  ggplot(aes(x=MB_q,y=MB_conc))+
+  ggplot(aes(x=MB_conc,y=MB_q))+
   geom_point()+
   labs(
     x="平衡濃度Ce(mg/L)",
@@ -837,7 +885,7 @@ abs_calc_qe %>%
   facet_wrap(vars(crbn))
 ```
 
-@fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のようになった。
+@fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のように、点はほぼ直線上に並んだ。
 
 ```{r fig-langmuir, dev='jpeg'}
 #| echo: false
@@ -849,6 +897,8 @@ abs_calc_qe %>%
   mutate(ce_qe = MB_conc / MB_q) %>% 
   ggplot(aes(x=MB_conc,y=ce_qe))+
   geom_point()+
+  geom_smooth(method = lm, color="black", linetype=3)+
+  stat_poly_eq(use_label(c("eq","R2")))+
   labs(
     x="Ce",
     y="Ce/qe"
@@ -872,6 +922,8 @@ abs_calc_qe %>%
          log_ce = log(MB_conc)) %>% 
   ggplot(aes(x=log_ce,y=log_qe))+
   geom_point()+
+  geom_smooth(method = lm, color="black", linetype=3)+
+  stat_poly_eq(use_label(c("eq","R2")))+
   labs(
     x="log(Ce)",
     y="log(qe)"
@@ -1040,10 +1092,10 @@ BETプロットが直線形になる範囲において、近似直線を最小�
 #| fig-cap: "BET法の近似直線導出"
 
 GLC_BET_calc_plt <- GLC_df %>% 
-  filter(prsr<0.10) %>% 
+  filter(prsr<0.01) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
-  geom_smooth(method="lm",color="black")+
+  geom_smooth(method="lm",color="black",linetype=3)+
   labs(
     title = "GLC",
     x="相対圧",
@@ -1056,7 +1108,7 @@ GW_BET_calc_plt <- GW_df %>%
   filter(prsr<0.15) %>% 
   ggplot(mapping=aes(x=prsr,y=BET))+
   geom_point()+
-  geom_smooth(method="lm",color="black")+
+  geom_smooth(method="lm",color="black",linetype=3)+
   labs(
     title = "GW",
     x="相対圧",
@@ -1228,29 +1280,31 @@ flc_ph %>%
 # このセルはただの計算機代わり。
 ```
 
-# 課題E 消毒
+# 課題E-1 塩素消毒
 
 ## 実験概要
 
-2種類の消毒方法に関して実験を行う。
+塩素は注入処理が容易なことや、処理後も残留効果を示すことから、古くから主要な消毒方法として用いられ続けてきた。
+
+塩素は水中では以下の反応を通じて次亜塩素酸 $HOCl$ ならびに次亜塩素酸イオン$OCl^-$を生じ、２つは「遊離塩素」と総称されている。水中で負に帯電している微生物に対しては次亜塩素酸の方が高い殺菌力を持つ。
 
 ## 結果
 
-各条件下でのコロニー数の計数結果を @tbl-colony に示す。
+各条件下でのコロニー数の計数結果を @tbl-cl-colony に示す。各サンプルにおける希釈倍率と観測されたコロニー数の関係には齟齬はなく、希釈時のミス(希釈溶液の試験管の取り違えなど)は起こっていなかったと推測される。
 
 ```{r util-read-colony}
 #| echo: false
 colony <- read.csv("data/colony.csv")
 ```
 
-```{r tbl-colony}
+```{r tbl-cl-colony}
 #| echo: false
 #| message: false
-#| tbl-cap: "大腸菌コロニー数の計数結果"
+#| tbl-cap: "大腸菌コロニー数の計数結果(塩素消毒)"
 
 # table formatting
 colony %>% 
-  filter(班==3) %>% 
+  filter(班==3, 実験名=="塩素") %>% 
   group_by(実験名,サンプル名,採水時刻,希釈倍率) %>%
   mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
   summarise(コロニー数=unique(コロニー数)) %>% 
@@ -1272,6 +1326,74 @@ colony %>%
 ```
 
 ## 考察
+
+# 課題E-2　紫外線消毒
+
+## 実験概要
+
+## 結果
+
+各条件下でのコロニー数の計数結果を @tbl-uv-colony に示す。塩素消毒実験時と同じく、各サンプルにおける希釈倍率とコロニー数の関係は一致しており、希釈操作は正しく行われたと推測される。
+
+```{r tbl-uv-colony}
+#| echo: false
+#| message: false
+#| tbl-cap: "大腸菌コロニー数の計数結果(紫外線消毒)"
+
+# table formatting
+colony %>% 
+  filter(班==3, 実験名=="紫外線") %>% 
+  group_by(実験名,サンプル名,採水時刻,希釈倍率) %>%
+  mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
+  summarise(コロニー数=unique(コロニー数)) %>% 
+  mutate(コロニー数=paste0(
+    "\\textbf{",コロニー数,"}","(×$10^",希釈倍率,"$)"
+    ),
+    コロニー数=paste0(コロニー数, collapse=", ")) %>% 
+  summarise(コロニー数=unique(コロニー数)) %>% 
+  gt() %>% 
+  #tab_header(title="大腸菌コロニー数の計数結果") %>% 
+  fmt_passthrough(
+    columns = コロニー数,
+    escape=FALSE
+  ) %>% 
+  cols_align(align="center", columns=c("コロニー数","採水時刻")) %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  )
+```
+
+次に、各
+
+## 考察
+
+#### マルチヒットモデルのパラメータn=1の妥当性について
+
+#### 回復現象の原理について
+
+#### 不活化機構の研究のために必要な実験の提案
+
+#### 紫外線不活化に影響を与える因子・実務への提言
+
+#### PFAS分解における紫外線処理の利用について
+
+ウシオ電機の事業　ラジカルで長鎖PFAS・PFOAを分解
+
+吸着後の活性炭の処理が問題とされている中、先進的な技術として注目されている
+
+昨年度のInterAqua2025展示会で知った
+
+## 実験課題Eを通した考察
+
+塩素処理と紫外線処理にはそれぞれ利点と欠点がある。塩素消毒は塩素注入が容易であること、効果が確実かつ残留塩素により消毒効果が持続するといった利点がある一方で、塩素が水中の溶存有機物と反応することによってトリハロメタンを生成するという欠点がある。紫外線消毒は消毒副生成物を生じないという利点があるものの、塩素消毒とは異なり消毒効果には残留性がない。また、懸濁物質が存在する場合は消毒効果が低下してしまうという欠点もある。
+
+健康関連微生物の水循環システムにおける制御にあたっては、上水プロセスでの問題にとどまらず、より広い観点に立った施策展開が行われることが望まれる。例えば、上水道と下水道の行政上の連携が必要であると私は考える。水環境中に放出される健康関連微生物の多くは、下水処理場から処理水として放出されたものに由来する。そのため、浄水場での消毒の必要性を最低限に減らすためには浄水処理だけではなく、下水処理も視野に入れて考える必要がある。具体的には、上流に下水処理場、下流に浄水場が分布している水系においては、下水処理場の運転状況(BOD除去率、排水の微生物指標など)を下流の浄水場に共有し、互いの運転の最適化に役立てるなどの工夫が考えられる。
+
+次に、病原微生物による感染リスクと消毒副生成物による発がんリスクのトレードオフに関しては、特にアメリカや日本などの先進国においては20世紀後半から、定量的なリスク評価に基づいた意思決定を重んじる考え方が学識経験者によって主張されてきたにもかかわらず、現在でもリスクの考え方は、市民には正しく理解されていないのが現状であると考えられる。上下水道以外の分野の具体例にはなるが、ワクチン接種問題やPFAS汚染問題など、生命に係るリスクが少しでもある場合には、近年のSNSによる意見の拡散の速さも相まって、定性的で感情的な議論に陥る場合が少なくない。
+
+このような状況の中で、定量的なリスク評価に基づく政策議論が行われるためには、まず、上下水道とは公衆衛生のためのインフラであるという認識を市民・政治家に浸透させることが大事であろう。科学的に考えて、消毒副生成物による発がんリスクよりも、消毒を行わないことによる感染リスクの方が数桁レベルで大きいことは明らかである。
+
+もちろん、消毒副生成物によるリスクを低減するためにできることはたくさんある。例えば
 
 # 付録 他班のデータ
 
