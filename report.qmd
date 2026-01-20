@@ -871,7 +871,7 @@ abs_calc_qe %>%
   theme_bw()+
   theme(text=element_text(family=hiragino),
         plot.title=element_text(hjust = 0.5))+
-  facet_wrap(vars(crbn, MB_init_conc))
+  facet_wrap(vars(crbn, MB_init_conc),scales = "free")
 ```
 
 次に、平衡濃度Ceと平衡吸着量qeの関係を @fig-abs-3 に示す。なお、平衡濃度と平衡吸着量は、各条件での24時間後のデータを用いて算出した。
@@ -1055,48 +1055,7 @@ $$
 BET=P_0
 $$ {#eq-BET}
 
-```{r fig-BET-plt, dev='jpeg'}
-#| echo: false
-#| warning: false
-
-BET_plt <- rbind(GLC_df, GW_df) %>% 
-  ggplot(mapping=aes(x=prsr,y=BET,color=sample))+
-  geom_point()+
-  labs(
-    title = "2種の活性炭のBET-プロット",
-    x="相対圧",
-    y="??"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-GLC_BET_plt <- GLC_df %>% 
-  ggplot(mapping=aes(x=prsr,y=BET))+
-  geom_point()+
-  labs(
-    title = "GLC活性炭のBET-プロット",
-    x="相対圧",
-    y="??"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-GW_BET_plt <- GW_df %>% 
-  ggplot(mapping=aes(x=prsr,y=BET))+
-  geom_point()+
-  labs(
-    title = "GW活性炭のBET-プロット",
-    x="相対圧",
-    y="??"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-# grid.arrange(GLC_BET_plt, GW_BET_plt, nrow=1)
-BET_plt
-```
-
-BETプロットが直線形になる範囲において、近似直線を最小二乗法で求めた。近似結果を @fig-BET-calc と @tbl-BET-calc に示す。
+BETプロットが直線形になる範囲において、近似直線を最小二乗法で求めた。近似結果を @fig-BET-calc と @tbl-BET-calc に示す。なお、直線回帰を行う際に採用するデータの範囲については、今回は暫定的に、Belsorpのデータ分析ソフトウェアから出力された結果と同様のデータ範囲を用いてBETプロットを行った。（分析ソフトウェア内でのデータ選択の根拠までは今回は調べることができなかった。）
 
 ```{r fig-BET-calc, dev='jpeg'}
 #| echo: false
@@ -1151,7 +1110,7 @@ grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
 
 @fig-BET-calc に示したBETプロットから、表面積の合計は ?? と求められた。
 
-最後に、
+最後に、MP法による細孔分布の解析を行った。
 
 ## 考察
 
@@ -1302,6 +1261,12 @@ flc_ph %>%
 
 塩素は水中では以下の反応を通じて次亜塩素酸 $HOCl$ ならびに次亜塩素酸イオン$OCl^-$を生じ、２つは「遊離塩素」と総称されている。水中で負に帯電している微生物に対しては次亜塩素酸の方が高い殺菌力を持つ。
 
+本実験演習では、水道水ならびにpH6.5・pH8.5の緩衝溶液(塩素添加)に大腸菌を加え、経時的にサンプリングを行って大腸菌濃度を計測することで、遊離塩素の消毒効果について定量的に把握する。遊離塩素濃度に関しては実験前と実験後の2回測定する。
+
+詳細な実験手順は以下の通り。
+
+1.  
+
 ## 結果
 
 各条件下でのコロニー数の計数結果を @tbl-cl-colony に示す。各サンプルにおける希釈倍率と観測されたコロニー数の関係には齟齬はなく、希釈時のミス(希釈溶液の試験管の取り違えなど)は起こっていなかったと推測される。
@@ -1339,7 +1304,51 @@ colony %>%
   )
 ```
 
+次に、実験前後での遊離塩素濃度の測定結果、塩素分解の一次反応速度定数k'の推定値ならびに、実験での実際の採水時刻t1\~t3を @tbl-chlorine に示す。
+
+```{r tbl-chlorine}
+#| echo: false
+#| message: false
+#| tbl-cap: "各班の遊離塩素濃度・採水時刻の実測値"
+
+# データ読み込み
+chlorine <- read.csv("data/chlorine.csv")
+
+# k'の計算
+chlorine <- chlorine %>% 
+  mutate(k_dash = - (1/t4) * log(cl_aftr / cl_bef))
+
+# 遊離塩素濃度の表組み
+chlorine %>% 
+  mutate(班 = paste0(班,"班")) %>% 
+  group_by(班) %>% 
+  gt() %>% 
+  cols_label(cl_bef = "実験前",
+             cl_aftr = "実験後",
+             t4 = "測定時刻(s)",
+             サンプル名 = "溶液",
+             k_dash = "k'") %>% 
+  tab_spanner(columns = c("t1","t2","t3"),
+              label = "採水時刻(s)") %>% 
+  tab_spanner(columns = c("cl_bef","cl_aftr","t4"),
+              label = "遊離塩素濃度(mg/L)") %>% 
+  fmt_scientific(columns = "k_dash",
+                 n_sigfig = 2) %>% 
+  sub_missing(missing_text = "-")
+```
+
+速度定数k'の推定値を元に各時刻でのCt値を計算し、Ct値と対数不活化率の関係を にプロットした。
+
+```{r fig-cl-inact, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "対数不活化率とCt値"
+
+```
+
 ## 考察
+
+まず実験データについては、緩衝液Bにおいて、t=t3での採水後の塩素濃度測定を忘れてしまった。これは、「最初と最後の時点での塩素濃度を測定することにより、一次反応の反応速度定数k'を測定する」という実験の流れを完全に理解できていなかったことが原因である。今後は実験の設計・計画を完全に理解した上で実験に臨む習慣をつけたいと思う。
 
 # 課題E-2　紫外線消毒
 
@@ -1376,8 +1385,6 @@ colony %>%
     latex.use_longtable = TRUE
   )
 ```
-
-次に、各
 
 ## 考察
 
