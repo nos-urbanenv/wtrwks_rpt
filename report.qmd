@@ -442,6 +442,7 @@ manometer_losthead %>%
 ```{r fig-manometer, dev='jpeg'}
 #| echo: false
 #| fig-cap: "マノメータの目詰まり状況"
+#| warning: false
 
 manometer_losthead %>% 
   filter(班==3) %>% 
@@ -757,7 +758,7 @@ abs_calc <- abs_calc %>%
   unpack(res) %>% 
   select(-model, -lm, -group, -day) %>% 
   mutate(MB_conc = MB_conc * Dil) %>% 
-  select(-ABS, -Dil, -data)  
+  select(-ABS, -Dil)
 ```
 
 ```{r tbl-abs}
@@ -1269,7 +1270,7 @@ flc_ph %>%
 
 ## 結果
 
-各条件下でのコロニー数の計数結果を @tbl-cl-colony に示す。各サンプルにおける希釈倍率と観測されたコロニー数の関係には齟齬はなく、希釈時のミス(希釈溶液の試験管の取り違えなど)は起こっていなかったと推測される。
+各条件下でのコロニー数の計数結果を @tbl-cl-colony に示す。以降の考察では他班のデータも参照しているため、すべての班の計数結果について記載した。各サンプルにおける希釈倍率と観測されたコロニー数の関係には齟齬はなく、希釈時操作に関わるミス(希釈溶液の試験管の取り違えなど)は起こっていなかったと推測される。その一方で、4班の結果においては、t=t1以降のほとんどサンプルにおいて、最小希釈倍率を10\^1倍に設定しているにもかかわらず、コロニーが１つも見られない結果となった。この理由としては、採水後のチオ硫酸ナトリウムを入れ忘れていたため、塩素が十分に中和されなかったなどの理由が考えられる。
 
 ```{r util-read-colony}
 #| echo: false
@@ -1283,8 +1284,10 @@ colony <- read.csv("data/colony.csv")
 
 # table formatting
 colony %>% 
-  filter(班==3, 実験名=="塩素") %>% 
-  group_by(実験名,サンプル名,採水時刻,希釈倍率) %>%
+  mutate(班=paste0(班,"班")) %>% 
+  filter(実験名=="塩素") %>% 
+  select(-"実験名") %>% 
+  group_by(班,サンプル名,採水時刻,希釈倍率) %>%
   mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
   summarise(コロニー数=unique(コロニー数)) %>% 
   mutate(コロニー数=paste0(
@@ -1304,7 +1307,7 @@ colony %>%
   )
 ```
 
-次に、実験前後での遊離塩素濃度の測定結果、塩素分解の一次反応速度定数k'の推定値ならびに、実験での実際の採水時刻t1\~t3を @tbl-chlorine に示す。
+次に、実験前後での遊離塩素濃度の測定結果、塩素消費における一次反応速度定数k'の推定値ならびに、実験での実際の採水時刻t1\~t3を @tbl-chlorine に示す。
 
 ```{r tbl-chlorine}
 #| echo: false
@@ -1316,7 +1319,7 @@ chlorine <- read.csv("data/chlorine.csv")
 
 # k'の計算
 chlorine <- chlorine %>% 
-  mutate(k_dash = - (1/t4) * log(cl_aftr / cl_bef))
+  mutate(k_dash = - (60/t4) * log(cl_aftr / cl_bef))
 
 # 遊離塩素濃度の表組み
 chlorine %>% 
@@ -1327,7 +1330,7 @@ chlorine %>%
              cl_aftr = "実験後",
              t4 = "測定時刻(s)",
              サンプル名 = "溶液",
-             k_dash = "k'") %>% 
+             k_dash = "k'(/min)") %>% 
   tab_spanner(columns = c("t1","t2","t3"),
               label = "採水時刻(s)") %>% 
   tab_spanner(columns = c("cl_bef","cl_aftr","t4"),
@@ -1337,18 +1340,93 @@ chlorine %>%
   sub_missing(missing_text = "-")
 ```
 
-速度定数k'の推定値を元に各時刻でのCt値を計算し、Ct値と対数不活化率の関係を にプロットした。
+塩素の初期濃度と終濃度から推定した塩素分解の一次反応速度定数k'の値を元に各時刻でのCt値を算出し、Ct値と対数不活化率の関係を @fig-cl-inact にプロットした。先述の通り、4班は実験操作過程において何等かの不手際があったと考えられるため、グラフからは除いた。3班の緩衝液BのCt値算出にあたっては、終塩素濃度の測定を忘れてしまったため、他の班の緩衝液Bにおけるk'の平均値(n=3)で代替した。また、WHOの指針によれば、pH6〜7、水温5°Ｃの場合、遊離塩素で大腸菌を2log不活化するのに必要なCt値は0.034-0.05(mg/L\*min)とされていることを踏まえ、該当する不活化率・Ct値の範囲をグラフ上に青の線分で示した。
 
 ```{r fig-cl-inact, dev='jpeg'}
 #| echo: false
 #| warning: false
 #| fig-cap: "対数不活化率とCt値"
 
+# まずはCt値を計算
+chlorine_ct <- chlorine %>% 
+  mutate(k_dash = case_when(is.na(k_dash)~ 0.5175782, .default = k_dash)) %>% # 3班の緩衝液Bのk'を他の平均値で埋める
+  pivot_longer(cols = c("t1","t2","t3"),
+               names_to = "採水時刻",
+               values_to = "t_sampling") %>% 
+  mutate(ct = cl_bef * (1/k_dash) * (1 - exp(-k_dash * (t_sampling/60)))) %>% # 単位はmg/L/min
+  select(c("班","サンプル名","採水時刻","ct")) # 他3列は菌数との照合用
+
+# 大腸菌濃度を計算(各サンプルの量は10mLとする)
+colony_ct <- colony %>% 
+  filter(実験名=="塩素", 採用希釈倍率=="*") %>% 
+  select(-実験名) %>% 
+  left_join(chlorine_ct, by=c("班","サンプル名","採水時刻")) %>% 
+  mutate(ct = case_when(採水時刻=="t0" ~ 0,
+                        .default = ct)) %>% 
+  # グラフ表示用に計算していく
+  mutate(コロニー数 = case_when(コロニー数=="<1"~0,
+                           .default = as.numeric(コロニー数)),
+         coli_conc = コロニー数 * 10^希釈倍率) %>% 
+  group_by(班,サンプル名,採水時刻) %>% 
+  summarise(coli_conc = mean(coli_conc),
+            ct = unique(ct),
+            .groups = "drop") %>% 
+  group_by(班,サンプル名) %>% 
+  reframe(surv = coli_conc / max(coli_conc),
+          ct = ct,
+          採水時刻 = 採水時刻)
+
+# 不活化速度定数算出のためのプロット
+colony_ct %>%
+  filter(班!=4) %>% 
+  mutate(班=paste0(班,"班"),
+         surv_log= -log(surv)) %>% 
+  mutate(サンプル名 = case_when(
+    サンプル名 == "水道水" ~ "水道水(pH約7)",
+    サンプル名 == "緩衝液A" ~ "緩衝液A(pH約6.5)",
+    サンプル名 == "緩衝液B" ~ "緩衝液B(pH約8.5)")) %>% 
+  ggplot(aes(x=ct,y=surv_log))+
+  geom_point(aes(shape=班),size=3)+
+  #geom_smooth(method="lm",linetype=3)+
+  geom_line(aes(color=班),linetype = 3)+
+  geom_segment(aes(x=0.034,xend=0.05,y=2), color="blue")+
+  facet_wrap(vars(サンプル名),scale="free",ncol=3)+
+  labs(
+    x="Ct値",
+    y="対数不活化率"
+  )+
+  #ggpmisc::stat_poly_eq(use_label(c("eq","R2")))+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+```
+
+水道水に関しては、1班は時刻t2の時点で菌がほぼ全量不活化、2班は全域でほぼ線形に不活化率が変化しているのに対し、3班は時刻t1まで他2班とほぼ同水準で不活化が起こった後、テーリングが起こっている。緩衝液Aは、3班ともに、時刻t2まではほぼ同程度で不活化した後、時刻t3以降でテーリングが生じている。緩衝液Bについては、1班はt=t1の時点で一切不活化が起こっていない点が不可解である。t=t2以降は不活化していることを踏まえると、大腸菌が凝集していた、撹拌が十分に行われなかったなどの理由により、塩素との接触が十分に行われていなかったと考えられる。その一方で、大腸菌の凝集だけでは、時刻t2以降は6log以上の水準で一気に不活化が起こっていることが説明できない。この現象に関して、何等かの科学的に説明可能な理由が存在する可能性は否定できない。しかしながら今回は、時刻t1で一切不活化していない時点で、時刻t=0から塩素濃度が一次反応に従って分解するという今回の反応モデルを1班の実験データには適用することができないと判断し、緩衝液Bにおける不活化速度定数ｋの計算では1班のデータを除いて考えることとした。
+
+以上の議論より、不活化反応速度定数kは、以下のような基準で計算を行った。
+
+-   水道水：3班が時刻t2からテーリングを生じているため、全体の回帰直線を求めることは適切ではない。従って、すべての班について、時刻t0・t1の2点を結ぶ直線の傾きをkの推定値として統一する。
+
+-   緩衝液A：3班とも時刻t2以降でテーリングが生じているため、水道水と同様に、原点と時刻t1の点を結ぶ直線の傾きを採用する。
+
+-   緩衝液B：2・3班のデータはどちらも、全時刻を通してほぼ対数不活化率は単調に増加している。そのため、2班それぞれのデータについて、原点・t1・t2・t3の4点から回帰直線を導出し、その傾きをkの推定値とする。
+
+この基準で算出した結果を @tbl-k-calc に示す。また、3条件での不活化速度定数の比較を @fig-k-calc に示す。
+
+```{r tbl-k-calc}
+#| echo: false
+#| message: false
+#| tbl-cap: "不活化速度定数kの推定値"
+```
+
+```{r fig-k-calc ,dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "不活化速度定数kの推定値"
 ```
 
 ## 考察
 
-まず実験データについては、緩衝液Bにおいて、t=t3での採水後の塩素濃度測定を忘れてしまった。これは、「最初と最後の時点での塩素濃度を測定することにより、一次反応の反応速度定数k'を測定する」という実験の流れを完全に理解できていなかったことが原因である。今後は実験の設計・計画を完全に理解した上で実験に臨む習慣をつけたいと思う。
+まず実験データについては、緩衝液Bにおいて、t=t3での採水後の塩素濃度測定を忘れてしまった。これは、「最初と最後の時点での塩素濃度を測定することにより、一次反応の反応速度定数k'を測定する」という実験のパラメータ計算の流れを完全に理解できていなかったことが原因である。今後は実験の設計・計画を完全に理解した上で実験に臨む習慣をつけたいと思う。
 
 # 課題E-2　紫外線消毒
 
@@ -1365,8 +1443,10 @@ chlorine %>%
 
 # table formatting
 colony %>% 
-  filter(班==3, 実験名=="紫外線") %>% 
-  group_by(実験名,サンプル名,採水時刻,希釈倍率) %>%
+  filter(実験名=="紫外線") %>% 
+  select(-実験名) %>% 
+  mutate(班=paste0(班,"班")) %>% 
+  group_by(班,サンプル名,採水時刻,希釈倍率) %>%
   mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
   summarise(コロニー数=unique(コロニー数)) %>% 
   mutate(コロニー数=paste0(
@@ -1385,6 +1465,127 @@ colony %>%
     latex.use_longtable = TRUE
   )
 ```
+
+次に、実験前に計測したシャーレ上側の線量率、試料の吸光度から、反応容器内の平均線量率を算出した。実験当日の採取時刻t1\~t3と併せ、@tbl-uv-it に示した。容器内の平均線量率についても計算を行っている。
+
+平均線量率は、Lambert-Beerの法則( @eq-lambert-beer )を0からLまで定積分し、Lで割って得られる @eq-lambert-integral を用いて計算した。
+
+$$
+I = I_0 \cdot 10^{-A\cdot L}
+$$ {#eq-lambert-beer}
+
+$$
+\begin{aligned}
+\frac{1}{L} \int_{0}^{L}I_0 \cdot 10^{-A \cdot L'}dL' &=\frac{I_0}{L}(-\frac{1}{Alog10})[10^{-AL'}]_0^L\\
+&=\frac{I_0}{ALlog10}(1-10^{-AL})
+\end{aligned}
+$$ {#eq-lambert-integral}
+
+```{r tbl-uv-it}
+#| echo: false
+#| message: false
+#| tbl-cap: "平均線量率と採水時刻"
+
+depth <- 40 / (4.3^2 * pi) # シャーレ(半径4.3cm)内の深さ
+
+uv <- read.csv("data/uv.csv") %>% 
+  mutate(uv_ave = (uv_1+uv_2+uv_3+uv_4+uv_5) / 5,
+         i_ave = # Lambert-Beer則を積分した式
+           uv_ave / (abs*depth*log(10)) * (1 - 10^(-abs*depth))) 
+  
+
+# 表組み
+uv %>% 
+  group_by(班) %>% 
+  mutate(班=paste(班,"班")) %>% 
+  gt(rowname_col = "サンプル名") %>% 
+   cols_label(uv_1="1回目",
+             uv_2="2回目",
+             uv_3="3回目",
+             uv_4="4回目",
+             uv_5="5回目",
+             uv_ave="平均",
+             abs="吸光度",
+             i_ave="平均線量率") %>% 
+  tab_spanner(columns = c("t1","t2","t3"),
+              label = "採水時刻(s)") %>% 
+  tab_spanner(columns = starts_with("uv"),
+              label = "透過前の紫外線線量率(mW/cm^2)") %>% 
+  text_transform(locations = cells_body(columns=c("uv_1","uv_2",
+                                                  "uv_4","uv_5","uv_ave"),
+                                        rows = c(starts_with("uvr"),
+                                                 starts_with("phr"))),
+                 fn = function(x) ""
+                 ) %>% 
+  text_transform(locations = cells_body(columns = "uv_3", rows =  c(starts_with("uvr"), starts_with("phr"))),
+                 fn = function(x) "同上") %>% 
+  fmt_number(columns = i_ave, decimals=2)
+```
+
+計算した平均線量率を用いて各時刻での線量Iを算出し、大腸菌の不活化率との関係をプロットすると @fig-uv-inact のようになる。
+
+```{r fig-uv-inact, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "対数不活化率と線量I"
+
+uv_I <- uv %>% 
+  select(-starts_with("uv"),-abs) %>% 
+  pivot_longer(cols = starts_with("t"),
+               names_to = "採水時刻",
+               values_to = "t_sampling") %>% 
+  mutate(i_val = i_ave * t_sampling) %>% 
+  select(-c("i_ave","t_sampling"))
+
+colony_uv <- colony %>% 
+  filter(実験名=="紫外線", 採用希釈倍率=="*") %>% 
+  select(-実験名,-採用希釈倍率) %>% 
+  mutate(コロニー数 = case_when(コロニー数 == "<1" ~ 0,
+                           .default = as.numeric(コロニー数)),
+         coli_conc = コロニー数 * 10^希釈倍率) %>%
+  select(-c("希釈倍率","コロニー数")) %>% 
+  left_join(uv_I, by=c("班","サンプル名","採水時刻")) %>% 
+  mutate(i_val = case_when(採水時刻=="t0" ~ 0,
+                           .default = i_val),
+         班=paste0(班,"班")) %>% 
+  group_by(班,サンプル名,採水時刻) %>% 
+  summarise(coli_conc = mean(coli_conc),
+            i_val = unique(i_val),
+            .groups = "drop") %>% 
+  group_by(班,サンプル名) %>% 
+  reframe(surv = coli_conc / max(coli_conc),
+          i_val = i_val,
+          採水時刻 = 採水時刻)
+  
+colony_uv %>% 
+  mutate(surv_log = -log(surv),
+         サンプル名=case_when(サンプル名=="phr"~"Δphr",
+                              サンプル名=="uvr"~"Δuvr",
+                         .default = "BW")) %>% 
+  ggplot(aes(x=i_val,y=surv_log))+
+  geom_point(aes(shape=班),size=3)+
+  #geom_smooth(method="lm",linetype=3)+
+  geom_line(aes(color=班),linetype = 3)+
+  geom_segment(aes(x=0.034,xend=0.05,y=2), color="blue")+
+  facet_wrap(vars(サンプル名),scale="free",ncol=3)+
+  labs(
+    x="線量I(mW/cm^2 * t)",
+    y="対数不活化率"
+  )+
+  #ggpmisc::stat_poly_eq(use_label(c("eq","R2")))+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+```
+
+遺伝子欠損のないBW25113株では、全ての班において不活化曲線はほぼ直線形になり、2班・3班・4班では、時刻t3までにほぼ全量が不活化されている。また、4班の時刻t3の不活化率の減少に関しては、紫外線照射処理後に蛍光灯照明下で回復が起こったのではないかと考えられる。Δphr株では、4班でテーリングが生じている以外は、ほぼ線形な変化となっている。Δuvr株では、4班は時刻t2の時点でほぼ全量が不活化されている一方、時刻t3では微量ながら大腸菌が検出されており、光回復の可能性が示唆される。4班以外では、ほぼ線形に変化している。
+
+以上の議論から、マルチヒットモデルにおいてn=1とした場合の不活化速度定数k(cm\^2/mJ)を、以下のような方法で推定した。
+
+-   BW25113株：
+
+-   Δphr株：
+
+-   Δuvr株：
 
 ## 考察
 
@@ -1410,11 +1611,9 @@ colony %>%
 
 健康関連微生物の水循環システムにおける制御にあたっては、上水プロセスでの問題にとどまらず、より広い観点に立った施策展開が行われることが望まれる。例えば、上水道と下水道の行政上の連携が必要であると私は考える。水環境中に放出される健康関連微生物の多くは、下水処理場から処理水として放出されたものに由来する。そのため、浄水場での消毒の必要性を最低限に減らすためには浄水処理だけではなく、下水処理も視野に入れて考える必要がある。具体的には、上流に下水処理場、下流に浄水場が分布している水系においては、下水処理場の運転状況(BOD除去率、排水の微生物指標など)を下流の浄水場に共有し、互いの運転の最適化に役立てるなどの工夫が考えられる。
 
-次に、病原微生物による感染リスクと消毒副生成物による発がんリスクのトレードオフに関しては、特にアメリカや日本などの先進国においては20世紀後半から、定量的なリスク評価に基づいた意思決定を重んじる考え方が学識経験者によって主張されてきたにもかかわらず、現在でもリスクの考え方は、市民には正しく理解されていないのが現状であると考えられる。上下水道以外の分野の具体例にはなるが、ワクチン接種問題やPFAS汚染問題など、生命に係るリスクが少しでもある場合には、近年のSNSによる意見の拡散の速さも相まって、定性的で感情的な議論に陥る場合が少なくない。
+次に、病原微生物による感染リスクと消毒副生成物による発がんリスクのトレードオフに関しては、特にアメリカや日本、欧州などの先進国においては20世紀後半から、定量的なリスク評価に基づいた意思決定を重んじる考え方が学識経験者によって主張されてきたにもかかわらず、現在でもリスクの考え方は、市民には正しく理解されていないのが現状であると考えられる。上下水道以外の分野の具体例にはなるが、ワクチン接種問題やPFAS汚染問題など、生命に係るリスクが少しでもある場合には、近年のSNSによる意見の拡散の速さも相まって、定性的で感情的な議論に陥る場合が少なくない。
 
-このような状況の中で、定量的なリスク評価に基づく政策議論が行われるためには、まず、上下水道とは公衆衛生のためのインフラであるという認識を市民・政治家に浸透させることが大事であろう。科学的に考えて、消毒副生成物による発がんリスクよりも、消毒を行わないことによる感染リスクの方が数桁レベルで大きいことは明らかである。
-
-もちろん、消毒副生成物によるリスクを低減するためにできることはたくさんある。例えば
+このような状況の中で、定量的なリスク評価に基づく政策議論が行われるためには、まず、上下水道とは公衆衛生のためのインフラであるという認識を市民・政治家に浸透させることが大事であろう。科学的に考えて、消毒副生成物による発がんリスクよりも、消毒を行わないことによる感染リスクの方が数桁レベルで大きいことは明らかである。また、欧州式の塩素低減型水道システムの導入も積極的に検討すべきであるものの、既存の設備のみでは対応ができないため、導入には相応の予算が必要となる。管路網更新や耐震化などが喫緊の課題とされている中で新技術を導入するには、水道事業そのものに関する市民の理解を深め、新技術導入の意義について合意を得ることがまず、最も重要になるのではないだろうか。
 
 # 付録 他班のデータ
 
