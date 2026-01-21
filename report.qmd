@@ -1522,7 +1522,7 @@ uv %>%
   fmt_number(columns = i_ave, decimals=2)
 ```
 
-計算した平均線量率を用いて各時刻での線量Iを算出し、大腸菌の不活化率との関係をプロットすると @fig-uv-inact のようになる。
+計算した平均線量率を用いて各時刻での線量Iを算出し、大腸菌の不活化率との関係をプロットすると @fig-uv-inact のようになる。なお、対数不活化率を求めるにあたり、コロニーが全く見られなかった場合には対数不活化率が生の無限大となってしまうため、"\<1"の場合は便宜的に、"コロニー数1"と置き換えて作図を行った。
 
 ```{r fig-uv-inact, dev='jpeg'}
 #| echo: false
@@ -1540,7 +1540,7 @@ uv_I <- uv %>%
 colony_uv <- colony %>% 
   filter(実験名=="紫外線", 採用希釈倍率=="*") %>% 
   select(-実験名,-採用希釈倍率) %>% 
-  mutate(コロニー数 = case_when(コロニー数 == "<1" ~ 0,
+  mutate(コロニー数 = case_when(コロニー数 == "<1" ~ 1,
                            .default = as.numeric(コロニー数)),
          coli_conc = コロニー数 * 10^希釈倍率) %>%
   select(-c("希釈倍率","コロニー数")) %>% 
@@ -1581,11 +1581,66 @@ colony_uv %>%
 
 以上の議論から、マルチヒットモデルにおいてn=1とした場合の不活化速度定数k(cm\^2/mJ)を、以下のような方法で推定した。
 
--   BW25113株：
+-   BW25113株：2〜4班のデータについては、原点、t1、t2の3点の回帰直線の傾きを求める。1班のデータについては、4点全てを用いる。
 
--   Δphr株：
+-   Δphr株：テーリングが生じた4班は原点、t1、t2の3点を用いる。その他の班は4点全てを用いる。
 
--   Δuvr株：
+-   Δuvr株：4班は原点とt1の2点の傾きを用いる。その他は4点全てを用いる。
+
+以上の方法でn=1と仮定した場合のkを算出した結果を @tbl-uv-k に示す。また、3株での不活化速度定数の比較を @fig-uv-k に示す。
+
+```{r tbl-uv-k}
+#| echo: false
+#| tbl-cap: "不活化速度定数kの算出結果"
+
+uv_k_calc <- colony_uv %>% 
+  mutate(surv_log = -log(surv)) %>% 
+  select(-surv) %>% 
+  filter((サンプル名=="BW" & (班=="1班" | 採水時刻%in%c("t0","t1","t2"))) |
+           (サンプル名=="phr" & (班!="4班" | 採水時刻%in%c("t0","t1","t2"))) |
+           (サンプル名=="uvr" & (班!="4班" | 採水時刻%in%c("t0","t1")))) %>% 
+  group_by(サンプル名,班) %>% 
+  nest() %>% 
+  mutate(lm = map(data, function(df) lm(df$surv_log ~ df$i_val))) 
+
+# 表組み(回帰モデルの傾きを表示)
+uv_k_calc <- uv_k_calc %>% 
+  mutate(k_val = map(lm,function(mod){
+    format(unname(mod$coefficients[2]),digits=3)
+                         })) %>% 
+  select(c("班","サンプル名","k_val")) %>% 
+  mutate(k_val = as.numeric(k_val)) 
+
+uv_k_calc %>% 
+  pivot_wider(names_from = "班",
+              values_from = "k_val") %>% 
+  gt() %>% 
+  fmt_scientific(columns = everything(),
+                 n_sigfig = 2)
+```
+
+```{r fig-uv-k, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "不活化速度定数kの株間での違い"
+
+uv_k_calc %>% 
+  group_by(サンプル名) %>% 
+  summarise(mean = mean(k_val),
+            sd=sd(k_val)) %>% 
+  ggplot()+
+  geom_bar(aes(x=サンプル名,y=mean),stat="identity",fill="skyblue")+
+  geom_errorbar(aes(x=サンプル名,ymin=mean-sd,ymax=mean+sd),
+                color="red",width=0.5)+
+  labs(
+    x="大腸菌株名(各n=4)",
+    y="不活化速度定数k"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+```
+
+Δuvr株の場合の不活化速度定数が、他の2条件に比べて有意に大きくなったのに対し、今回の実験条件においてはBW25113株とΔphr株の間には有意差は見られなかった。
 
 ## 考察
 
