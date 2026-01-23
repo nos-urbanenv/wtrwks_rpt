@@ -1,6 +1,8 @@
 ---
 title: "浄水処理実験 実験レポート"
+header: "都市工学演習B2 + 環境工学実験演習第二"
 author: "03250114 大隅伸明"
+subtitle: "実験実施期間：2025年12月9日~2025年12月26日"
 format: 
   #html:
    # toc: true
@@ -26,11 +28,7 @@ library(gridExtra)
 library(ggpmisc)
 
 hiragino <- "Hiragino Maru Gothic Pro"
-```
 
-```{r util-make_csv_mirrors}
-#| include: false
-#| echo: false
 # readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
 # ./data_rawディレクトリにあるxlsxなどの形式の入力ファイルを、使用目的ごとにcsvに分割してミラーとし、githubでの更新履歴追跡を容易にする。
 # readxlのドキュメントで推奨されているそのままのコード。
@@ -61,141 +59,8 @@ list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>%
          ".csv"),
          row.names = FALSE
          ))
-```
 
-# 本実験演習の目的
-
-上水実験課題では以下の項目を扱い、浄水処理の物理化学的な原理について定性的・定量的な両面から理解を深めることを目的とする。
-
-1.  凝集沈殿における最適条件の決定
-
-2.  急速濾過における目詰まり状況の解析
-
-3.  オゾンによる有機物分解
-
-4.  活性炭の吸着特性の解析
-
-5.  消毒
-
-    1.  塩素消毒
-
-    2.  紫外線消毒
-
-# 課題A オゾンによる有機物分解
-
-## 実験概要
-
-### 実験原理
-
-オゾン処理においては、オゾンの強力な酸化力によって高分子の難分解性有機物が酸化分解される。
-
-水中のオゾンの
-
-そこで本実験では、pHがオゾンによる有機物分解に与える影響を調べるため、酸性・中性・アルカリ性の3種類の緩衝溶液にメチレンブルーを一定量加え、オゾン通気を行った。一定時間ごとにオゾン通気中のフラスコから採水を行い、メチレンブルー濃度(2分毎)、TOC濃度、pH、オゾン濃度(最初と最後)の測定を行った。メチレンブルー濃度の測定に当たっては、吸光度法(665nm)を用いた。メチレンブルーは吸着性が高いことから、吸光度測定時には石英セルではなくプラスチックセルを使用し、こまめにMilli-Q水を測定することでセルに吸着していないかを確かめた。溶存オゾン濃度はHACH社の簡易キットを用いてインディゴ法で測定した。TOC濃度測定には島津製作所TOC-Vを使用した。
-
-### 実験手順
-
-実験の詳細な手順を以下に示す。
-
-1.  予め分光光度計の電源を入れ、内蔵ランプの出力を安定させる
-
-2.  試薬調整\
-    以下の試薬・溶液を調整する。
-
--   pH2, pH7.2, pH12の緩衝溶液
-    -   pH2:
-    -   pH7.2:
-    -   pH12:
--   メチレンブルー標準原液(1g/L)
-    -   緩衝溶液にはこの標準原液を、500mLあたり25mL添加した。
-
-3.  検量線の作成\
-    結果の章で示すように、0mg/L\~20mg/Lの範囲で標準列を作成した上で、検量線が線形性を保つ範囲のデータを採用した。
-4.  オゾン通気準備(2, 3と同時並行)\
-    オゾン発生器を起動し、3\~5分間バイパスで湿気を追い出した。その後、Milli-Q水500mLに5分間通気し、溶存オゾン濃度を測定した。各条件での実験終了後も、同様にMilli-Q水に通気してオゾン濃度を測定することで、オゾン発生器から発生しているオゾン濃度が一定であるかどうかを確認した。
-5.  オゾン処理\
-    実験原水(緩衝溶液500mLにメチレンブルー標準原液25mLを添加)を反応器に入れ、オゾンを通気する。オゾン通気開始直前をt=0とし、2分ごとに採水する。
-6.  水質分析\
-    採水したサンプルについて、メチレンブルー濃度(全サンプル)、TOC濃度・pH・オゾン濃度(最初と最後のサンプル)を測定する。
-
-## 結果
-
-まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値を @tbl-ozn-calib に示す。
-
-```{r tbl-ozn-calib}
-#| echo: false
-#| tbl-cap: "オゾン検量線の元データ"
-
-# オゾンのデータ読み込み
-ozn_calib <- read.csv("data/ozone_calib.csv")
-
-# 検量線用の希釈列データの表組み
-ozn_calib %>% 
-  filter(班==3) %>% 
-  arrange(メチレンブルー濃度.mg.L.) %>% 
-  select(-c("班")) %>% 
-  gt() %>% 
-  cols_align(
-    align="center",
-    columns=everything()
-  ) %>% 
-  cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)",
-             吸光度="665nm吸光度")
-```
-
-<!--# ここの表現もうちょっと洗練させたいなぁ。。 -->
-
-上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。検量線モデルは、R言語の`lm`関数により、吸光度を目的変数、メチレンブルー濃度を説明変数とした線形回帰を行うことにより導出した（以下同様）。
-
-```{r fig-ozn-calib, dev='jpeg'}
-#| echo: false
-#| warning: false
-#| fig-cap: "メチレンブルー濃度の検量線"
-
-# 検量線プロット
-ozn_calib %>% 
-  filter(班==3) %>% 
-  ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
-  geom_point()+
-  geom_smooth(method="lm",color="black")+
-  labs(
-    #title="メチレンブルー濃度の検量線",
-    x="メチレンブルー濃度(mg/L)",
-    y="665nm吸光度"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino),
-        plot.title=element_text(hjust = 0.5))
-```
-
-@fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
-
-検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ と @eq-LOQ に示したような定義が用いられるとのことである。($※ただし、a: ブランクの平均、\sigma: ブランクの標準偏差$)
-
-<!--# ここ、出典がgolden bookとagilientのサイトの3つが必要！ -->
-
-$$
-LOD(Limit\ of\ Detection) = a + 3\sigma\\   
-$$ {#eq-LOD-and-LOQ}
-
-$$
-LOQ(Limit\ of\ Quantification) = a + 6\sigma\\
-$$ {#eq-LOQ}
-
-しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的な検出限界ならびに定量限界を求められない。そこで今回はやむを得ず、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。本レポートにおいて検量線法を用いている他の実験においても同様の処理を行った。（例： @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、吸光度の測定結果が負となったサンプルが「測定限界」として表記されている。）
-
-```{r calc-MB-conc}
-#| echo: false
-
-#検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
-# 回帰モデルの作成
-lm_ozn_dat <- ozn_calib %>% 
-  filter(班==3) 
-lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.,
-             model = TRUE)
-
-# 推定用関数
-# 解析コードの流れを邪魔しているので、.Rファイルとして分離する予定。
+# 検量線の濃度推定に使う関数
 inverse_pred.calc <- function(y, alpha, beta){
   return((y - beta) / alpha)
 }
@@ -228,88 +93,322 @@ inverse_pred <- function(y, lm_mod){
     return(tibble(MB_conc=pred.val, MB_info="fine"))
   }
 }
-
-
-# 実験データの読み込みと検量線モデル適用
-ozone <- read.csv("data/ozone.csv")
-ozone <- ozone %>% 
-  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn)) %>% 
-  unnest(ozn_mdlfit) %>% 
-  mutate(MB_conc = MB_conc * 吸光度_希釈)
 ```
 
-```{r calc-ozone-TOC}
+# 本実験演習の目的
+
+上水実験課題では以下の項目を扱い、浄水処理の物理化学的な原理について定性的・定量的な両面から理解を深めることを目的とする。
+
+1.  凝集沈殿における最適条件の決定
+
+2.  急速濾過における目詰まり状況の解析
+
+3.  オゾンによる有機物分解
+
+4.  活性炭の吸着特性の解析
+
+5.  消毒
+
+    1.  塩素消毒
+
+    2.  紫外線消毒
+
+# 課題A 凝集沈殿における最適条件の決定
+
+## 実験概要
+
+凝集沈殿法は水中の濁度や色度、リンを除去するプロセスで、浄水処理や排水処理において広く用いられている。自然水中の濁質は負電荷を帯びたコロイドとして存在する。そこで、凝集沈殿法ではアルミニウムイオンなどの正電荷を持った金属イオンを添加することで、負電荷を持つコロイド粒子の電荷を中和する。その結果、ファンデルワールス力による引力の方が静電斥力よりも大きくなることで粒子は凝析し、フロック（集塊）を形成する。その後緩速で撹拌することによりフロックどうしを凝集させることで、濾過により除去可能な大きさにまでフロックを成長させる。
+
+<!--# 出典入れなきゃ駄目！ -->
+
+凝集沈殿においては、凝集剤が水中で加水分解を起こす際に水中のアルカリ度が消費されるため、アルカリ度が運転管理上重要な指標となる。また、pHなどの原水水質によっても凝集プロセスの効果は大きく左右される。これらの複雑な要因が絡み合っており、凝集剤の最適な注入量を理論的に決定することは難しいとされる。そこで実務においては、実際のプラントを模したジャーテストを行うことで注入量の決定が行われる。
+
+今回の実験演習では、三四郎池の水および、カオリンを分散させたコロイド溶液について、硫酸アルミニウムを凝集剤として用いてジャーテストを行い、凝集剤の最適注入量を決定する。三四郎池については、本実験で決定した最適注入量の値を用いて課題Bの急速濾過実験を行う。
+
+## 結果
+
+まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果を @tbl-flc-amt に示す。
+
+```{r calc-ttr_fctr}
 #| echo: false
 
-# TOCデータ読み込みと抽出
-TOC_1_2 <- read.csv("data/TOC_ozone_1_2.csv", header = FALSE)
-TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) %>% 
-  filter(V4=="NPOC") %>% 
-  select(c("V3", "V9")) %>% 
-  `colnames<-`(c("TOC_vial","TOC_conc")) %>% 
-  mutate_all(as.numeric) #%>% 
-  #mutate(TOC_filename = "1_2")
-
-# 実験ノートのデータと統合
-ozone <- ozone %>% 
-  left_join(TOC_3_4, by="TOC_vial")
+# 滴定に用いた0.01M硫酸の濃度補正のためのファクター
+ttr_amt <- 17.94 # 他班を取り込む場合はリストにするかも?
+ttr_fctr <- 20 / ttr_amt 
 ```
 
-```{r tbl-ozone}
-#| echo: false
-#| tbl-cap: "オゾン処理時の各水質指標の測定結果"
+なお、m-アルカリ度の測定に用いる0.01mol/L硫酸の標定を行った結果、ファクターは `r round(ttr_fctr,2)` となった。
 
-# 実験データの表組み
-ozone %>%
+```{r tbl-flc-amt}
+#| echo: false
+#| tbl-cap: "凝集剤添加量の決定"
+
+# データ読み込み
+flc_amt <- read.csv("data/flc_amt.csv")
+
+# m-アルカリ度計算
+# pH4.8に達するまでに必要な酸の量をCaCO3の質量として求める(1Lあたり)
+# 前期は滴定量が100mL指定だったが今期は可変なので注意。
+
+# CaCO3当量(mg/L)に換算する
+#モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
+flc_amt <- flc_amt %>%
   filter(班==3) %>% 
-  select(-c("班","TOC_vial","TOC_filename")) %>% 
-  group_by(条件) %>% 
+  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
+  mutate(mアルカリ度 = 
+           # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
+           滴下量 / 1000 * 0.01 * ttr_fctr *
+           # 100.09 * 1000を掛ければCaCO3当量(mg)が得られる
+           100.09 * 1000 / 
+           # 試料1LあたりのCaCO3当量を得るために、(試料量/1000)で割る
+           (滴定試料量/1000)
+         )
+
+# 凝集剤投入量決定実験の表組み
+flc_amt %>%
+  filter(班==3) %>% 
+  select(-c("班","滴定_前","滴定_後")) %>% 
+  group_by(実験) %>% 
   gt() %>% 
-  text_transform(
-    locations = cells_body(columns = starts_with("MB_"),
-                           rows = MB_info == "<LOD"),
-    fn = function(x) {x = "定量限界以下"}
-  ) %>% 
-  fmt_number(decimals = 1,
-             columns = c("MB_conc", "TOC_conc")) %>% 
-  tab_spanner(label = "メチレンブルー濃度測定",
-              columns = c("吸光度","吸光度_希釈","MB_conc")) %>% 
-  cols_hide(columns = c("MB_info")) %>% 
-  cols_label(時間.分. = "時刻(分)",
-             吸光度_希釈 = "希釈倍率",
-             MB_conc = "濃度(mg/L)",
-             O3_conc = "オゾン濃度(mg/L)",
-             TOC_conc = "TOC濃度(mg/L)") %>% 
+  #アルカリ度は有効数字3桁。
+  # カオリン75以外は小数点以下1桁でうまくいく。
+  # カオリン75だけ別指定したいんだがやり方は不明。
+  # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
+  fmt_number(columns="mアルカリ度", decimals=1) %>% 
   cols_align(align = "center", columns = everything()) %>% 
+  cols_move_to_end(columns = starts_with("滴")) %>%
+  tab_spanner(label = "滴定生データ(mL)",
+              columns = c("滴下量","滴定試料量")) %>%
+  cols_label(凝集剤濃度="凝集剤(mg/L)",
+             pH.後.="pH",
+             ) %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  )
+```
+
+濁度の除去性能を比較した結果、最適な凝集剤濃度は三四郎池の場合は50mg/L、カオリン原水の場合は20mg/Lであるとわかった。
+
+次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果を @tbl-flc-ph に示す。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
+
+```{r tbl-flc-ph}
+#| echo: false
+#| tbl-cap: "各pH条件下での反応の比較"
+
+#ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
+flc_ph <- read.csv("data/flc_ph.csv") %>% 
+  filter(班==3) %>% 
+  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
+  mutate(mアルカリ度 = 
+           滴下量 / 1000 * 0.01 * ttr_fctr *
+           100.09 * 1000 /
+           (滴定試料量/1000)
+         )
+
+# 添加量決定の際と同じ処理にしよう。
+flc_ph %>% 
+  mutate(滴定試料量=case_when(
+    理論pH=="pH3"~NA,
+    理論pH=="pH5"~NA,
+    .default = 滴定試料量)) %>% 
+  #filter(班==3) %>% 
+  select(-c("班","滴定_前","滴定_後","理論pH","凝集剤添加量")) %>% 
+  group_by(試料) %>% 
+  gt() %>% 
+  # pH11のところが有効数字がおかしいので個別で指定する必要あり。
+  fmt_number(columns="mアルカリ度", decimals=1) %>% 
+  cols_align(align = "center", columns = everything()) %>% 
+  cols_move_to_end(columns = starts_with("滴")) %>%
+  tab_spanner(label = "滴定生データ(mL)",
+              columns = c("滴下量","滴定試料量")) %>% 
+  #tab_header(title="各phでの反応の比較") %>% 
+  cols_label(pH前="pH(前)",
+             pH後="pH(後)",
+             mアルカリ度="m-アルカリ度") %>% 
+  tab_options(
+    latex.use_longtable = TRUE
+  ) %>% 
   sub_missing(missing_text = "-")
 ```
 
-酸性のt=0でのサンプルの吸光度の値が、t=2での値よりも小さくなってしまっている。酸性・中性・アルカリ性の各条件について、TOCの値は約15前後で一定しているため、メチレンブルー溶液の投入量を間違えた可能性は低い。従って、吸光度測定の時点で、希釈倍率を間違えるなどの手違いがあったと推測される。
+2種類の原水について、凝集剤注入量と上澄み液の濁度の関係を @fig-flc-turb に、凝集剤注入量と上澄み液のアルカリ度の関係を @fig-flc-alkarine に、原水のpHと上澄み液の濁度の関係を @fig-flc-ph にそれぞれ示した。凝集剤濃度については、最適注入量から注入量を増やした場合・減らした場合の両方について、濁度の除去効率が下がるということがわかる。また、凝集剤濃度が上がるほどアルカリ度が消費されていることもグラフから読み取れる。pHと濁度の関係については、カオリンに関してはpH8\~9付近で濁度が極小値となっている一方で、三四郎池では変化の傾向は一定しておらず、原水中に存在する様々な化学種が複雑な影響を与えていると推測される。
 
-メチレンブルー濃度の時間変化を図示すると @fig-MB-conc のようになった。
-
-```{r fig-MB-conc, dev='jpeg'}
+```{r fig-flc-turb, dev='jpeg'}
 #| echo: false
 #| warning: false
-#| fig-cap: "メチレンブルー濃度の経時変化"
+#| fig-cap: "凝集剤注入量と上澄み液の濁度の関係"
 
-ozone %>% 
-  filter(班==3) %>% 
-  select(c("時間.分.","MB_conc","条件")) %>% 
-  ggplot(mapping=aes(x=時間.分. , y=MB_conc, color=条件)) +
-  geom_point() +
-  geom_line(linetype = 3) +
+flc_amt %>% 
+  ggplot(aes(x=凝集剤濃度,y=濁度,color=実験))+
+  geom_point(size=2)+
   labs(
-    x="時間(分)",
-    y="メチレンブルー濃度(mg/L)"
-  ) +
-  theme_bw() +
+    x="凝集剤濃度(mg/L)",
+    y="上澄み液の濁度",
+    color="原水"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+```
+
+```{r fig-flc-alkarine, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "凝集剤注入量と上澄み液のアルカリ度の関係"
+
+flc_amt %>% 
+  ggplot(aes(x=凝集剤濃度,y=mアルカリ度,color=実験))+
+  geom_point(size=2)+
+  labs(
+    x="凝集剤濃度(mg/L)",
+    y="上澄み液のm-アルカリ度",
+    color="原水"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino))
+```
+
+```{r calc-alkarine-real}
+#| echo: false
+
+# アルカリ度の減少割合を予め計算しておく
+flc_amt_mod <- flc_amt %>% 
+  group_by(実験) %>% 
+  nest() %>% 
+  mutate(lm = map(data, function(df) lm(df$凝集剤濃度 ~ df$mアルカリ度))) 
+
+# カオリンが先。今後index参照で間違えないように。
+alkarine_dec_val <- flc_amt_mod %>%
+  arrange(実験) %>% 
+  mutate(alkarine_dec = map(lm,function(mod){
+    format(unname(mod$coefficients[2]),digits=3)
+                         })) %>% 
+  mutate(alkarine_dec = as.numeric(alkarine_dec)) %>% 
+  #select(c("実験","alkarine_dec"))
+  pull(alkarine_dec)
+```
+
+```{r fig-flc-ph, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "原水のpHと上澄み液の濁度の関係"
+
+flc_ph %>% 
+  ggplot(aes(x=pH前,y=濁度,color=試料))+
+  geom_point(size=2)+
+  #geom_line(linetype=3,linewidth = 1.2)+
+  labs(
+    x="原水のpH",
+    y="上澄み液の濁度",
+    color="原水"
+  )+
+  theme_bw()+
   theme(text=element_text(family=hiragino))
 ```
 
 ## 考察
 
-結果の章には自分たち(3班)のデータを示したが、
+#### アルカリ度減少に関する定量的考察
+
+凝集剤(硫酸アルミニウム)の添加によってアルカリ度が消費されるのは、 @eq-alkarine のような反応が起こっているからである。
+
+$$
+Al_2(SO_4)_3+3Ca(HCO_3)_2 \longrightarrow 2Al(OH_3)+6CO_2+3CaSO4 \downarrow 
+$$ {#eq-alkarine}
+
+```{r calc-alkaline_theory}
+#| echo: false
+
+bando <- 342.15 # g/mol
+caco3_alkarine <- 300
+
+alkarine_theory <- caco3_alkarine / bando
+```
+
+硫酸アルミニウムの分子量は `r bando` (g/mol)で、炭酸水素カルシウム1mol/Lはアルカリ度換算で `r caco3_alkarine` g/Lと換算されるため、凝集剤濃度1mg/Lに対する理論上でのアルカリ度の減少量は `r round(alkarine_theory,2)` mg/Lと計算される。
+
+実際の実験においては、 @tbl-flc-ph に示した通り、ほとんどの場合において凝集剤添加前と添加後でpHが下がっている。これは、硫酸アルミニウムによりアルカリ度が消費された結果、水素イオン濃度が上昇したことを意味すると考えられる。 その一方で、 @fig-flc-alkarine の各原水での近似直線の傾きを求めたところ、凝集剤1mg/Lあたりのm-アルカリ度の減少量をは、三四郎池においては `r alkarine_dec_val[[2]]*(-1)` mg/L、カオリン原水においては `r alkarine_dec_val[[1]]*(-1)` mg/Lとなり、理論量の2倍以上の値となった。
+
+#### 凝集工程の自動化の難しさについて
+
+先述したように、凝集沈殿プロセスにおいてはpH、アルカリ度などの様々な水質が複雑に絡み合っているため、一般的な水質指標から凝集剤の最適注入量を理論的に決定することが難しいことが、自動化の実現を妨げていると考えられる。機械学習などの技術により予測モデルを構築することができるかもしれないが、凝集沈殿の効率は化学的な要因に加え、撹拌強度や施設(急速撹拌池や沈澱池など)の構造といった物理的な要因によっても規定されるため、統一的な理論や予測モデルの実現はハードルが高いと考えられる。従って、現在のジャーテストによる注入量決定・運転管理は合理的なものであるといえる。
+
+#### ALT比の算出
+
+凝集剤注入量決定操作とpH最適条件決定操作それぞれにおけるALT比を @tbl-ALT-amt ならびに @tbl-ALT-ph に示す。
+
+```{r tbl-ALT-amt}
+#| echo: false
+#| tbl-cap: "凝集剤注入量決定実験におけるALT比"
+
+flc_amt %>% 
+  select("実験","凝集剤濃度","濁度") %>% 
+  mutate(ALT = 凝集剤濃度 * (27*2/342.15) / 濁度) %>% 
+  group_by(実験) %>% 
+  gt() %>% 
+  cols_label(凝集剤濃度 = "凝集剤添加量(mg/L)",
+             ALT = "ALT比") %>% 
+  fmt_number(columns = "ALT", decimals = 2)
+```
+
+```{r tbl-ALT-ph}
+#| echo: false
+#| tbl-cap: "pH最適条件決定実験におけるALT比"
+
+flc_ph %>% 
+  select("pH前","試料","濁度") %>% 
+  mutate(凝集剤添加量 = case_when(
+    試料 == "三四郎" ~ 50,
+    試料 == "カオリン" ~ 20
+  )) %>% 
+  mutate(ALT = 凝集剤添加量 * (27*2/342.15) / 濁度) %>% 
+  group_by(試料) %>% 
+  gt() %>% 
+  cols_label(凝集剤添加量 = "凝集剤添加量(mg/L)",
+             ALT = "ALT比",
+             pH前 = "原水pH") %>% 
+  fmt_number(columns = "ALT", decimals = 2) %>% 
+  cols_move(columns = "凝集剤添加量",after = "pH前")
+```
+
+#### 当日の凝集の様子について
+
+#### G値の算出
+
+水道施設設計指針によれば、フラッシュミキサ方式の混和池において撹拌翼の回転速度と抵抗係数をもとにする場合、G値は @eq-g-val によって算出される。
+
+$$
+G = \sqrt{\frac{\rho C a v^3}{2\mu V}}\\
+ただし、\\
+\rho : 水の密度(kg/m^3)\\
+C : 撹拌翼の抵抗係数(=1.5)\\
+a : 撹拌翼の運動方向に直角な面積(m^2)\\
+v : 撹拌翼の平均速度(m/s)\\
+\mu : 水の粘性係数(kg/m\cdot s)\\
+V : 混和池の容量
+$$ {#eq-g-val}
+
+今回は水の密度は1000(kg/m\^3)、水の粘性係数は設計指針を参照し、1.0×10\^-3(kg/m\*s, 20°Ｃでの値)として計算した。 また、撹拌翼のサイズは5.8×1.9cmで、円筒形の部分の直径が2.2cmであった。ビーカー内の水量1Lを混和池の容量とした。
+
+```{r calc-g-val}
+#| echo: false
+
+rho <- 1000 # kg/m^3
+C <- 1.5
+a_gval <- (1.8/100)*(1.9/100) # m^3
+
+v_gval_fast <- (120/60*2*pi) * (5.8/4/100) # m/s
+v_gval_slow <- (30/60*2*pi) * (5.8/4/100)
+
+mu_gval <- 0.001 # 粘性係数
+vol_gval <- 0.001 # 1Lをm^3換算
+
+g_val_fast <- sqrt((rho*C*a_gval*v_gval_fast^3) / (2*mu_gval*vol_gval))
+g_val_slow <- sqrt((rho*C*a_gval*v_gval_slow^3) / (2*mu_gval*vol_gval))
+```
+
+緩速撹拌におけるG値は `r round(g_val_slow,1)` 、急速撹拌におけるG値は `r round(g_val_fast,1)` と算出された。ここから、緩速撹拌と急速撹拌では与えられるエネルギー量が10倍ほど違うことがわかる。
+
+#### ゼータ電位とジャーテスト結果の比較考察
 
 # 課題B 急速濾過における目詰まり状況と処理性能の解析
 
@@ -365,7 +464,7 @@ ozone %>%
 3.  逆洗浄実験(C筒のみ)\
     排水バルブ・マノメータバルブを閉じ、水道水により500L/hの流量で逆洗浄を用いる。また、逆洗浄開始時をt=0とし、適当な時間間隔ごとに逆洗排水を採取し、SSを測定する。逆洗終了時には、逆洗用バルブよりも、水道栓を先に閉めるように注意する。
 
-## 結果
+## 結果と考察
 
 ### 急速濾過
 
@@ -437,7 +536,9 @@ manometer_losthead %>%
   sub_missing(missing_text = "欠測")
 ```
 
-@tbl-lost-head の値について、横軸に単位濾層あたりの損失水頭、縦軸に濾層深さをとってプロットした結果を @fig-manometer に示す。
+@tbl-lost-head の値について、横軸に単位濾層あたりの損失水頭、縦軸に濾層深さをとってプロットした結果を @fig-manometer に示す。濾過砂のみのA筒・B筒では、濾層の上部で目詰まりが進行していることが確認でき、表面濾過の状態になっている。AとBを比較すると、目詰まりによる損失水頭の値がAの方が大きい。これは、Aで濾過されている三四郎池の水が、カオリン原水と比べて濁度が高いことに起因していると考えられる。また、筒Bにおいても、実験を数時間継続することで、A筒と同様、表面濾過による目詰まりにより、いずれ濾層が完全に閉塞を起こすことになると予想される。
+
+上部にアンスラサイトを敷いたC筒では、上部での目詰まりが抑制され、中間部の指定砂の層で目詰まりが起こっている。中間部での損失水頭は、B筒に比べて半分程度に抑えられている。その一方で、後ほど示すように、B筒とC筒では濁度の除去率はどちらも90%を超えており、あまり違いはない。これは、上部のアンスラサイト層によって濁質が捕捉されていることを意味する。この結果から、上部に粗い濾材を配置し、フロックを侵入させて濾層内に濁質を捕捉するという、二層濾過の作用原理を確認することができる。
 
 ```{r fig-manometer, dev='jpeg'}
 #| echo: false
@@ -469,43 +570,109 @@ manometer_losthead %>%
   theme(text=element_text(family=hiragino))
 ```
 
-次に、濁度の測定結果を @tbl-filt-turb に示す。また、濁度の除去率の経時変化を求め、 @fig-filt-turb に図示した。
+次に、濁度の測定結果を @tbl-filt-turb に示す。また、濁度の除去率の経時変化を求め、 @fig-filt-turb に図示した。除去率の変化については、A筒とB筒にはあまり大きな違いは見られなかった。また、濾過砂のみを敷いたB筒よりも上部にアンスラサイトを敷いたC筒の方が全体を通じて除去率は数%ほど低く、除去率の低下も速かった。アンスラサイトを敷くことにより、全体としては損失水頭が小さくなり、目詰まりが抑制されるものの、濁度の除去効率は犠牲になってしまうということがわかる。
 
 ```{r tbl-filt-turb}
 #| echo: false
 #| tbl-cap: "急速濾過実験における濁度の経時変化"
 
+filt_turb <- read.csv("data/filt_turb.csv")
+filt_turb <- filt_turb %>% 
+  group_by(種類,試料,time) %>% 
+  summarise(turb = mean(turb),
+            .groups = "drop")
 
+# 表組み
+filt_turb %>% 
+  mutate(time = paste0(time,"分")) %>% 
+  pivot_wider(names_from = "time",
+              values_from = "turb") %>% 
+  gt() %>% 
+  cols_merge(columns = c("種類","試料"),
+             hide_columns = "試料",
+             pattern = "{2} {1}") %>% 
+  fmt_number(columns = everything(),
+             decimals = 3) %>% 
+  sub_missing(missing_text = "-")
 ```
 
-```{r fig-filt-turb}
+```{r fig-filt-turb, dev='jpeg'}
 #| echo: false
-#| fig-cap: "濁度除去率の経時変化"
+#| fig-cap: "濁度の経時変化"
+#| warning: false
 
+filt_raw <- filt_turb %>% 
+  filter(種類=="原水") %>% 
+  rename(turb_raw = turb,
+         試料_照合 = 試料)
+filt_filtered <- filt_turb %>% 
+  filter(種類=="濾過水") %>% 
+  mutate(試料_照合 = case_when(
+    試料=="A" ~ "三四郎",
+    .default = "カオリン"
+  )) %>% 
+  rename(turb_filt = turb)
+
+turb_filtered <- filt_filtered %>% 
+  left_join(filt_raw,by=c("試料_照合","time")) %>% 
+  select(c("試料","time",starts_with("turb"))) %>% 
+  mutate(除去率 = (turb_raw - turb_filt) / turb_raw * 100)
+
+turb_filtered %>% 
+  ggplot(aes(x=time,y=除去率,color=試料)) +
+  geom_point(size=3)+
+  geom_line(linetype = 3, linewidth = 1.2)+
+  labs(
+    x="採水時刻(分)",
+    y="除去率(%)"
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino))
 ```
 
 ### 逆洗浄
 
-逆洗時に採水を行い、SSを測定した結果を @tbl-reverse-SS に示す。
-
-```{r tbl-reverse-SS}
+```{r calc-mass-balance}
 #| echo: false
-#| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
 # csv用意するのがめんどくさいので直接入力
 reverse_SS <- tribble(
   ~time, ~bef_g, ~aft_g, ~amt_ml,
-  1, 0.4036, 0.4116, 100,
-  2, 0.4000, 0.4064, 100, 
-  3, 0.4134, 0.4208, 100,
-  4, 0.3999, 0.5724, 100,
-  5, 0.4012, 0.4637, 100,
-  6, 0.4069, 0.4402, 100,
-  7, 0.4069, 0.4199, 100
+  28, 0.4036, 0.4116, 100,
+  54, 0.4000, 0.4064, 100, 
+  70, 0.4134, 0.4208, 100,
+  82, 0.3999, 0.5724, 100,
+  110, 0.4012, 0.4637, 100,
+  139, 0.4069, 0.4402, 100,
+  175, 0.4069, 0.4199, 100
 ) %>% 
   # SSの単位はmg/mL
   # 差(g)に1000掛けてmgに変換し、濾過量(公定法ではL)で割る
   mutate(SS = (aft_g - bef_g) * 1000 / (amt_ml / 1000))
+
+# 面積(単位はmg*s/L)
+graph_area <- reverse_SS %>% 
+  select("time","SS") %>% 
+  mutate(delta_x = time - lag(time),
+         avg_SS = (SS + lag(SS)) / 2) %>% 
+  summarise(area = sum(delta_x * avg_SS, na.rm = TRUE)) %>% 
+  pull(area)
+
+# 総量(L/sで表される流量を掛けて、単位はmgとなる。)
+SS_all_real <- graph_area * (500 / 3600)
+
+# 濾過側の計算(濾過体積に、フロック濃度175mg/Lを掛ける)
+filt_vol <- 0.65 * 120
+SS_all_estimated <- filt_vol * 175
+```
+
+逆洗時に採水を行い、SSを測定した結果を @tbl-reverse-SS に示す。また、SS濃度の経時変化を @fig-reverse-SS に図示した。逆洗時の流量は500L/h、つまり0.139L/sであった。グラフの面積を求め、流量を掛けると、濾層に捕捉されていた懸濁質の総量は `r format(SS_all_real,digits=4)` mgと求められる。 ところで、B筒・C筒で濾過を行ったカオリン原水には、カオリンが75mg/L、凝集剤が100mg/L添加されているため、フロックは1Lあたりにつき175mg含まれていると考えられる。濾過は約650mL/minの流量で120分間行ったので、濾過された原水の懸濁質の総量は `r format(SS_all_estimated,digits=5)` mgと計算される。
+
+@fig-filt-turb に示したように、B筒の濁度除去率は常に98%以上で推移していたことを踏まえると、濁質量の実測値は理論値よりもやや少ない。この原因としては、逆洗時に流出した濁質量を台形の面積の総和であるグラフ面積によって近似しているため、面積を実際の捕捉量よりも小さく見積もってしまっていることが考えられる。また、逆洗によって完全に濁質が除去しきれていないとも考えられる。これらの点を踏まえれば、原水に含まれていた濁質の量と、濾層に捕捉されていた濁質の量はほぼ一致していると考えられ、濾過実験と逆洗浄実験の実験結果には整合性があったといえる。
+
+```{r tbl-reverse-SS}
+#| echo: false
+#| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
 reverse_SS %>% 
   gt() %>% 
@@ -513,28 +680,123 @@ reverse_SS %>%
   fmt_number(columns = "SS", decimals = 0) %>% 
   #見た目はなかなか悩ましい問題。
   cols_align(align = "center", columns = c(-"time")) %>% 
-  cols_align(align = "left", columns = "time")
+  cols_align(align = "left", columns = "time") %>% 
+  cols_label(bef_g = "濾過前(g)",
+             aft_g = "濾過後(g)",
+             amt_ml = "濾過量(mL)",
+             SS = "SS(mg/L)",
+             time = "逆洗開始からの経過時間(s)")
+```
+
+```{r fig-reverse-SS, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| tbl-cap: "逆洗排水のSS濃度の経時変化"
+
+reverse_SS %>% 
+  ggplot(aes(x=time,y=SS))+
+  geom_point(size=3)+
+  geom_area(position = "identity", fill=4)+
+  geom_line(linetype = 1, linewidth = 2)+
+  labs(
+    x="逆洗開始からの経過時刻",
+    y="SS濃度(mg/L)"
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino))
 ```
 
 ### ろ過筒の仕様測定
 
-ふるい分けの結果を @tbl-sieve に示す。また、粒度加積曲線を @fig-sieve に示す。
+ふるい分けの結果を @tbl-sieve に示す。ふるい分けの結果をもとに作成した粒度加積曲線を @fig-sieve に示す。粒度加積曲線からは、指定砂の10%(有効径)、60%に相当する粒径は約0.6mmならびに約0.8mm、アンスラサイトに関しては約1.2mm/約1.6mmと読み取れる。従って、均等係数はそれぞれ `r format(0.8/0.6, digits=2)`、 `r format(1.6/1.2, digits=2)` と計算される。
+
+```{r calc-sand}
+#| echo: false
+
+msslndr <- 90.7132
+msslndr_sand <- 162.2523
+dens_aprnt <- (msslndr_sand - msslndr) / 50
+
+wf_dens <- 27.1711
+w_dens <- 113.8475
+wb_dens <- 197.6861
+wa_dens <- 144.2222
+t_dens <- 22.0
+
+dens_true <- (w_dens - wf_dens)/(w_dens - wf_dens + wa_dens - wb_dens)
+```
+
+また、指定濾過砂の仮比重は、メスシリンダーが `r msslndr` g、砂50mLを入れた際の重さが `r msslndr_sand` gとなったため、 `r format(dens_aprnt,digits=6)` g/mLと計算された。真比重については、ピクノメーター重量Wfが `r wf_dens` g、砂を入れたピクノメーターの重量Wが `r w_dens` g、砂以外をMilli-Qで満たした際の重量Wbが `r wb_dens` g、ピクノメーターを全量Milli-Qで満たした際の重量Waが `r wa_dens` gとなったため、真比重Gは `r format(dens_true,digits=6)` (g/mL)と計算された。
 
 ```{r tbl-sieve}
 #| echo: false
 #| tbl-cap: "ふるい分けの結果"
 
+filt_sand <- read.csv("data/filt_prtcl.csv")
+filt_sand <- filt_sand %>% 
+  group_by(濾材) %>% 
+  mutate(抑留量 = weight - 皿の重さ,
+         累積抑留量 = cumsum(抑留量),
+         通過量 = sum(抑留量) - 累積抑留量,
+         通過率 = 通過量 / max(通過量) * 100)
 
+# ふるい分けの表組み
+filt_sand %>% 
+  select(-c("皿の重さ","weight","累積抑留量")) %>% 
+  group_by(濾材) %>% 
+  gt() %>% 
+  fmt_number(columns = "通過率",decimals = 2) %>% 
+  cols_label(目の開き_mm = "篩い目(mm)",
+             抑留量 = "抑留量(g)",
+             通過量 = "通過量(累加)(g)",
+             通過率 = "通過率(%)")
 ```
 
-```{r fig-sieve}
+```{r fig-sieve, dev='jpeg'}
 #| echo: false
-#| tbl-cap: "指定砂・アンスラサイトの粒度加積曲線"
+#| fig-cap: "指定砂・アンスラサイトの粒度加積曲線"
+#| warning: false
 
-
+filt_sand %>% 
+  ggplot(aes(x=目の開き_mm, y=通過率, color=濾材))+
+  geom_point(size=3)+
+  geom_line(linetype = 3, linewidth = 1.2)+
+  geom_hline(yintercept = 60, color = "red")+
+  geom_hline(yintercept =  10, color="blue")+
+  scale_x_log10(minor_breaks = seq(0.1, 2, by = 0.1))+
+  labs(
+    x="粒径(mm)",
+    y="通過率(%)"
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino))
 ```
 
-## 考察
+### その他の考察課題
+
+本章ではデータ解析と考察を同時に行ってきたが、これまで触れられていない考察課題について以下で述べる。
+
+#### 濾過速度の算出
+
+```{r calc-filt-speed}
+#| echo: false
+
+kuugeki <- (dens_true - dens_aprnt) / dens_true * 100
+no_sand_speed <- 650 * 60 * 24 / (6*6*pi) / 100
+with_sand_speed <- no_sand_speed / (kuugeki / 100)
+```
+
+今回使用した指定濾過砂について、真比重は `r format(dens_true,digits=6)` g、仮比重は `r format(dens_aprnt,digits=6)` gと測定されたため、濾過筒の空隙率は `r format(kuugeki, digits=2)` %と計算される。
+
+この空隙率をもとに、ろ過速度を計算する。まず、濾過筒に濾材が何も入っていないとした場合、650mL/minの流量は、 `r format(no_sand_speed,digits=2)` (m/day)と変換される。空隙率でこの数値を割り、ろ過速度は `r format(kuugeki,digits=2)` (m/day)と計算される。
+
+#### 濁度指標の意義と問題点について
+
+濁度は水道水質基準においてpH、味、色度、臭気とともに水の「基礎的性状」として位置付けられている。濁度が基礎的性状とされているのは、「濁り具合」という直観的な性質をよく反映した指標であるからだと考えられる。また、濁度は前処理がいらないため測定が容易である。学生実験で用いている積分球式光電光度法に加え、連続自動機器による透過散乱法などの自動測定方法も公定法に明記されており、実務の面でも使い勝手の良い指標であると考えられる。
+
+しかしながら、濁度という物理的な性状のみを反映し、化学的な性質を反映できない指標だけに頼っていると、凝集剤によってフロックとして析出させることができない汚濁物質を見落とすことになる。例えば、水中で完全に溶解している糖類・アルコールなどの親水性有機物はフロックとして析出せず、濁度による水質管理では見落とされてしまう。また、水中でイオンとして存在している化学物質も、濁度による管理では検出が難しいと考えられる。消毒副生成物などの健康リスクに関わる有機物のリスクについても、濁度だけで評価を行うことは難しい。
+
+以上のように、濁度は簡易的に水質の状態を把握する上では有用な指標ではあるものの、水道水質の品質管理においては濁度以外の指標を取り入れて管理が行われることが望ましいと考えられる。
 
 # 課題C 活性炭による色度成分の吸着
 
@@ -542,21 +804,17 @@ reverse_SS %>%
 
 ### 活性炭による色度成分吸着実験
 
-活性炭とは、木質（ヤシ殻、おが屑や石炭など）を原料として、これらの原料を炭化および賦活処理によりつくられた多孔性の炭素質の物質で
-
-<!--# ここに出典 -->
-
-その大きな内部表面積や微小細孔により、水中の有機物等を吸着することができる。浄水処理においては、異臭味物質・農薬・微量有害物質・合成洗剤・色度成分・トリハロメタン前駆物質などの除去の目的で活性炭処理が行われている。
+活性炭とは、木質（ヤシ殻、おが屑や石炭など）を原料として、これらの原料を炭化および賦活処理によりつくられた多孔性の炭素質の物質であり、その大きな内部表面積や微小細孔により、水中の有機物等を吸着することができる。浄水処理においては、異臭味物質・農薬・微量有害物質・合成洗剤・色度成分・トリハロメタン前駆物質などの除去の目的で活性炭処理が行われている。
 
 本実験演習では、色度成分としてメチレンブルーを溶解した溶液に、クラレコールGLC・クラレコールGWという二種類の活性炭を加えて回分実験を行う。一定時間毎に採水し、色度成分の濃度を測定することで、吸着速度について調べる。また、吸着が平衡に達した際の濃度データをプロットし、吸着等温式を適用することで、吸着等温線に関する理解を深める。
 
 ### 吸着等温線について
 
+今回は活性炭による単成分の吸着現象について扱う。よく用いられる吸着等温線として、ラングミュア式とフロイントリッヒ式がある。今回はメチレンブルー吸着実験の平衡濃度の結果についてラングミュア・プロットならびにフロイントリッヒ・プロットを行うことで、吸着等温線の各定数を求め、実際の吸着平衡のグラフに重ね、モデルの妥当性について考える。
+
 ### ガス吸着による細孔分布解析
 
-Belsorpの原理
-
-私はBELSORPにより出力される「生の吸着等温線データ」にも個人的に興味を持ったので、機器が接続されているPCから元データ格納先のファイルを探し、解析を行った。データ取得に際しては今野さんにご協力頂いた。
+私はBELSORPにより出力される「生の吸着等温線データ」にも個人的に興味を持ったので、機器が接続されているPCから元データ格納先のファイルを探し、解析を行った。データ取得に際しては今野さんにご協力頂いた。解析に使用した元データファイルは、本レポートのgithubレポジトリ下、\~/data_rawディレクトリに格納されている。
 
 ## 結果
 
@@ -708,7 +966,7 @@ abs_models %>%
 
 ### メチレンブルー吸着実験
 
-吸光度の経時変化を
+吸光度の経時変化を @tbl-abs-raw に示した。吸光度の値をもとに、先程作成した検量線を用いて濃度を計算した結果を @tbl-abs に示した。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度の経時変化を @fig-abs に図示した。
 
 ```{r tbl-abs-raw}
 #| echo: false
@@ -716,9 +974,17 @@ abs_models %>%
 
 # データ読み込み
 abs <- read.csv("data/abs.csv")
-```
 
-作成した検量線を用いて濃度を計算した結果を @tbl-abs に示す。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度の経時変化を @fig-abs に図示した。
+# 表組み
+abs %>% 
+  select(-c("group",starts_with("Dil"))) %>% 
+  group_by(crbn, MB_init_conc) %>% 
+  rename_with(~ str_extract(.x, pattern="\\d+"), starts_with("ABS")) %>% 
+  gt() %>% 
+  cols_label(crbn_amt = "活性炭添加量(g)",
+             `24` = "24時間後") %>% 
+  sub_missing(missing_text = "-")
+```
 
 ```{r calc-abs}
 #| echo: false
@@ -816,8 +1082,6 @@ abs_calc %>%
 
 次に、活性炭への吸着量をy軸にとったグラフを @fig-abs-2 に示す。
 
-<!--# このグラフ、縦軸の取り方間違ってる！活性炭1gごとにしないとだめ！ -->
-
 ```{r fig-abs-2, dev='jpeg'}
 #| echo: false
 #| fig-cap: "吸着量qeの経時変化"
@@ -840,7 +1104,7 @@ abs_calc_qe <- abs_calc %>%
                values_to = "MB_q") %>% 
   # 吸着量に変換。予め活性炭量が0gの行を除外。
   filter(crbn_amt > 0) %>% 
-  mutate(MB_q = MB_q * (500/1000) / crbn_amt) %>% 
+  mutate(MB_q = MB_q * (500/1000) / crbn_amt) %>% # 活性炭1gあたり
   # あとは一つ前とまったく同じ
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
@@ -858,7 +1122,7 @@ abs_calc_timenum <-
   ))
 
 abs_calc_qe <- abs_calc_qe %>% 
-  left_join(abs_calc_timenum,by=c("crbn","MB_init_conc","crbn_amt","time"))
+  left_join(abs_calc_timenum,by=c("crbn","MB_init_conc","crbn_amt","time")) 
 
 abs_calc_qe %>% 
   ggplot(aes(x=time,y=MB_q,group=crbn_amt,color=crbn_amt))+
@@ -898,7 +1162,7 @@ abs_calc_qe %>%
   facet_wrap(vars(crbn),scale="free")
 ```
 
-@fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のように、点はほぼ直線上に並んだ。
+@fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のように、点はほぼ直線上に並んだ。また、フロイントリッヒ・プロットを @fig-freundlich に示した。フロイントリッヒ・プロットは、ラングミュア・プロットと比べて直線回帰の決定係数が小さくなってしまった。
 
 ```{r fig-langmuir, dev='jpeg'}
 #| echo: false
@@ -921,8 +1185,6 @@ abs_calc_qe %>%
         plot.title=element_text(hjust = 0.5))+
   facet_wrap(vars(crbn))
 ```
-
-また、フロイントリッヒ・プロットを @fig-freundlich に示す。
 
 ```{r fig-freundlich, dev='jpeg'}
 #| echo: false
@@ -949,7 +1211,27 @@ abs_calc_qe %>%
 
 ### ガス吸着による細孔分布解析
 
-まず、それぞれの活性炭の等温吸着曲線は @fig-abs-isthm のようになった。
+以下ではBelsorpの元データを活用し、吸着等温線とt-plotを描画することにより、2種の活性炭の違いについて考察する。
+
+<!--# IUPAC論文の出典が必要 -->
+
+まず、.DATファイルから抽出したBelsorpの生データを @tbl-bel-raw に、等温吸着曲線を @fig-abs-isthm に示した。GW活性炭(浄水処理用)は、ほぼLangmuir型の吸着等温線(IUPACのType Ⅰ)に従っていることがわかる。その一方で、GLC活性炭においては、相対圧が1付近でも吸着量の立ち上がりが見られる。これはIUPACによる分類においてはType Ⅱに近く、単分子吸着の後に多層吸着が起こっていると推測される。また、両者を比較した際、Langmuir型の単分子層吸着領域での吸着量がGW活性炭よりもGLC活性炭の方が多い結果となっている。
+
+<!--# ここ出典！日本語論文！ -->
+
+次に、@fig-t-plot に各活性炭のt-plotを示す。t-plotとは、「測定した窒素吸着量を、非多孔性吸着媒の吸着層厚さtと比較することにより活性炭の表面積を解析する」(出典入れる!)ためのものである。なお、tの算出には、参考にした文献にならって、Dollimoreら(1969)の論文を参照し、de Boerらが提案した式である @eq-de_Boer を用いた。Dollimoreらは複数の計算方法を比較し、de Boerらの式が最も適していると結論づけている。なお、Dollimoreらが検証に用いていたのはシリカ及びアルミナである。この論文の結果をそのまま活性炭に適用するのが適切であるかどうかまではわからなかったが、今回はこの式を用いてプロットを行っている。
+
+<!--# ここに出典2つ！ -->
+
+$$
+t = 354(\frac{-5}{ln(P_e/P_0)})^{1/3}
+$$
+
+Microtrac BEL社がweb上で公開している資料
+
+(出典)
+
+を参考に、t-plotの解釈を行った。今回作成したt-plotにおいては、GW活性炭は原点付近でほぼ垂直に曲線が立ち上がった後、急速にプラトーに転じている。これは、マイクロ孔で吸着が起こった後、「マイクロ孔への N2 の充填が終了すると傾きが⼩さく」なった結果であると考えられる。その一方で、GLC活性炭においては立ち上がりはGW活性炭と同様、ほぼ垂直となっているが、その後の傾きの減少具合がゆるやかになっている。これは、GW活性炭にはない、比較的大きな細孔が吸着に関わっていることを示唆している。なお、本当はt-plotを描画した後に、JISに定められた公定法によるt-plotの解析や、MP法による細孔分布図の作成などを行いたいと思っていたものの、残念ながら〆切に間に合わなかったため、今回は割愛する。
 
 ```{r calc-belsorp-data}
 #| echo: false
@@ -997,6 +1279,17 @@ GW_df <- GW_df %>%
          BET = Pe / (V * (P0 - Pe)))
 ```
 
+```{r tbl-bel-raw}
+#| echo: false
+#| tbl-cap: "吸着等温線の生データ"
+
+rbind(GLC_df,GW_df) %>% 
+  select(c("Pe","P0","Vd","V","sample")) %>% 
+  group_by(sample) %>% 
+  gt() %>% 
+  tab_options(latex.use_longtable = TRUE)
+```
+
 ```{r fig-abs-isthm, dev='jpeg'}
 #| echo: false
 #| warning: false
@@ -1015,20 +1308,6 @@ isthm_plt <- rbind(GLC_df, GW_df) %>%
 isthm_plt
 ```
 
-<!--# IUPAC論文の出典が必要 -->
-
-GW活性炭(浄水処理用)は、ほぼLangmuir型の吸着等温線(IUPACのType Ⅰ)に従っていることがわかる。その一方で、GLC活性炭においては、相対圧が1付近でも吸着量の立ち上がりが見られる。これはIUPACによる分類においてはType Ⅱに近く、単分子吸着の後に多層吸着が起こっていると推測される。また、両者を比較した際、Langmuir型の単分子層吸着領域での吸着量がGW活性炭よりもGLC活性炭の方が多い結果となっている。
-
-次に、@fig-t-plot に各活性炭のt-plotを示す。t-plotとは、
-
-tの算出には @eq-de_Boer を用いた。
-
-※ここに出典を入れないと駄目。
-
-$$
-t = 354(\frac{-5}{ln(P_e/P_0)})^{1/3}
-$$ {#eq-de_Boer}
-
 ```{r fig-t-plot, dev='jpeg'}
 #| echo: false
 #| warning: false
@@ -1039,7 +1318,7 @@ tplt <- rbind(GLC_df, GW_df) %>%
   geom_point()+
   labs(
     x="t(nm)",
-    y="吸着量? V"
+    y="窒素吸着量 V"
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino))
@@ -1047,222 +1326,239 @@ tplt <- rbind(GLC_df, GW_df) %>%
 tplt
 ```
 
-また、以下のようなBETプロットを描画することで、表面積を概算することができる。
-
-BETプロットは @eq-BET で表され、直線
-
-※ここにサイトなどで良いので出典を入れる。
-
-$$
-BET=P_0
-$$ {#eq-BET}
-
-BETプロットが直線形になる範囲において、近似直線を最小二乗法で求めた。近似結果を @fig-BET-calc と @tbl-BET-calc に示す。なお、直線回帰を行う際に採用するデータの範囲については、今回は暫定的に、Belsorpのデータ分析ソフトウェアから出力された結果と同様のデータ範囲を用いてBETプロットを行った。（分析ソフトウェア内でのデータ選択の根拠までは今回は調べることができなかった。）
-
-```{r fig-BET-calc, dev='jpeg'}
-#| echo: false
-#| warning: false
-#| fig-cap: "BET法の近似直線導出"
-
-GLC_BET_calc_plt <- GLC_df %>% 
-  filter(prsr<0.01) %>% 
-  ggplot(mapping=aes(x=prsr,y=BET))+
-  geom_point()+
-  geom_smooth(method="lm",color="black",linetype=3)+
-  labs(
-    title = "GLC",
-    x="相対圧",
-    y="??"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-GW_BET_calc_plt <- GW_df %>% 
-  filter(prsr<0.15) %>% 
-  ggplot(mapping=aes(x=prsr,y=BET))+
-  geom_point()+
-  geom_smooth(method="lm",color="black",linetype=3)+
-  labs(
-    title = "GW",
-    x="相対圧",
-    y="??"
-  )+
-  theme_bw()+
-  theme(text=element_text(family=hiragino))
-
-grid.arrange(GLC_BET_calc_plt, GW_BET_calc_plt, nrow=1)
-```
-
-```{r calc-BET-calc}
-#| echo: false
-
-# 線形回帰
-
-# 質量あたり表面積の計算
-
-```
-
-```{r tbl-BET-calc}
-#| echo: false
-#| tbl-cap: "BETプロットの線形近似の結果"
-
-# 線形回帰モデルの式とR^2値の表組み(検量線と同様)
-
-```
-
-@fig-BET-calc に示したBETプロットから、表面積の合計は ?? と求められた。
-
-最後に、MP法による細孔分布の解析を行った。
-
 ## 考察
 
-### サンプリングによる影響について
+### 実験結果の補正
 
-### 水の蒸発による影響について
+まず、サンプリングによる影響の補正は必要ない。なぜなら、サンプリング時には活性炭と原水を両方採取しており、溶液内の活性炭濃度・メチレンブルー濃度はともに、各サンプリングの前後で変化していないと考えられるからである。
+
+その一方で、水の蒸発による影響は活性炭・メチレンブルー濃度の上昇を引き起こすため、補正が必要な可能性がある。実験に使用したビーカーのうち1つについて、t=120minでの採水後と、t=24hでの採水後の質量の変化を測定したところ、ビーカー全体の質量は692.98gから663.37gと、 `r 692.98-663.37` g減少している。この間に10mLの採水を1回行っているため、22時間で蒸発した水の質量は、溶液の密度を1g/mlとすると `r 692.98-663.37-10` gと求められる。
+
+補正による吸着等温線の変化を確認するため、以下の条件でデータの補正を行った。
+
+-   水の蒸発量は実験全体を通して一定とする。\
+    根拠：水が空気と触れる面積は、ビーカーの断面積とほぼ等しく、実験を通して変化することはないから。
+
+-   t=0で500mLであったと仮定し、サンプリングのみの影響加味して、蒸発がなかった場合の水量を計算する。
+
+-   22時間での蒸発量18.91gを時間で按分し、先程求めた水量を補正することで、各状態の実際の水量を求める。
+
+-   上記2つの水量の比によって濃度を補正する。
+
+計算を行った結果、ラングミュア・プロットならびにフロイントリッヒ・プロットは のようになった。
+
+```{r calc-abs-evap}
+#| echo: false
+
+abs_evap <- abs_calc_qe %>% 
+  
+```
 
 ### 吸着等温線の適合性について
 
-### 活性炭の比表面積と吸着性能について
+@fig-langmuir と @fig-freundlich に示した通り、Langmuir型吸着等温線には良く適合を示した一方で、Freundlichプロットにおいては、概ね右上がりの傾向を示してはいるものの、点は一直線上に分布しない結果となった。
 
-クラレコールのwebサイトを参照したい
+### 活性炭の比表面積と吸着性能について
 
 ### 実務の場での活性炭処理について
 
-# 課題D 凝集沈殿における最適条件の決定
+実際の浄水処理においては、粉末活性炭と粒状活性炭は目的に応じて使い分けられている。粉末活性炭は主に、原水の汚濁時などに、凝集処理の前に汚濁物質を集中的に除去するために用いられる。専用の設備が少なくて済む一方で、作業員への負担が大きいことや、汚泥量が増加するといった欠点がある。
+
+その一方で、粒状活性炭処理は、活性炭を充填した活性炭吸着池に水を通す形で処理が行われるため、粉末活性炭処理よりも処理効果が高い。さらに、活性炭本来の吸着作用に加え、粒状活性炭表面の微生物叢によって有機物が分解されるという効果もある。なお、生物による有機物分解作用を積極的に利用する場合には生物活性炭処理と呼ばれるが、水道施設設計指針によれば、粒状活性炭処理を行った時点で、活性炭表面には何かしらの微生物が生息しており、多少の分解効果が発揮されるとのことである。このように、粉末活性炭に比べて処理効果の高い粒状活性炭処理であるが、専用の接触設備を建設する必要があるため、コストが高いという欠点がある。
+
+# 課題D オゾンによる有機物分解
 
 ## 実験概要
 
-概要をここに書く。
+### 実験原理
+
+オゾン処理においては、オゾンの強力な酸化力によって高分子の難分解性有機物が酸化分解される。
+
+水中のオゾンの
+
+そこで本実験では、pHがオゾンによる有機物分解に与える影響を調べるため、酸性・中性・アルカリ性の3種類の緩衝溶液にメチレンブルーを一定量加え、オゾン通気を行った。一定時間ごとにオゾン通気中のフラスコから採水を行い、メチレンブルー濃度(2分毎)、TOC濃度、pH、オゾン濃度(最初と最後)の測定を行った。メチレンブルー濃度の測定に当たっては、吸光度法(665nm)を用いた。メチレンブルーは吸着性が高いことから、吸光度測定時には石英セルではなくプラスチックセルを使用し、こまめにMilli-Q水を測定することでセルに吸着していないかを確かめた。溶存オゾン濃度はHACH社の簡易キットを用いてインディゴ法で測定した。TOC濃度測定には島津製作所TOC-Vを使用した。
+
+### 実験手順
+
+実験の詳細な手順を以下に示す。
+
+1.  予め分光光度計の電源を入れ、内蔵ランプの出力を安定させる
+
+2.  試薬調整\
+    以下の試薬・溶液を調整する。
+
+-   pH2, pH7.2, pH12の緩衝溶液
+    -   pH2:
+    -   pH7.2:
+    -   pH12:
+-   メチレンブルー標準原液(1g/L)
+    -   緩衝溶液にはこの標準原液を、500mLあたり25mL添加した。
+
+3.  検量線の作成\
+    結果の章で示すように、0mg/L\~20mg/Lの範囲で標準列を作成した上で、検量線が線形性を保つ範囲のデータを採用した。
+4.  オゾン通気準備(2, 3と同時並行)\
+    オゾン発生器を起動し、3\~5分間バイパスで湿気を追い出した。その後、Milli-Q水500mLに5分間通気し、溶存オゾン濃度を測定した。各条件での実験終了後も、同様にMilli-Q水に通気してオゾン濃度を測定することで、オゾン発生器から発生しているオゾン濃度が一定であるかどうかを確認した。
+5.  オゾン処理\
+    実験原水(緩衝溶液500mLにメチレンブルー標準原液25mLを添加)を反応器に入れ、オゾンを通気する。オゾン通気開始直前をt=0とし、2分ごとに採水する。
+6.  水質分析\
+    採水したサンプルについて、メチレンブルー濃度(全サンプル)、TOC濃度・pH・オゾン濃度(最初と最後のサンプル)を測定する。
 
 ## 結果
 
-まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果を @tbl-flc-amt に示す。
+まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値を @tbl-ozn-calib に示す。
 
-なお、m-アルカリ度の測定にあたっては、滴定に用いる0.01mol/L硫酸を…
-
-<!--# ファクター導出のところが、自分でやってないのでよくわからない。要説明。 -->
-
-標定を行った結果、ファクターは (※ここに数値埋め込み) となった。
-
-<!--# 三四郎原水の生データがおかしいので要修正。それ以外は班EXCELとも一致確認済み。 -->
-
-```{r calc-ttr_fctr}
+```{r tbl-ozn-calib}
 #| echo: false
+#| tbl-cap: "オゾン検量線の元データ"
 
-# 滴定に用いた0.01M硫酸の濃度補正のためのファクター
-ttr_amt <- 17.94 # 他班を取り込む場合はリストにするかも?
-ttr_fctr <- 20 / ttr_amt 
-```
+# オゾンのデータ読み込み
+ozn_calib <- read.csv("data/ozone_calib.csv")
 
-```{r tbl-flc-amt}
-#| echo: false
-#| tbl-cap: "凝集剤添加量の決定"
-
-# データ読み込み
-flc_amt <- read.csv("data/flc_amt.csv")
-
-# m-アルカリ度計算
-# pH4.8に達するまでに必要な酸の量をCaCO3の質量として求める(1Lあたり)
-# 前期は滴定量が100mL指定だったが今期は可変なので注意。
-
-# CaCO3当量(mg/L)に換算する
-#モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
-flc_amt <- flc_amt %>%
+# 検量線用の希釈列データの表組み
+ozn_calib %>% 
   filter(班==3) %>% 
-  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
-  mutate(mアルカリ度 = 
-           # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
-           滴下量 / 1000 * 0.01 * ttr_fctr *
-           # 100.09 * 1000を掛ければCaCO3当量(mg)が得られる
-           100.09 * 1000 / 
-           # 試料1LあたりのCaCO3当量を得るために、(試料量/1000)で割る
-           (滴定試料量/1000)
-         )
-
-# 凝集剤投入量決定実験の表組み
-flc_amt %>%
-  filter(班==3) %>% 
-  select(-c("班","滴定_前","滴定_後")) %>% 
-  group_by(実験) %>% 
+  arrange(メチレンブルー濃度.mg.L.) %>% 
+  select(-c("班")) %>% 
   gt() %>% 
-  #アルカリ度は有効数字3桁。
-  # カオリン75以外は小数点以下1桁でうまくいく。
-  # カオリン75だけ別指定したいんだがやり方は不明。
-  # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
-  fmt_number(columns="mアルカリ度", decimals=1) %>% 
-  cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴")) %>%
-  tab_spanner(label = "滴定生データ(mL)",
-              columns = c("滴下量","滴定試料量")) %>%
-  cols_label(凝集剤濃度="凝集剤(mg/L)",
-             pH.後.="pH",
-             ) %>% 
-  tab_options(
-    latex.use_longtable = TRUE
-  )
-```
-
-濁度の除去性能を比較した結果、最適な凝集剤濃度は三四郎池の場合は??、カオリン原水の場合は??であるということがわかった。
-
-<!--# 全班一緒ならmax()で数値埋め込み。そうでなければ表を作る。 -->
-
-次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果を @tbl-flc-ph に示す。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
-
-<!--# m-アルカリ度を測定しないところに試料量のデータが入っている。空欄にしてNA一括処理を噛ましたいので要修正。 -->
-
-```{r tbl-flc-ph}
-#| echo: false
-#| tbl-cap: "各pH条件下での反応の比較"
-
-#ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
-flc_ph <- read.csv("data/flc_ph.csv") %>% 
-  #filter(班==3) %>% 
-  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
-  mutate(mアルカリ度 = 
-           滴下量 / 1000 * 0.01 * ttr_fctr *
-           100.09 * 1000 /
-           (滴定試料量/1000)
-         )
-
-# 添加量決定の際と同じ処理にしよう。
-flc_ph %>% 
-  filter(班==3) %>% 
-  select(-c("班","滴定_前","滴定_後","理論pH","凝集剤添加量")) %>% 
-  group_by(試料) %>% 
-  gt() %>% 
-  # pH11のところが有効数字がおかしいので個別で指定する必要あり。
-  fmt_number(columns="mアルカリ度", decimals=1) %>% 
-  cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴")) %>%
-  tab_spanner(label = "滴定生データ(mL)",
-              columns = c("滴下量","滴定試料量")) %>% 
-  #tab_header(title="各phでの反応の比較") %>% 
-  cols_label(pH前="pH(前)",
-             pH後="pH(後)",
-             mアルカリ度="m-アルカリ度") %>% 
-  tab_options(
-    latex.use_longtable = TRUE
+  cols_align(
+    align="center",
+    columns=everything()
   ) %>% 
+  cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)",
+             吸光度="665nm吸光度")
+```
+
+<!--# ここの表現もうちょっと洗練させたいなぁ。。 -->
+
+上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。検量線モデルは、R言語の`lm`関数により、吸光度を目的変数、メチレンブルー濃度を説明変数とした線形回帰を行うことにより導出した（以下同様）。
+
+```{r fig-ozn-calib, dev='jpeg'}
+#| echo: false
+#| warning: false
+#| fig-cap: "メチレンブルー濃度の検量線"
+
+# 検量線プロット
+ozn_calib %>% 
+  filter(班==3) %>% 
+  ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
+  geom_point()+
+  geom_smooth(method="lm",color="black")+
+  labs(
+    #title="メチレンブルー濃度の検量線",
+    x="メチレンブルー濃度(mg/L)",
+    y="665nm吸光度"
+  )+
+  theme_bw()+
+  theme(text=element_text(family=hiragino),
+        plot.title=element_text(hjust = 0.5))
+```
+
+@fig-ozn-calib の検量線を用いて、各時刻でのメチレンブルー濃度を算出した。pH・オゾン濃度・TOC濃度の実測値と合わせ、 @tbl-ozone に結果を示す。
+
+検量線法による濃度推定を行うに当たっては、ブランク試料を測定した際の吸光度を下回ったサンプルは「検出限界以下」として扱った。この点について気になり調査したが、一般的にはIUPAC発行の"Compemdium of Chemical Terminology"の記載に則り、 @eq-LOD-and-LOQ と @eq-LOQ に示したような定義が用いられるとのことである。($※ただし、a: ブランクの平均、\sigma: ブランクの標準偏差$)
+
+<!--# ここ、出典がgolden bookとagilientのサイトの3つが必要！ -->
+
+$$
+LOD(Limit\ of\ Detection) = a + 3\sigma\\   
+$$ {#eq-LOD-and-LOQ}
+
+$$
+LOQ(Limit\ of\ Quantification) = a + 6\sigma\\
+$$ {#eq-LOQ}
+
+しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的な検出限界ならびに定量限界を求められない。そこで今回はやむを得ず、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。本レポートにおいて検量線法を用いている他の実験においても同様の処理を行った。（例： @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、吸光度の測定結果が負となったサンプルが「測定限界」として表記されている。）
+
+```{r calc-MB-conc}
+#| echo: false
+
+#検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
+# 回帰モデルの作成
+lm_ozn_dat <- ozn_calib %>% 
+  filter(班==3) 
+lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.,
+             model = TRUE)
+
+
+
+# 実験データの読み込みと検量線モデル適用
+ozone <- read.csv("data/ozone.csv")
+ozone <- ozone %>% 
+  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn)) %>% 
+  unnest(ozn_mdlfit) %>% 
+  mutate(MB_conc = MB_conc * 吸光度_希釈)
+```
+
+```{r calc-ozone-TOC}
+#| echo: false
+
+# TOCデータ読み込みと抽出
+TOC_1_2 <- read.csv("data/TOC_ozone_1_2.csv", header = FALSE)
+TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) %>% 
+  filter(V4=="NPOC") %>% 
+  select(c("V3", "V9")) %>% 
+  `colnames<-`(c("TOC_vial","TOC_conc")) %>% 
+  mutate_all(as.numeric) #%>% 
+  #mutate(TOC_filename = "1_2")
+
+# 実験ノートのデータと統合
+ozone <- ozone %>% 
+  left_join(TOC_3_4, by="TOC_vial")
+```
+
+```{r tbl-ozone}
+#| echo: false
+#| tbl-cap: "オゾン処理時の各水質指標の測定結果"
+
+# 実験データの表組み
+ozone %>%
+  filter(班==3) %>% 
+  select(-c("班","TOC_vial","TOC_filename")) %>% 
+  group_by(条件) %>% 
+  gt() %>% 
+  text_transform(
+    locations = cells_body(columns = starts_with("MB_"),
+                           rows = MB_info == "<LOD"),
+    fn = function(x) {x = "定量限界以下"}
+  ) %>% 
+  fmt_number(decimals = 1,
+             columns = c("MB_conc", "TOC_conc")) %>% 
+  tab_spanner(label = "メチレンブルー濃度測定",
+              columns = c("吸光度","吸光度_希釈","MB_conc")) %>% 
+  cols_hide(columns = c("MB_info")) %>% 
+  cols_label(時間.分. = "時刻(分)",
+             吸光度_希釈 = "希釈倍率",
+             MB_conc = "濃度(mg/L)",
+             O3_conc = "オゾン濃度(mg/L)",
+             TOC_conc = "TOC濃度(mg/L)") %>% 
+  cols_align(align = "center", columns = everything()) %>% 
   sub_missing(missing_text = "-")
 ```
 
-## 考察
+酸性のt=0でのサンプルの吸光度の値が、t=2での値よりも小さくなってしまっている。酸性・中性・アルカリ性の各条件について、TOCの値は約15前後で一定しているため、メチレンブルー溶液の投入量を間違えた可能性は低い。従って、吸光度測定の時点で、希釈倍率を間違えるなどの手違いがあったと推測される。
 
-理論上、アルカリ度の減少は以下のようになる。
+メチレンブルー濃度の時間変化を図示すると @fig-MB-conc のようになった。
 
-```{r calc-alkaline_theory}
-#| include: false
+```{r fig-MB-conc, dev='jpeg'}
 #| echo: false
-# このセルはただの計算機代わり。
+#| warning: false
+#| fig-cap: "メチレンブルー濃度の経時変化"
+
+ozone %>% 
+  filter(班==3) %>% 
+  select(c("時間.分.","MB_conc","条件")) %>% 
+  ggplot(mapping=aes(x=時間.分. , y=MB_conc, color=条件)) +
+  geom_point(size =2) +
+  geom_line(linetype = 3, linewidth = 1) +
+  labs(
+    x="時間(分)",
+    y="メチレンブルー濃度(mg/L)"
+  ) +
+  theme_bw() +
+  theme(text=element_text(family=hiragino))
 ```
 
-#### アルカリ度減少に関する定量的考察
-
-#### 凝集工程の自動化の難しさについて
-
-#### a
-
-#### ゼータ電位とジャーテスト結果の比較考察
+## 考察
 
 # 課題E-1 塩素消毒
 
@@ -1822,10 +2118,4 @@ uv_k_calc %>%
 
 このような状況の中で、定量的なリスク評価に基づく政策議論が行われるためには、まず、上下水道とは公衆衛生のためのインフラであるという認識を市民・政治家に浸透させることが大事であろう。科学的に考えて、消毒副生成物による発がんリスクよりも、消毒を行わないことによる感染リスクの方が数桁レベルで大きいことは明らかである。また、欧州式の塩素低減型水道システムの導入も積極的に検討すべきであるものの、既存の設備のみでは対応ができないため、導入には相応の予算が必要となる。管路網更新や耐震化などが喫緊の課題とされている中で新技術を導入するには、水道事業そのものに関する市民の理解を深め、新技術導入の意義について合意を得ることがまず、最も重要になるのではないだろうか。
 
-# 付録 他班のデータ
-
-考察において他班のデータを参照したため、全班の生データ比較が可能なよう、以下に全班のデータを示す。
-
-```{r}
-
-```
+# 付録
