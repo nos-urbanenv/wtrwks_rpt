@@ -5,18 +5,18 @@ author: "03250114 大隅伸明"
 subtitle: "実験実施期間：2025年12月9日~2025年12月26日"
 bibliography: "references.bib"
 format: 
-  #html:
-   # toc: true
-  pdf:
-    pdf-engine: lualatex
-    documentclass: ltjsreport
+  html:
+    toc: true
+  #pdf:
+   # pdf-engine: lualatex
+    #documentclass: ltjsreport
     #fig-pos: 'h'
     #tbl-pos: 'h'
 #    mainfont: "Hiragino Maru Gothic Pro"
-    classoption: [10pt]
-    include-in-header: 
-      - text: |
-          \usepackage{mhchem}
+    #classoption: [10pt]
+    #include-in-header: 
+     # - text: |
+      #    \usepackage{mhchem}
 editor: visual
 ---
 
