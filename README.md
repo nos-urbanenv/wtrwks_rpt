@@ -16,7 +16,7 @@ Macであれば、以下の手順でレポートが再生成できる。Windows�
     /data_raw\
     references.bib
 
-2.  適当なディレクトリに上記の3つを格納する。
+2.  適当なディレクトリに上記の4つを格納する。
 
 3.  RならびにRStudioを開き、report.qmdを開く。
 
