@@ -4,6 +4,7 @@ header: "都市工学演習B2 + 環境工学実験演習第二"
 author: "03250114 大隅伸明"
 subtitle: "実験実施期間：2025年12月9日~2025年12月26日"
 bibliography: "references.bib"
+echo: false
 format: 
   html:
     toc: true
@@ -12,17 +13,12 @@ format:
     #documentclass: ltjsreport
     #fig-pos: 'h'
     #tbl-pos: 'h'
-#    mainfont: "Hiragino Maru Gothic Pro"
     #classoption: [10pt]
-    #include-in-header: 
-     # - text: |
-      #    \usepackage{mhchem}
 editor: visual
 ---
 
 ```{r setup}
 #| include: false
-#| echo: false
 library(tidyverse)
 library(gt)
 library(gridExtra)
@@ -129,8 +125,6 @@ inverse_pred <- function(y, lm_mod){
 まず、二種類の水試料について、凝集剤の濃度を変化させて凝集剤の最適添加量を求めた。実験結果を @tbl-flc-amt に示す。
 
 ```{r calc-ttr_fctr}
-#| echo: false
-
 # 滴定に用いた0.01M硫酸の濃度補正のためのファクター
 ttr_amt <- 17.94 # 他班を取り込む場合はリストにするかも?
 ttr_fctr <- 20 / ttr_amt 
@@ -139,7 +133,6 @@ ttr_fctr <- 20 / ttr_amt
 なお、m-アルカリ度の測定に用いる0.01mol/L硫酸の標定を行った結果、ファクターは `r round(ttr_fctr,2)` となった。
 
 ```{r tbl-flc-amt}
-#| echo: false
 #| tbl-cap: "凝集剤添加量の決定"
 
 # データ読み込み
@@ -191,7 +184,6 @@ flc_amt %>%
 次に、上記で求めた最適量だけ凝集剤を添加した条件の下で、pHを酸性\~アルカリ性の数段階で変化させ、前後のpH変化ならびに、処理後の濁度・ゼータ電位・水温・m-アルカリ度を計測した結果を @tbl-flc-ph に示す。なお、pHがおおよそ5よりも小さい条件においてはm-アルカリ度の測定は行っていない。
 
 ```{r tbl-flc-ph}
-#| echo: false
 #| tbl-cap: "各pH条件下での反応の比較"
 
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
@@ -233,7 +225,6 @@ flc_ph %>%
 2種類の原水について、凝集剤注入量と上澄み液の濁度の関係を @fig-flc-turb に、凝集剤注入量と上澄み液のアルカリ度の関係を @fig-flc-alkarine に、原水のpHと上澄み液の濁度の関係を @fig-flc-ph にそれぞれ示した。凝集剤濃度については、最適注入量から注入量を増やした場合・減らした場合の両方について、濁度の除去効率が下がるということがわかる。また、凝集剤濃度が上がるほどアルカリ度が消費されていることもグラフから読み取れる。pHと濁度の関係については、カオリンに関してはpH8\~9付近で濁度が極小値となっている一方で、三四郎池では変化の傾向は一定しておらず、原水中に存在する様々な化学種が複雑な影響を与えていると推測される。
 
 ```{r fig-flc-turb, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "凝集剤注入量と上澄み液の濁度の関係"
 
@@ -250,7 +241,6 @@ flc_amt %>%
 ```
 
 ```{r fig-flc-alkarine, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "凝集剤注入量と上澄み液のアルカリ度の関係"
 
@@ -267,8 +257,6 @@ flc_amt %>%
 ```
 
 ```{r calc-alkarine-real}
-#| echo: false
-
 # アルカリ度の減少割合を予め計算しておく
 flc_amt_mod <- flc_amt %>% 
   group_by(実験) %>% 
@@ -287,7 +275,6 @@ alkarine_dec_val <- flc_amt_mod %>%
 ```
 
 ```{r fig-flc-ph, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "原水のpHと上澄み液の濁度の関係"
 
@@ -315,8 +302,6 @@ Al_2(SO_4)_3+3Ca(HCO_3)_2 \longrightarrow 2Al(OH_3)+6CO_2+3CaSO4 \downarrow
 $$ {#eq-alkarine}
 
 ```{r calc-alkaline_theory}
-#| echo: false
-
 bando <- 342.15 # g/mol
 caco3_alkarine <- 300
 
@@ -338,7 +323,6 @@ alkarine_theory <- caco3_alkarine / bando
 この理由としては、今回処理した水の濁度が実際に浄水場で処理される水の濁度よりも低かったためであると考えられる。
 
 ```{r tbl-ALT-amt}
-#| echo: false
 #| tbl-cap: "凝集剤注入量決定実験におけるALT比"
 
 flc_amt %>% 
@@ -354,7 +338,6 @@ flc_amt %>%
 ```
 
 ```{r tbl-ALT-ph}
-#| echo: false
 #| tbl-cap: "pH最適条件決定実験におけるALT比"
 
 flc_ph %>% 
@@ -393,8 +376,6 @@ $$ {#eq-g-val}
 今回は水の密度は1000(kg/m\^3)、水の粘性係数は設計指針を参照し、1.0×10\^-3(kg/m\*s, 20°Ｃでの値)として計算した。 また、撹拌翼のサイズは5.8×1.9cmで、円筒形の部分の直径が2.2cmであった。ビーカー内の水量1Lを混和池の容量とした。
 
 ```{r calc-g-val}
-#| echo: false
-
 rho <- 1000 # kg/m^3
 C <- 1.5
 a_gval <- (1.8/100)*(1.9/100) # m^3
@@ -416,7 +397,6 @@ g_val_slow <- sqrt((rho*C*a_gval*v_gval_slow^3) / (2*mu_gval*vol_gval))
 濁度とゼータ電位の関係を @fig-turb-z に示した。本来は、「ゼータ電位がゼロに近いほど凝集しやすい」（=負電荷を中和するのに必要な凝集剤が少なくて済むから）という関係が成り立つはずである。カオリン原水については、凝集最適pHの時以外であれば、ゼータ電位が0に近づくごとにゆるやかに濁度が低下している様子が観察できる一方で、三四郎池においては濁度が乱高下しているため、一定の関係性がみられない。この理由としては、三四郎池の原水には、様々な種類の懸濁物が含まれているため、ゼータ電位の測定結果が安定しなかったのではないかと推測される。
 
 ```{r fig-turb-z, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "濁度とゼータ電位の関係"
 
@@ -490,7 +470,6 @@ flc_ph %>%
 マノメータ水位の変化を @tbl-manometer に示す。
 
 ```{r tbl-manometer}
-#| echo: false
 #| tbl-cap: "マノメータ水位の変化"
 
 # データ読み込み
@@ -519,8 +498,8 @@ manometer %>%
 上記の実測値より、各マノメータごとの、それぞれの濾層(10cm刻み)あたりでの損失水頭を求めた結果を @tbl-lost-head に示す。なお、 @tbl-manometer に示した通り、マノメータの7番と8番は濾過プロセス全体を通してほぼ同一の値で水位している。これは、7番と8番のマノメータが濾過層よりも上部に設置されているためである。そこで、6番の損失水頭を求めるに当たっては、7番と8番のマノメータの読みの値の平均値から、6番のマノメータ水位を引くことによって求めた。
 
 ```{r tbl-lost-head}
-#| echo: false
 #| tbl-cap: "マノメータごとの損失水頭"
+
 # 損失水頭の計算
 manometer_losthead <- manometer %>% 
   pivot_wider(names_from = "manometer",
@@ -558,7 +537,6 @@ manometer_losthead %>%
 上部にアンスラサイトを敷いたC筒では、上部での目詰まりが抑制され、中間部の指定砂の層で目詰まりが起こっている。中間部での損失水頭は、B筒に比べて半分程度に抑えられている。その一方で、後ほど示すように、B筒とC筒では濁度の除去率はどちらも90%を超えており、あまり違いはない。これは、上部のアンスラサイト層によって濁質が捕捉されていることを意味する。この結果から、上部に粗い濾材を配置し、フロックを侵入させて濾層内に濁質を捕捉するという、二層濾過の作用原理を確認することができる。
 
 ```{r fig-manometer, dev='jpeg'}
-#| echo: false
 #| fig-cap: "マノメータの目詰まり状況"
 #| warning: false
 
@@ -590,7 +568,6 @@ manometer_losthead %>%
 次に、濁度の測定結果を @tbl-filt-turb に示す。また、濁度の除去率の経時変化を求め、 @fig-filt-turb に図示した。除去率の変化については、A筒とB筒にはあまり大きな違いは見られなかった。また、濾過砂のみを敷いたB筒よりも上部にアンスラサイトを敷いたC筒の方が全体を通じて除去率は数%ほど低く、除去率の低下も速かった。アンスラサイトを敷くことにより、全体としては損失水頭が小さくなり、目詰まりが抑制されるものの、濁度の除去効率は犠牲になってしまうということがわかる。
 
 ```{r tbl-filt-turb}
-#| echo: false
 #| tbl-cap: "急速濾過実験における濁度の経時変化"
 
 filt_turb <- read.csv("data/filt_turb.csv")
@@ -614,7 +591,6 @@ filt_turb %>%
 ```
 
 ```{r fig-filt-turb, dev='jpeg'}
-#| echo: false
 #| fig-cap: "濁度の経時変化"
 #| warning: false
 
@@ -650,8 +626,6 @@ turb_filtered %>%
 ### 逆洗浄
 
 ```{r calc-mass-balance}
-#| echo: false
-
 # csv用意するのがめんどくさいので直接入力
 reverse_SS <- tribble(
   ~time, ~bef_g, ~aft_g, ~amt_ml,
@@ -688,7 +662,6 @@ SS_all_estimated <- filt_vol * 175
 @fig-filt-turb に示したように、B筒の濁度除去率は常に98%以上で推移していたことを踏まえると、濁質量の実測値は理論値よりもやや少ない。この原因としては、逆洗時に流出した濁質量を台形の面積の総和であるグラフ面積によって近似しているため、面積を実際の捕捉量よりも小さく見積もってしまっていることが考えられる。また、逆洗によって完全に濁質が除去しきれていないとも考えられる。これらの点を踏まえれば、原水に含まれていた濁質の量と、濾層に捕捉されていた濁質の量はほぼ一致していると考えられ、濾過実験と逆洗浄実験の実験結果には整合性があったといえる。
 
 ```{r tbl-reverse-SS}
-#| echo: false
 #| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
 reverse_SS %>% 
@@ -706,7 +679,6 @@ reverse_SS %>%
 ```
 
 ```{r fig-reverse-SS, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
@@ -728,8 +700,6 @@ reverse_SS %>%
 ふるい分けの結果を @tbl-sieve に示す。ふるい分けの結果をもとに作成した粒度加積曲線を @fig-sieve に示す。粒度加積曲線からは、指定砂の10%(有効径)、60%に相当する粒径は約0.6mmならびに約0.8mm、アンスラサイトに関しては約1.2mm/約1.6mmと読み取れる。従って、均等係数はそれぞれ `r format(0.8/0.6, digits=2)`、 `r format(1.6/1.2, digits=2)` と計算される。
 
 ```{r calc-sand}
-#| echo: false
-
 msslndr <- 90.7132
 msslndr_sand <- 162.2523
 dens_aprnt <- (msslndr_sand - msslndr) / 50
@@ -746,7 +716,6 @@ dens_true <- (w_dens - wf_dens)/(w_dens - wf_dens + wa_dens - wb_dens)
 また、指定濾過砂の仮比重は、メスシリンダーが `r msslndr` g、砂50mLを入れた際の重さが `r msslndr_sand` gとなったため、 `r format(dens_aprnt,digits=6)` g/mLと計算された。真比重については、ピクノメーター重量Wfが `r wf_dens` g、砂を入れたピクノメーターの重量Wが `r w_dens` g、砂以外をMilli-Qで満たした際の重量Wbが `r wb_dens` g、ピクノメーターを全量Milli-Qで満たした際の重量Waが `r wa_dens` gとなったため、真比重Gは `r format(dens_true,digits=6)` (g/mL)と計算された。
 
 ```{r tbl-sieve}
-#| echo: false
 #| tbl-cap: "ふるい分けの結果"
 
 filt_sand <- read.csv("data/filt_prtcl.csv")
@@ -770,7 +739,6 @@ filt_sand %>%
 ```
 
 ```{r fig-sieve, dev='jpeg'}
-#| echo: false
 #| fig-cap: "指定砂・アンスラサイトの粒度加積曲線"
 #| warning: false
 
@@ -796,8 +764,6 @@ filt_sand %>%
 #### 濾過速度の算出
 
 ```{r calc-filt-speed}
-#| echo: false
-
 kuugeki <- (dens_true - dens_aprnt) / dens_true * 100
 no_sand_speed <- 650 * 60 * 24 / (6*6*pi) / 100
 with_sand_speed <- no_sand_speed / (kuugeki / 100)
@@ -842,7 +808,6 @@ with_sand_speed <- no_sand_speed / (kuugeki / 100)
 複数の希釈列を作成し、665nm吸光度を測定し、全データで検量線を作成した結果を @tbl-abs-calib-1 ならびに @fig-abs-calib-1 に示す。 なお、私達3班は2日目の測定時に新しく検量線を作成していたが、4班は作成していなかったとのことなので、3種類の検量線データを記載した。また、この場合の各検量線の回帰式とR\^2値を @tbl-abs-models-1 に示した。
 
 ```{r tbl-abs-calib-1}
-#| echo: false
 #| tbl-cap: "各希釈列ごとの吸光度"
 
 # データ読み込み
@@ -861,12 +826,9 @@ abs_calib %>%
 ```
 
 ```{r fig-abs-calib-1, dev='jpeg'}
-#| echo: false
 #| message: false
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の検量線"
-
-
 
 # 検量線可視化
 abs_calib %>% 
@@ -886,7 +848,6 @@ abs_calib %>%
 ```
 
 ```{r tbl-abs-models-1}
-#| echo: false
 #| tbl-cap: "検量線の回帰式とR^2値"
 
 # 検量線モデル作成
@@ -923,7 +884,6 @@ abs_models_all %>%
 @tbl-abs-models-1 に示した通り、R\^2値はどれも約0.99となっているものの、これはメチレンブルー濃度が20mg/Lの希釈列に引っ張られた結果であると考えられる。そのため、20mg/Lの希釈列を除いて再度検量線を作成した結果を @fig-abs-calib-2 、 @tbl-abs-models-2 に示す。 @fig-abs-calib-1 の検量線よりも正確に線形回帰できているため、この検量線を用いて濃度計算を行う。
 
 ```{r fig-abs-calib-2, dev='jpeg'}
-#| echo: false
 #| message: false
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の検量線(改良版)"
@@ -947,7 +907,6 @@ abs_calib %>%
 ```
 
 ```{r tbl-abs-models-2}
-#| echo: false
 #| tbl-cap: "検量線の回帰式とR^2値(改良版)"
 
 # 検量線モデル作成
@@ -986,7 +945,6 @@ abs_models %>%
 吸光度の経時変化を @tbl-abs-raw に示した。吸光度の値をもとに、先程作成した検量線を用いて濃度を計算した結果を @tbl-abs に示した。なお、4班のデータについては、十分に希釈を行っておらず、検量線が外挿となってしまった場合がある。その場合は数値の横に\*をつけて区別した。また、濃度の経時変化を @fig-abs に図示した。
 
 ```{r tbl-abs-raw}
-#| echo: false
 #| tbl-cap: "665nm吸光度の経時変化"
 
 # データ読み込み
@@ -1004,8 +962,6 @@ abs %>%
 ```
 
 ```{r calc-abs}
-#| echo: false
-
 abs_calc <- abs %>% 
   as_tibble() %>% 
   pivot_longer(cols = c(starts_with("ABS_"), starts_with("Dil_")),
@@ -1045,7 +1001,6 @@ abs_calc <- abs_calc %>%
 ```
 
 ```{r tbl-abs}
-#| echo: false
 #| tbl-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 
 # 濃度の経時変化の表組み
@@ -1068,7 +1023,6 @@ abs_calc %>%
 ```
 
 ```{r fig-abs, dev='jpeg'}
-#| echo: false
 #| fig-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 #| warning: false
 
@@ -1100,7 +1054,6 @@ abs_calc %>%
 次に、活性炭への吸着量をy軸にとったグラフを @fig-abs-2 に示す。
 
 ```{r fig-abs-2, dev='jpeg'}
-#| echo: false
 #| fig-cap: "吸着量qeの経時変化"
 #| warning: false
 
@@ -1166,7 +1119,6 @@ abs_calc_qe %>%
 <!--# 正直このグラフは何の意味があるのか…。吸着等温線と操作線の交点ってこと? -->
 
 ```{r fig-abs-3, dev='jpeg'}
-#| echo: false
 #| fig-cap: "平衡濃度Ceと平衡吸着量qeの関係"
 #| warning: false
 
@@ -1187,7 +1139,6 @@ abs_calc_qe %>%
 @fig-abs-3 に示した吸着平衡時のデータを用いてラングミュア・プロットを行うと @fig-langmuir のように、点はほぼ直線上に並んだ。また、フロイントリッヒ・プロットを @fig-freundlich に示した。フロイントリッヒ・プロットは、ラングミュア・プロットと比べて直線回帰の決定係数が小さくなってしまった。
 
 ```{r fig-langmuir, dev='jpeg'}
-#| echo: false
 #| fig-cap: "Langmuir-plot"
 #| warning: false
 
@@ -1209,7 +1160,6 @@ abs_calc_qe %>%
 ```
 
 ```{r fig-freundlich, dev='jpeg'}
-#| echo: false
 #| fig-cap: "Freundlich-plot"
 #| warning: false
 
@@ -1233,7 +1183,6 @@ abs_calc_qe %>%
 
 ```{r fig-abs-3-isthm, dev='jpeg'}
 #| include: false
-#| echo: false
 #| fig-cap: "平衡濃度Ceと平衡吸着量qeの関係"
 #| warning: false
 
@@ -1276,7 +1225,6 @@ $$ {#eq-de_Boer}
 Microtrac BEL社がweb上で公開している資料( @bel )を参考に、t-plotの解釈を行った。今回作成したt-plotにおいては、GW活性炭は原点付近でほぼ垂直に曲線が立ち上がった後、急速にプラトーに転じている。これは、マイクロ孔で吸着が起こった後、「マイクロ孔への N2 の充填が終了すると傾きが⼩さく」( @bel )なった結果であると考えられる。その一方で、GLC活性炭においては立ち上がりはGW活性炭と同様、ほぼ垂直となっているが、その後の傾きの減少具合がゆるやかになっている。これは、GW活性炭にはない、比較的大きな細孔が吸着に関わっていることを示唆している。なお、本当はt-plotを描画した後に、JISに定められた公定法によるt-plotの解析や、MP法による細孔分布図の作成などを行いたいと思っていたものの、残念ながら〆切に間に合わなかったため、今回は割愛する。
 
 ```{r calc-belsorp-data}
-#| echo: false
 #| warning: false
 
 # GLCのデータ読み込み
@@ -1322,7 +1270,6 @@ GW_df <- GW_df %>%
 ```
 
 ```{r tbl-bel-raw}
-#| echo: false
 #| tbl-cap: "吸着等温線の生データ"
 
 rbind(GLC_df,GW_df) %>% 
@@ -1333,7 +1280,6 @@ rbind(GLC_df,GW_df) %>%
 ```
 
 ```{r fig-abs-isthm, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "2種の活性炭の吸着等温線"
 
@@ -1351,7 +1297,6 @@ isthm_plt
 ```
 
 ```{r fig-t-plot, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "2種の活性炭のt-プロット"
 
@@ -1390,8 +1335,6 @@ rbind(GLC_df, GW_df) %>%
 計算を行った結果、ラングミュア・プロットならびにフロイントリッヒ・プロットは @fig-evap-lang と @fig-evap-fr のようになった。ラングミュア・プロット・フロイントリッヒ・プロットともに、もとのプロットよりも直線に近づいていることがわかる。ここから、この補正が有効であることがわかる。
 
 ```{r calc-abs-evap}
-#| echo: false
-
 # abs-calcを修正していく。
 # 各時間ごとの修正用係数
 # 使わないところはNAにしちゃってます
@@ -1415,7 +1358,6 @@ abs_evap_update <- abs_calc %>%
 ```
 
 ```{r fig-evap-lang, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "修正後のラングミュアプロット"
 
@@ -1437,7 +1379,6 @@ abs_evap_update %>%
 ```
 
 ```{r fig-evap-fr, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "修正後のフロイントリッヒプロット"
 
@@ -1513,7 +1454,6 @@ Belsorpによる解析の結果、GW活性炭の全部比表面積が1411.6(m\^2
 まず、メチレンブルー濃度算出に用いる検量線を作成した。各班の実測値を @tbl-ozn-calib に示す。
 
 ```{r tbl-ozn-calib}
-#| echo: false
 #| tbl-cap: "オゾン検量線の元データ"
 
 # オゾンのデータ読み込み
@@ -1538,7 +1478,6 @@ ozn_calib %>%
 上記のデータを用いて最小二乗法で検量線を作成したところ、今回採用した希釈段階の全域に渡ってデータは線形な変化であることを確認することができた。検量線モデルは、R言語の`lm`関数により、吸光度を目的変数、メチレンブルー濃度を説明変数とした線形回帰を行うことにより導出した（以下同様）。
 
 ```{r fig-ozn-calib, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の検量線"
 
@@ -1575,8 +1514,6 @@ $$ {#eq-LOQ}
 しかしながら、今回の実験演習ではブランクの測定を1回しか行っていないため、ブランク試料の標準偏差を求めることができず、統計学的な検出限界ならびに定量限界を求められない。そこで今回はやむを得ず、1回だけ測定したブランク試料の吸光度を機器のノイズレベルとみなし、ブランク試料の吸光度を下回ったサンプルを定量限界を下回ったサンプルとして処理することにした。本レポートにおいて検量線法を用いている他の実験においても同様の処理を行った。（例： @tbl-ozone に示した計測結果の場合は、ブランクの吸光度は0.000だったため、吸光度の測定結果が負となったサンプルが「測定限界」として表記されている。）
 
 ```{r calc-MB-conc}
-#| echo: false
-
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 # 回帰モデルの作成
 lm_ozn_dat <- ozn_calib %>% 
@@ -1595,8 +1532,6 @@ ozone <- ozone %>%
 ```
 
 ```{r calc-ozone-TOC}
-#| echo: false
-
 # TOCデータ読み込みと抽出
 TOC_1_2 <- read.csv("data/TOC_ozone_1_2.csv", header = FALSE)
 TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) %>% 
@@ -1612,7 +1547,6 @@ ozone <- ozone %>%
 ```
 
 ```{r tbl-ozone}
-#| echo: false
 #| tbl-cap: "オゾン処理時の各水質指標の測定結果"
 
 # 実験データの表組み
@@ -1645,7 +1579,6 @@ ozone %>%
 メチレンブルー濃度の時間変化を図示すると @fig-MB-conc のようになった。
 
 ```{r fig-MB-conc, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の経時変化"
 
@@ -1690,12 +1623,10 @@ ozone %>%
 各条件下でのコロニー数の計数結果を @tbl-cl-colony に示す。以降の考察では他班のデータも参照しているため、すべての班の計数結果について記載した。各サンプルにおける希釈倍率と観測されたコロニー数の関係には齟齬はなく、希釈時操作に関わるミス(希釈溶液の試験管の取り違えなど)は起こっていなかったと推測される。その一方で、4班の結果においては、t=t1以降のほとんどのサンプルにおいて、最小希釈倍率を10\^1倍に設定しているにもかかわらず、コロニーが１つも見られない結果となった。この点に関しては、採水後にチオ硫酸ナトリウムを入れ忘れており、塩素が消毒効果を発揮し続けたため、菌が全量不活化されてしまったのではないかと推測される。（4班の人に聞いてみたところ、「入れたはずだけど、よく覚えていない」とのことであった。もしかすると、誤ってMilli-Qなど、チオ硫酸ナトリウムではない溶液の入ったビーカーをチオ硫酸ナトリウムと思い込んで添加していたのかもしれない。）
 
 ```{r util-read-colony}
-#| echo: false
 colony <- read.csv("data/colony.csv")
 ```
 
 ```{r tbl-cl-colony}
-#| echo: false
 #| message: false
 #| tbl-cap: "大腸菌コロニー数の計数結果(塩素消毒)"
 
@@ -1727,7 +1658,6 @@ colony %>%
 次に、実験前後での遊離塩素濃度の測定結果、塩素消費における一次反応速度定数k'の推定値ならびに、実験での実際の採水時刻t1\~t3を @tbl-chlorine に示す。
 
 ```{r tbl-chlorine}
-#| echo: false
 #| message: false
 #| tbl-cap: "各班の遊離塩素濃度・採水時刻の実測値"
 
@@ -1760,7 +1690,6 @@ chlorine %>%
 塩素の初期濃度と終濃度から推定した塩素分解の一次反応速度定数k'の値を元に各時刻でのCt値を算出し、Ct値と対数不活化率の関係を @fig-cl-inact にプロットした。先述の通り、4班は実験操作過程において何等かの不手際があったと考えられるため、以降の解析から除外した。3班の緩衝液BのCt値算出にあたっては、終塩素濃度の測定を忘れてしまったため、他の班の緩衝液Bにおけるk'の平均値(n=3)で代替した。また、WHOの指針によれば、pH6〜7、水温5°Ｃの場合、遊離塩素で大腸菌を2log不活化するのに必要なCt値は0.034-0.05(mg/L\*min)とされていることを踏まえ、該当する不活化率・Ct値の範囲をグラフ上に青の線分で示した。
 
 ```{r fig-cl-inact, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "対数不活化率とCt値"
 
@@ -1830,7 +1759,6 @@ colony_ct %>%
 以上の基準で不活化速度定数kを算出した結果を @tbl-k-calc に示す。また、3条件での不活化速度定数の比較を @fig-k-calc に示す。各条件について、棒グラフは平均値、エラーバーは標準偏差を示している。
 
 ```{r tbl-k-calc}
-#| echo: false
 #| message: false
 #| tbl-cap: "不活化速度定数kの推定値"
 
@@ -1862,7 +1790,6 @@ cl_k_calc %>%
 ```
 
 ```{r fig-k-calc ,dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "不活化速度定数kの条件間での違い"
 
@@ -1909,8 +1836,6 @@ $$ {#eq-hocl}
 #### 実務におけるCt値のコントロール
 
 ```{r calc-}
-#| echo: false
-
 k_val_ph8.5 <- cl_k_calc %>% 
   filter(サンプル名=="緩衝液B") %>% 
   pull(k_val) %>% 
@@ -1939,7 +1864,6 @@ $$ {#eq-survival}
 この生存率の常用対数の絶対値が全体としての対数不活化率となる。不活化率が1、2、3となるCt値を求めたい。解析的に求解することは難しいため、まずはグラフを描画すると @fig-s-total のようになる。
 
 ```{r fig-s-total ,dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "大腸菌集団全体の不活化曲線"
 
@@ -1959,8 +1883,6 @@ ggplot(data.frame(x = c(0, 10)), aes(x = x)) +
 ```
 
 ```{r calc-s-total}
-#| echo: false
-
 # s_targetは先程と共通で1,2,3
 x_sols <- sapply(s_target, 
                  function(yt) uniroot(function(x) surv_all(x) - yt,
@@ -1984,7 +1906,6 @@ x_sols <- sapply(s_target,
 各条件下でのコロニー数の計数結果を @tbl-uv-colony に示す。塩素消毒実験時と同じく、各サンプルにおける希釈倍率とコロニー数の関係は一致しており、希釈操作は正しく行われたと推測される。
 
 ```{r tbl-uv-colony}
-#| echo: false
 #| message: false
 #| tbl-cap: "大腸菌コロニー数の計数結果(紫外線消毒)"
 
@@ -2029,7 +1950,6 @@ $$
 $$ {#eq-lambert-integral}
 
 ```{r tbl-uv-it}
-#| echo: false
 #| message: false
 #| tbl-cap: "平均線量率と採水時刻"
 
@@ -2072,7 +1992,6 @@ uv %>%
 計算した平均線量率を用いて各時刻での線量Iを算出し、大腸菌の不活化率との関係をプロットすると @fig-uv-inact のようになる。なお、対数不活化率を求めるにあたり、コロニーが全く見られなかった場合には対数不活化率が正の無限大となってしまうため、"\<1"の場合は便宜的に"コロニー数1"と置き換えて作図を行った。
 
 ```{r fig-uv-inact, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "対数不活化率と線量I"
 
@@ -2137,7 +2056,6 @@ colony_uv %>%
 以上の方法でn=1と仮定した場合のkを算出した結果を @tbl-uv-k に示す。また、3株での不活化速度定数の比較を @fig-uv-k に示す。塩素消毒実験の時と同様、エラーバーは各条件におけるkの標準偏差を示している。
 
 ```{r tbl-uv-k}
-#| echo: false
 #| tbl-cap: "不活化速度定数kの算出結果"
 
 uv_k_calc <- colony_uv %>% 
@@ -2167,7 +2085,6 @@ uv_k_calc %>%
 ```
 
 ```{r fig-uv-k, dev='jpeg'}
-#| echo: false
 #| warning: false
 #| fig-cap: "不活化速度定数kの株間での違い"
 
