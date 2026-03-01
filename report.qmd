@@ -1251,7 +1251,8 @@ rbind(GLC_df,GW_df) |>
 #| warning: false
 #| fig-cap: "2種の活性炭の吸着等温線"
 
-isthm_plt <- rbind(GLC_df, GW_df) |> 
+# 吸着等温線のプロット
+rbind(GLC_df, GW_df) |> 
   ggplot(mapping=aes(x=prsr, y=V, color=sample))+
   geom_point()+
   labs(
@@ -1260,8 +1261,6 @@ isthm_plt <- rbind(GLC_df, GW_df) |>
   )+
   theme_bw()+
   theme(text=element_text(family=hiragino))
-
-isthm_plt
 ```
 
 ```{r fig-t-plot, dev='jpeg'}
