@@ -1,20 +1,19 @@
 ---
 title: "浄水処理実験 実験レポート"
 header: "都市工学演習B2 + 環境工学実験演習第二"
-author: "03250114 大隅伸明"
 subtitle: "実験実施期間：2025年12月9日~2025年12月26日"
 bibliography: "references.bib"
 echo: false
-format: 
-  html:
-    toc: true
+
+#format: 
+#  html:
+#    toc: true
   #pdf:
    # pdf-engine: lualatex
     #documentclass: ltjsreport
     #fig-pos: 'h'
     #tbl-pos: 'h'
     #classoption: [10pt]
-editor: visual
 ---
 
 ```{r setup}
@@ -25,37 +24,6 @@ library(gridExtra)
 library(ggpmisc)
 
 hiragino <- "Hiragino Maru Gothic Pro"
-
-# readxl packageの公式ドキュメントでは、EXCELファイルのミラーイメージをcsvとして保存することが推奨されている。
-# ./data_rawディレクトリにあるxlsxなどの形式の入力ファイルを、使用目的ごとにcsvに分割してミラーとし、githubでの更新履歴追跡を容易にする。
-# readxlのドキュメントで推奨されているそのままのコード。
-cur_dir <- getwd()
-rawdata_dir <- paste0(cur_dir, "/data_raw") #元データ格納先
-output_dir <- paste0(cur_dir, "/data") #データ出力先
-xlsx_path <- paste0(rawdata_dir, "/input.xlsx") #excelのパス
-
-read_then_csv <- function(sheet, path, opt_dir){
-  sheet_dat <- readxl::read_xlsx(sheet = sheet, path = path)
-  csv_path <- paste0(opt_dir ,"/" ,sheet,".csv")
-  write.csv(sheet_dat, file = csv_path, row.names = FALSE)
-}
-
-# 実験ノートから手入力したデータ
-readxl::excel_sheets(xlsx_path) %>% 
-  map(read_then_csv, path = xlsx_path, opt_dir = output_dir) 
-
-# 機器分析の結果 絶対にいじらない。
-# 今回はTOCのみ(※belsorpはbashで別に処理)
-list.files(rawdata_dir, pattern = "TOC*", full.names = TRUE) %>% 
-  set_names() %>%  #よくわからないがチュートリアルに従って入れた。
-  map(~readxl::read_xlsx(.x)) %>% 
-  imap(function(x, idx)
-       write.csv(x, file=paste0(
-         output_dir, "/",
-         tools::file_path_sans_ext(basename(idx)),
-         ".csv"),
-         row.names = FALSE
-         ))
 
 # 検量線の濃度推定に使う関数
 inverse_pred.calc <- function(y, alpha, beta){
@@ -144,9 +112,9 @@ flc_amt <- read.csv("data/flc_amt.csv")
 
 # CaCO3当量(mg/L)に換算する
 #モル質量100(以下では100.9)とした時に班EXCELとの一致を確認済み。
-flc_amt <- flc_amt %>%
-  filter(班==3) %>% 
-  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
+flc_amt <- flc_amt |>
+  filter(班==3) |> 
+  mutate(滴下量 = 滴定_前 - 滴定_後) |> 
   mutate(mアルカリ度 = 
            # 硫酸の消費モル数：滴定量_ml / 1000 * 0.01(mol/L) * factor
            滴下量 / 1000 * 0.01 * ttr_fctr *
@@ -157,23 +125,23 @@ flc_amt <- flc_amt %>%
          )
 
 # 凝集剤投入量決定実験の表組み
-flc_amt %>%
-  filter(班==3) %>% 
-  select(-c("班","滴定_前","滴定_後")) %>% 
-  group_by(実験) %>% 
-  gt() %>% 
+flc_amt |>
+  filter(班==3) |> 
+  select(-c("班","滴定_前","滴定_後")) |> 
+  group_by(実験) |> 
+  gt() |> 
   #アルカリ度は有効数字3桁。
   # カオリン75以外は小数点以下1桁でうまくいく。
   # カオリン75だけ別指定したいんだがやり方は不明。
   # 何なら有効数字の表記法として正式にどうすればよいのかわからん。。
-  fmt_number(columns="mアルカリ度", decimals=1) %>% 
-  cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴")) %>%
+  fmt_number(columns="mアルカリ度", decimals=1) |> 
+  cols_align(align = "center", columns = everything()) |> 
+  cols_move_to_end(columns = starts_with("滴")) |>
   tab_spanner(label = "滴定生データ(mL)",
-              columns = c("滴下量","滴定試料量")) %>%
+              columns = c("滴下量","滴定試料量")) |>
   cols_label(凝集剤濃度="凝集剤(mg/L)",
              pH.後.="pH",
-             ) %>% 
+             ) |> 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -187,9 +155,9 @@ flc_amt %>%
 #| tbl-cap: "各pH条件下での反応の比較"
 
 #ttr_fctrは当然、凝集剤添加量決定時と同じものを使用する。
-flc_ph <- read.csv("data/flc_ph.csv") %>% 
-  filter(班==3) %>% 
-  mutate(滴下量 = 滴定_前 - 滴定_後) %>% 
+flc_ph <- read.csv("data/flc_ph.csv") |> 
+  filter(班==3) |> 
+  mutate(滴下量 = 滴定_前 - 滴定_後) |> 
   mutate(mアルカリ度 = 
            滴下量 / 1000 * 0.01 * ttr_fctr *
            100.09 * 1000 /
@@ -197,28 +165,28 @@ flc_ph <- read.csv("data/flc_ph.csv") %>%
          )
 
 # 添加量決定の際と同じ処理にしよう。
-flc_ph %>% 
+flc_ph |> 
   mutate(滴定試料量=case_when(
     理論pH=="pH3"~NA,
     理論pH=="pH5"~NA,
-    .default = 滴定試料量)) %>% 
-  #filter(班==3) %>% 
-  select(-c("班","滴定_前","滴定_後","理論pH","凝集剤添加量")) %>% 
-  group_by(試料) %>% 
-  gt() %>% 
+    .default = 滴定試料量)) |> 
+  #filter(班==3) |> 
+  select(-c("班","滴定_前","滴定_後","理論pH","凝集剤添加量")) |> 
+  group_by(試料) |> 
+  gt() |> 
   # pH11のところが有効数字がおかしいので個別で指定する必要あり。
-  fmt_number(columns="mアルカリ度", decimals=1) %>% 
-  cols_align(align = "center", columns = everything()) %>% 
-  cols_move_to_end(columns = starts_with("滴")) %>%
+  fmt_number(columns="mアルカリ度", decimals=1) |> 
+  cols_align(align = "center", columns = everything()) |> 
+  cols_move_to_end(columns = starts_with("滴")) |>
   tab_spanner(label = "滴定生データ(mL)",
-              columns = c("滴下量","滴定試料量")) %>% 
-  #tab_header(title="各phでの反応の比較") %>% 
+              columns = c("滴下量","滴定試料量")) |> 
+  #tab_header(title="各phでの反応の比較") |> 
   cols_label(pH前="pH(前)",
              pH後="pH(後)",
-             mアルカリ度="m-アルカリ度") %>% 
+             mアルカリ度="m-アルカリ度") |> 
   tab_options(
     latex.use_longtable = TRUE
-  ) %>% 
+  ) |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -228,7 +196,7 @@ flc_ph %>%
 #| warning: false
 #| fig-cap: "凝集剤注入量と上澄み液の濁度の関係"
 
-flc_amt %>% 
+flc_amt |> 
   ggplot(aes(x=凝集剤濃度,y=濁度,color=実験))+
   geom_point(size=2)+
   labs(
@@ -244,7 +212,7 @@ flc_amt %>%
 #| warning: false
 #| fig-cap: "凝集剤注入量と上澄み液のアルカリ度の関係"
 
-flc_amt %>% 
+flc_amt |> 
   ggplot(aes(x=凝集剤濃度,y=mアルカリ度,color=実験))+
   geom_point(size=2)+
   labs(
@@ -258,18 +226,18 @@ flc_amt %>%
 
 ```{r calc-alkarine-real}
 # アルカリ度の減少割合を予め計算しておく
-flc_amt_mod <- flc_amt %>% 
-  group_by(実験) %>% 
-  nest() %>% 
+flc_amt_mod <- flc_amt |> 
+  group_by(実験) |> 
+  nest() |> 
   mutate(lm = map(data, function(df) lm(df$凝集剤濃度 ~ df$mアルカリ度))) 
 
 # カオリンが先。今後index参照で間違えないように。
-alkarine_dec_val <- flc_amt_mod %>%
-  arrange(実験) %>% 
+alkarine_dec_val <- flc_amt_mod |>
+  arrange(実験) |> 
   mutate(alkarine_dec = map(lm,function(mod){
     format(unname(mod$coefficients[2]),digits=3)
-                         })) %>% 
-  mutate(alkarine_dec = as.numeric(alkarine_dec)) %>% 
+                         })) |> 
+  mutate(alkarine_dec = as.numeric(alkarine_dec)) |> 
   #select(c("実験","alkarine_dec"))
   pull(alkarine_dec)
 ```
@@ -278,7 +246,7 @@ alkarine_dec_val <- flc_amt_mod %>%
 #| warning: false
 #| fig-cap: "原水のpHと上澄み液の濁度の関係"
 
-flc_ph %>% 
+flc_ph |> 
   ggplot(aes(x=pH前,y=濁度,color=試料))+
   geom_point(size=2)+
   #geom_line(linetype=3,linewidth = 1.2)+
@@ -325,36 +293,36 @@ alkarine_theory <- caco3_alkarine / bando
 ```{r tbl-ALT-amt}
 #| tbl-cap: "凝集剤注入量決定実験におけるALT比"
 
-flc_amt %>% 
-  select("実験","凝集剤濃度","濁度") %>% 
+flc_amt |> 
+  select("実験","凝集剤濃度","濁度") |> 
   mutate(原水濁度=case_when(実験=="三四郎"~8.083,
-                   実験=="カオリン"~4.634)) %>% 
-  mutate(ALT = 凝集剤濃度 * (27*2/342.15) / 原水濁度) %>% 
-  group_by(実験) %>% 
-  gt() %>% 
+                   実験=="カオリン"~4.634)) |> 
+  mutate(ALT = 凝集剤濃度 * (27*2/342.15) / 原水濁度) |> 
+  group_by(実験) |> 
+  gt() |> 
   cols_label(凝集剤濃度 = "凝集剤添加量(mg/L)",
-             ALT = "ALT比") %>% 
+             ALT = "ALT比") |> 
   fmt_number(columns = "ALT", decimals = 2)
 ```
 
 ```{r tbl-ALT-ph}
 #| tbl-cap: "pH最適条件決定実験におけるALT比"
 
-flc_ph %>% 
-  select("pH前","試料","濁度") %>% 
+flc_ph |> 
+  select("pH前","試料","濁度") |> 
   mutate(凝集剤添加量 = case_when(
     試料 == "三四郎" ~ 50,
     試料 == "カオリン" ~ 20
-  )) %>% 
+  )) |> 
   mutate(原水濁度=case_when(試料=="三四郎"~8.083,
-                   試料=="カオリン"~4.634)) %>% 
-  mutate(ALT = 凝集剤添加量 * (27*2/342.15) / 原水濁度) %>% 
-  group_by(試料) %>% 
-  gt() %>% 
+                   試料=="カオリン"~4.634)) |> 
+  mutate(ALT = 凝集剤添加量 * (27*2/342.15) / 原水濁度) |> 
+  group_by(試料) |> 
+  gt() |> 
   cols_label(凝集剤添加量 = "凝集剤添加量(mg/L)",
              ALT = "ALT比",
-             pH前 = "原水pH") %>% 
-  fmt_number(columns = "ALT", decimals = 2) %>% 
+             pH前 = "原水pH") |> 
+  fmt_number(columns = "ALT", decimals = 2) |> 
   cols_move(columns = "凝集剤添加量",after = "pH前")
 ```
 
@@ -400,7 +368,7 @@ g_val_slow <- sqrt((rho*C*a_gval*v_gval_slow^3) / (2*mu_gval*vol_gval))
 #| warning: false
 #| fig-cap: "濁度とゼータ電位の関係"
 
-flc_ph %>% 
+flc_ph |> 
   ggplot(aes(x=ゼータ電位,y=濁度,color=試料))+
   geom_point()+
   labs(
@@ -473,25 +441,25 @@ flc_ph %>%
 #| tbl-cap: "マノメータ水位の変化"
 
 # データ読み込み
-manometer <- read.csv("data/manometer.csv") %>% 
-  mutate(filter = paste0(filter,"筒")) %>% 
+manometer <- read.csv("data/manometer.csv") |> 
+  mutate(filter = paste0(filter,"筒")) |> 
   pivot_longer(cols = c(starts_with("time_"), "tapwtr"),
                  names_to = "sampling")
 
 # マノメータ水位データの表組み
-manometer %>% 
-  filter(!is.na(value)) %>% 
+manometer |> 
+  filter(!is.na(value)) |> 
   pivot_wider(names_from = "manometer",
-                values_from = "value") %>% 
-  group_by(班, filter, sampling) %>% 
-  filter(班==3) %>% 
-  group_by(filter) %>% 
-  gt() %>% 
-  cols_hide("班") %>% 
-  cols_label(sampling="") %>% 
+                values_from = "value") |> 
+  group_by(班, filter, sampling) |> 
+  filter(班==3) |> 
+  group_by(filter) |> 
+  gt() |> 
+  cols_hide("班") |> 
+  cols_label(sampling="") |> 
   tab_spanner(columns = c(-"sampling"),
-              label = "マノメータの読み(cm)") %>% 
-  cols_move_to_start(columns = c(sampling)) %>% 
+              label = "マノメータの読み(cm)") |> 
+  cols_move_to_start(columns = c(sampling)) |> 
   sub_missing(missing_text = "欠測")
 ```
 
@@ -501,12 +469,12 @@ manometer %>%
 #| tbl-cap: "マノメータごとの損失水頭"
 
 # 損失水頭の計算
-manometer_losthead <- manometer %>% 
+manometer_losthead <- manometer |> 
   pivot_wider(names_from = "manometer",
-              values_from = "value") %>% 
-  mutate(no_loss = (`7` + `8`) / 2) %>% 
-  filter(!is.na(no_loss)) %>% 
-  select(-c("7","8")) %>% 
+              values_from = "value") |> 
+  mutate(no_loss = (`7` + `8`) / 2) |> 
+  filter(!is.na(no_loss)) |> 
+  select(-c("7","8")) |> 
   mutate(
     loss_1 = `2` - `1`,
     loss_2 = `3` - `2`,
@@ -514,21 +482,21 @@ manometer_losthead <- manometer %>%
     loss_4 = `5` - `4`,
     loss_5 = `6` - `5`,
     loss_6 = no_loss - `6`
-  ) %>% 
-  select(-c("1","2","3","4","5","6")) %>% 
+  ) |> 
+  select(-c("1","2","3","4","5","6")) |> 
   rename_with(~ str_extract(.x, "\\d+"),
          starts_with("loss"))
 
 # 損失水頭の表組み
-manometer_losthead %>% 
-  filter(班==3) %>% 
-  select(-no_loss) %>% 
-  group_by(filter) %>% 
-  gt() %>% 
-  cols_hide(columns = "班") %>% 
+manometer_losthead |> 
+  filter(班==3) |> 
+  select(-no_loss) |> 
+  group_by(filter) |> 
+  gt() |> 
+  cols_hide(columns = "班") |> 
   tab_spanner(columns = c(-sampling),
-              label = "濾過による損失水頭(cm)") %>% 
-  cols_move_to_start(columns = c("sampling")) %>% 
+              label = "濾過による損失水頭(cm)") |> 
+  cols_move_to_start(columns = c("sampling")) |> 
   sub_missing(missing_text = "欠測")
 ```
 
@@ -540,16 +508,16 @@ manometer_losthead %>%
 #| fig-cap: "マノメータの目詰まり状況"
 #| warning: false
 
-manometer_losthead %>% 
-  filter(班==3) %>% 
-  select(-no_loss) %>% 
+manometer_losthead |> 
+  filter(班==3) |> 
+  select(-no_loss) |> 
   pivot_longer(cols=c("1","2","3","4","5","6"),
                values_to = "value",
-               names_to = "manometer") %>% 
+               names_to = "manometer") |> 
   # マノメータ番号を水位に変換
-  mutate(manometer = as.numeric(manometer)) %>% 
-  mutate(manometer = (7 - manometer) * 10) %>% 
-  arrange(filter,sampling,manometer) %>% 
+  mutate(manometer = as.numeric(manometer)) |> 
+  mutate(manometer = (7 - manometer) * 10) |> 
+  arrange(filter,sampling,manometer) |> 
   # ggplotで描画
   ggplot(aes(x=value,y=manometer,color=sampling,group=sampling))+
   geom_point()+
@@ -571,22 +539,22 @@ manometer_losthead %>%
 #| tbl-cap: "急速濾過実験における濁度の経時変化"
 
 filt_turb <- read.csv("data/filt_turb.csv")
-filt_turb <- filt_turb %>% 
-  group_by(種類,試料,time) %>% 
+filt_turb <- filt_turb |> 
+  group_by(種類,試料,time) |> 
   summarise(turb = mean(turb),
             .groups = "drop")
 
 # 表組み
-filt_turb %>% 
-  mutate(time = paste0(time,"分")) %>% 
+filt_turb |> 
+  mutate(time = paste0(time,"分")) |> 
   pivot_wider(names_from = "time",
-              values_from = "turb") %>% 
-  gt() %>% 
+              values_from = "turb") |> 
+  gt() |> 
   cols_merge(columns = c("種類","試料"),
              hide_columns = "試料",
-             pattern = "{2} {1}") %>% 
+             pattern = "{2} {1}") |> 
   fmt_number(columns = everything(),
-             decimals = 3) %>% 
+             decimals = 3) |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -594,24 +562,24 @@ filt_turb %>%
 #| fig-cap: "濁度の経時変化"
 #| warning: false
 
-filt_raw <- filt_turb %>% 
-  filter(種類=="原水") %>% 
+filt_raw <- filt_turb |> 
+  filter(種類=="原水") |> 
   rename(turb_raw = turb,
          試料_照合 = 試料)
-filt_filtered <- filt_turb %>% 
-  filter(種類=="濾過水") %>% 
+filt_filtered <- filt_turb |> 
+  filter(種類=="濾過水") |> 
   mutate(試料_照合 = case_when(
     試料=="A" ~ "三四郎",
     .default = "カオリン"
-  )) %>% 
+  )) |> 
   rename(turb_filt = turb)
 
-turb_filtered <- filt_filtered %>% 
-  left_join(filt_raw,by=c("試料_照合","time")) %>% 
-  select(c("試料","time",starts_with("turb"))) %>% 
+turb_filtered <- filt_filtered |> 
+  left_join(filt_raw,by=c("試料_照合","time")) |> 
+  select(c("試料","time",starts_with("turb"))) |> 
   mutate(除去率 = (turb_raw - turb_filt) / turb_raw * 100)
 
-turb_filtered %>% 
+turb_filtered |> 
   ggplot(aes(x=time,y=除去率,color=試料)) +
   geom_point(size=3)+
   geom_line(linetype = 3, linewidth = 1.2)+
@@ -636,17 +604,17 @@ reverse_SS <- tribble(
   110, 0.4012, 0.4637, 100,
   139, 0.4069, 0.4402, 100,
   175, 0.4069, 0.4199, 100
-) %>% 
+) |> 
   # SSの単位はmg/mL
   # 差(g)に1000掛けてmgに変換し、濾過量(公定法ではL)で割る
   mutate(SS = (aft_g - bef_g) * 1000 / (amt_ml / 1000))
 
 # 面積(単位はmg*s/L)
-graph_area <- reverse_SS %>% 
-  select("time","SS") %>% 
+graph_area <- reverse_SS |> 
+  select("time","SS") |> 
   mutate(delta_x = time - lag(time),
-         avg_SS = (SS + lag(SS)) / 2) %>% 
-  summarise(area = sum(delta_x * avg_SS, na.rm = TRUE)) %>% 
+         avg_SS = (SS + lag(SS)) / 2) |> 
+  summarise(area = sum(delta_x * avg_SS, na.rm = TRUE)) |> 
   pull(area)
 
 # 総量(L/sで表される流量を掛けて、単位はmgとなる。)
@@ -664,13 +632,13 @@ SS_all_estimated <- filt_vol * 175
 ```{r tbl-reverse-SS}
 #| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
-reverse_SS %>% 
-  gt() %>% 
+reverse_SS |> 
+  gt() |> 
   # 自班データに関しては整数表示で有効数字は問題なし。
-  fmt_number(columns = "SS", decimals = 0) %>% 
+  fmt_number(columns = "SS", decimals = 0) |> 
   #見た目はなかなか悩ましい問題。
-  cols_align(align = "center", columns = c(-"time")) %>% 
-  cols_align(align = "left", columns = "time") %>% 
+  cols_align(align = "center", columns = c(-"time")) |> 
+  cols_align(align = "left", columns = "time") |> 
   cols_label(bef_g = "濾過前(g)",
              aft_g = "濾過後(g)",
              amt_ml = "濾過量(mL)",
@@ -682,7 +650,7 @@ reverse_SS %>%
 #| warning: false
 #| tbl-cap: "逆洗排水のSS濃度の経時変化"
 
-reverse_SS %>% 
+reverse_SS |> 
   ggplot(aes(x=time,y=SS))+
   geom_point(size=3)+
   geom_area(position = "identity", fill=4)+
@@ -719,19 +687,19 @@ dens_true <- (w_dens - wf_dens)/(w_dens - wf_dens + wa_dens - wb_dens)
 #| tbl-cap: "ふるい分けの結果"
 
 filt_sand <- read.csv("data/filt_prtcl.csv")
-filt_sand <- filt_sand %>% 
-  group_by(濾材) %>% 
+filt_sand <- filt_sand |> 
+  group_by(濾材) |> 
   mutate(抑留量 = weight - 皿の重さ,
          累積抑留量 = cumsum(抑留量),
          通過量 = sum(抑留量) - 累積抑留量,
          通過率 = 通過量 / max(通過量) * 100)
 
 # ふるい分けの表組み
-filt_sand %>% 
-  select(-c("皿の重さ","weight","累積抑留量")) %>% 
-  group_by(濾材) %>% 
-  gt() %>% 
-  fmt_number(columns = "通過率",decimals = 2) %>% 
+filt_sand |> 
+  select(-c("皿の重さ","weight","累積抑留量")) |> 
+  group_by(濾材) |> 
+  gt() |> 
+  fmt_number(columns = "通過率",decimals = 2) |> 
   cols_label(目の開き_mm = "篩い目(mm)",
              抑留量 = "抑留量(g)",
              通過量 = "通過量(累加)(g)",
@@ -742,7 +710,7 @@ filt_sand %>%
 #| fig-cap: "指定砂・アンスラサイトの粒度加積曲線"
 #| warning: false
 
-filt_sand %>% 
+filt_sand |> 
   ggplot(aes(x=目の開き_mm, y=通過率, color=濾材))+
   geom_point(size=3)+
   geom_line(linetype = 3, linewidth = 1.2)+
@@ -814,14 +782,14 @@ with_sand_speed <- no_sand_speed / (kuugeki / 100)
 abs_calib <- read.csv("data/abs_calib.csv")
 
 # 検量線データの表組み
-abs_calib %>% 
+abs_calib |> 
   pivot_wider(names_from = c(group, day),
               names_sep = "班_",
-              values_from = ABS) %>% 
-  gt() %>% 
-  cols_label(MB_conc = "メチレンブルー濃度(mg/L)") %>% 
+              values_from = ABS) |> 
+  gt() |> 
+  cols_label(MB_conc = "メチレンブルー濃度(mg/L)") |> 
   tab_spanner(columns = c(-"MB_conc"),
-              label = "665nm吸光度") %>% 
+              label = "665nm吸光度") |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -831,8 +799,8 @@ abs_calib %>%
 #| fig-cap: "メチレンブルー濃度の検量線"
 
 # 検量線可視化
-abs_calib %>% 
-  mutate(model = paste(group, "班-", day, "日目")) %>% 
+abs_calib |> 
+  mutate(model = paste(group, "班-", day, "日目")) |> 
   ggplot(aes(x=MB_conc, y=ABS)) +
   geom_point() +
   geom_smooth(method="lm",color="black")+
@@ -852,17 +820,17 @@ abs_calib %>%
 
 # 検量線モデル作成
 # 参考:tidyr::nest()の公式リファレンス
-abs_models_all <- abs_calib %>% 
-  group_by(group, day) %>% 
-  nest() %>% 
+abs_models_all <- abs_calib |> 
+  group_by(group, day) |> 
+  nest() |> 
   mutate(model = paste0(group, "班-", day, "日目"),
-         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) %>% 
-  ungroup() %>% 
+         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) |> 
+  ungroup() |> 
   select(-c("group", "day"))
 
 # 検量線の式の表組み
-abs_models_all %>% 
-  ungroup() %>% 
+abs_models_all |> 
+  ungroup() |> 
   mutate(rgrsn = map_chr(lm, 
                      function(lm_mod){
                        alpha <- format(unname(lm_mod$coefficients[2]),
@@ -874,9 +842,9 @@ abs_models_all %>%
                        
                        return(paste0("y = ",alpha,"x + ",beta,
                                      ", R^2 = ",R2))
-                     })) %>% 
-  select(c("model", "rgrsn")) %>% 
-  gt() %>% 
+                     })) |> 
+  select(c("model", "rgrsn")) |> 
+  gt() |> 
   cols_label(model="検量線",
              rgrsn="回帰式とR^2値")
 ```
@@ -889,9 +857,9 @@ abs_models_all %>%
 #| fig-cap: "メチレンブルー濃度の検量線(改良版)"
 
 # 検量線可視化
-abs_calib %>% 
-  filter(MB_conc < 20) %>% 
-  mutate(model = paste(group, "班-", day, "日目")) %>% 
+abs_calib |> 
+  filter(MB_conc < 20) |> 
+  mutate(model = paste(group, "班-", day, "日目")) |> 
   ggplot(aes(x=MB_conc, y=ABS)) +
   geom_point() +
   geom_smooth(method="lm",color="black")+
@@ -910,18 +878,18 @@ abs_calib %>%
 #| tbl-cap: "検量線の回帰式とR^2値(改良版)"
 
 # 検量線モデル作成
-abs_models <- abs_calib %>% 
-  filter(MB_conc < 20) %>% 
-  group_by(group, day) %>% 
-  nest() %>% 
+abs_models <- abs_calib |> 
+  filter(MB_conc < 20) |> 
+  group_by(group, day) |> 
+  nest() |> 
   mutate(model = paste0(group, "班-", day, "日目"),
-         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) %>% 
-  ungroup() %>% 
+         lm = map(data, function(df) lm(ABS~MB_conc, data=df))) |> 
+  ungroup() |> 
   select(-c("group", "day","data"))
 
 # 検量線の式の表組み
-abs_models %>% 
-  ungroup() %>% 
+abs_models |> 
+  ungroup() |> 
   mutate(rgrsn = map_chr(lm, 
                      function(lm_mod){
                        alpha <- format(unname(lm_mod$coefficients[2]),
@@ -933,9 +901,9 @@ abs_models %>%
                        
                        return(paste0("y = ",alpha,"x + ",beta,
                                      ", R^2 = ",R2))
-                     })) %>% 
-  select(c("model", "rgrsn")) %>% 
-  gt() %>% 
+                     })) |> 
+  select(c("model", "rgrsn")) |> 
+  gt() |> 
   cols_label(model="検量線",
              rgrsn="回帰式とR^2値")
 ```
@@ -951,52 +919,52 @@ abs_models %>%
 abs <- read.csv("data/abs.csv")
 
 # 表組み
-abs %>% 
-  select(-c("group",starts_with("Dil"))) %>% 
-  group_by(crbn, MB_init_conc) %>% 
-  rename_with(~ str_extract(.x, pattern="\\d+"), starts_with("ABS")) %>% 
-  gt() %>% 
+abs |> 
+  select(-c("group",starts_with("Dil"))) |> 
+  group_by(crbn, MB_init_conc) |> 
+  rename_with(~ str_extract(.x, pattern="\\d+"), starts_with("ABS")) |> 
+  gt() |> 
   cols_label(crbn_amt = "活性炭添加量(g)",
-             `24` = "24時間後") %>% 
+             `24` = "24時間後") |> 
   sub_missing(missing_text = "-")
 ```
 
 ```{r calc-abs}
-abs_calc <- abs %>% 
-  as_tibble() %>% 
+abs_calc <- abs |> 
+  as_tibble() |> 
   pivot_longer(cols = c(starts_with("ABS_"), starts_with("Dil_")),
                names_to = c("abs_dat_type","time"),
                names_pattern = "(.*)_(.*)",
-               values_to = "abs_dat_value")%>% 
+               values_to = "abs_dat_value")|> 
   pivot_wider(names_from = abs_dat_type,
               values_from = abs_dat_value)
 
 # 検量線モデルの適用
-abs_calc <- abs_calc %>% 
+abs_calc <- abs_calc |> 
   mutate(day = case_when(group=="3" & time=="24hrs" ~ 2,
-                         .default = 1)) %>% 
-  #group_by(group, day) %>% 
+                         .default = 1)) |> 
+  #group_by(group, day) |> 
   #summarise(crbn=unique(crbn),
   #          MB_init_conc = list(MB_init_conc),
   #          crbn_amt = list(crbn_amt),
   #         time=list(time),
   #          ABS=list(ABS),
   #          Dil=list(Dil),
-  #          .groups = "drop") %>% 
-  mutate(model = paste0(group,"班-",day,"日目")) %>% 
-  left_join(abs_models, by="model") %>% #検量線モデルと照合
+  #          .groups = "drop") |> 
+  mutate(model = paste0(group,"班-",day,"日目")) |> 
+  left_join(abs_models, by="model") |> #検量線モデルと照合
   #mutate(res=map2(ABS,lm,function(list,mod){
   #  map_dfr(list,\(x) inverse_pred(x, mod))
-  #})) %>%
-  #select(-c("group","day","model","data","lm")) %>% 
-  #unnest(-crbn) %>% 
+  #})) |>
+  #select(-c("group","day","model","data","lm")) |> 
+  #unnest(-crbn) |> 
   #ungroup()
-  rowwise() %>% 
-  mutate(res = inverse_pred(ABS, lm)) %>% 
-  ungroup() %>% 
-  unpack(res) %>% 
-  select(-model, -lm, -group, -day) %>% 
-  mutate(MB_conc = MB_conc * Dil) %>% 
+  rowwise() |> 
+  mutate(res = inverse_pred(ABS, lm)) |> 
+  ungroup() |> 
+  unpack(res) |> 
+  select(-model, -lm, -group, -day) |> 
+  mutate(MB_conc = MB_conc * Dil) |> 
   select(-ABS, -Dil)
 ```
 
@@ -1004,21 +972,21 @@ abs_calc <- abs_calc %>%
 #| tbl-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 
 # 濃度の経時変化の表組み
-abs_calc %>% 
+abs_calc |> 
   mutate(MB = case_when(
     MB_info == "fine" ~ as.character(round(MB_conc,0)),
     MB_info == "<LOD" ~ "検出限界",
     MB_info == "外挿" ~ paste0(round(MB_conc,0),"*"),
     .default = NA
-  )) %>% 
-  select(-MB_info,-MB_conc) %>% 
+  )) |> 
+  select(-MB_info,-MB_conc) |> 
   pivot_wider(names_from = time,
-              values_from = MB) %>%
-  group_by(crbn, MB_init_conc) %>%
-  gt() %>% 
-  cols_label(crbn_amt="活性炭添加量(g)") %>% 
+              values_from = MB) |>
+  group_by(crbn, MB_init_conc) |>
+  gt() |> 
+  cols_label(crbn_amt="活性炭添加量(g)") |> 
   tab_spanner(columns = c(ends_with("min"),"24hrs"),
-              label = "メチレンブルー濃度C(mg/L)") %>% 
+              label = "メチレンブルー濃度C(mg/L)") |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -1026,16 +994,16 @@ abs_calc %>%
 #| fig-cap: "メチレンブルー濃度C(mg/L)の経時変化"
 #| warning: false
 
-abs_calc %>% 
+abs_calc |> 
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
     .default = 1440
-  )) %>% 
+  )) |> 
   mutate(MB_conc = case_when( 
     MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
     .default = MB_conc
-  )) %>% 
-  filter(!is.na(MB_conc)) %>% 
+  )) |> 
+  filter(!is.na(MB_conc)) |> 
   ggplot(aes(x=time,y=MB_conc,group=crbn_amt,color=crbn_amt))+
   geom_point()+
   geom_line(linetype = 2)+
@@ -1059,38 +1027,38 @@ abs_calc %>%
 
 # 吸着量を求めるため一旦wideにしてmutateで処理する
 getqe <- function(df){
-  output <- df %>% 
+  output <- df |> 
   mutate(MB_q = case_when( 
     MB_info == "<LOD" ~ 0, #検出限界は0としてプロット
     .default = MB_conc
-  )) %>% 
-  select(-MB_info,-MB_conc) %>% 
+  )) |> 
+  select(-MB_info,-MB_conc) |> 
   pivot_wider(names_from = time,
-              values_from = MB_q) %>% 
+              values_from = MB_q) |> 
   # 0分からの濃度減少量を引き算で求める
   mutate(across(c(ends_with("min"),"24hrs"),
-         ~ `0min` - .x)) %>% 
+         ~ `0min` - .x)) |> 
   pivot_longer(cols = c(ends_with("min"),"24hrs"),
                names_to = "time",
-               values_to = "MB_q") %>% 
+               values_to = "MB_q") |> 
   # 吸着量に変換。予め活性炭量が0gの行を除外。
-  filter(crbn_amt > 0) %>% 
-  mutate(MB_q = MB_q * (500/1000) / crbn_amt) %>% # 活性炭1gあたり
+  filter(crbn_amt > 0) |> 
+  mutate(MB_q = MB_q * (500/1000) / crbn_amt) |> # 活性炭1gあたり
   # あとは一つ前とまったく同じ
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
     .default = 1440
-  )) %>% 
+  )) |> 
   filter(!is.na(MB_q))
   
   #濃度Cの情報を追加
-  output_timenum <- df %>% 
+  output_timenum <- df |> 
   mutate(time = case_when(
     str_detect(time,"min$") ~ as.numeric(str_extract(time,"\\d+")),
     .default = 1440
   ))
   
-  output <- output %>% 
+  output <- output |> 
   left_join(output_timenum,by=c("crbn","MB_init_conc","crbn_amt","time")) 
   
   return(output)
@@ -1099,7 +1067,7 @@ getqe <- function(df){
 
 abs_calc_qe <- getqe(abs_calc)
 
-abs_calc_qe %>% 
+abs_calc_qe |> 
   ggplot(aes(x=time,y=MB_q,group=crbn_amt,color=crbn_amt))+
   geom_point()+
   geom_line(linetype = 2)+
@@ -1122,8 +1090,8 @@ abs_calc_qe %>%
 #| fig-cap: "平衡濃度Ceと平衡吸着量qeの関係"
 #| warning: false
 
-abs_calc_qe %>% 
-  filter(time==1440) %>% 
+abs_calc_qe |> 
+  filter(time==1440) |> 
   ggplot(aes(x=MB_conc,y=MB_q))+
   geom_point()+
   labs(
@@ -1142,9 +1110,9 @@ abs_calc_qe %>%
 #| fig-cap: "Langmuir-plot"
 #| warning: false
 
-abs_calc_qe %>% 
-  filter(time==1440) %>% 
-  mutate(ce_qe = MB_conc / MB_q) %>% 
+abs_calc_qe |> 
+  filter(time==1440) |> 
+  mutate(ce_qe = MB_conc / MB_q) |> 
   ggplot(aes(x=MB_conc,y=ce_qe))+
   geom_point()+
   geom_smooth(method = lm, color="black", linetype=3)+
@@ -1163,10 +1131,10 @@ abs_calc_qe %>%
 #| fig-cap: "Freundlich-plot"
 #| warning: false
 
-abs_calc_qe %>% 
-  filter(time==1440) %>% 
+abs_calc_qe |> 
+  filter(time==1440) |> 
   mutate(log_qe = log(MB_q),
-         log_ce = log(MB_conc)) %>% 
+         log_ce = log(MB_conc)) |> 
   ggplot(aes(x=log_ce,y=log_qe))+
   geom_point()+
   geom_smooth(method = lm, color="black", linetype=3)+
@@ -1186,16 +1154,16 @@ abs_calc_qe %>%
 #| fig-cap: "平衡濃度Ceと平衡吸着量qeの関係"
 #| warning: false
 
-abs_calc_qe %>% 
-  filter(time==1440) %>% 
+abs_calc_qe |> 
+  filter(time==1440) |> 
   mutate(lang = case_when(
     crbn=="GW"~ (1/0.00638)*MB_conc/(1+(0.00638/0.00461)),
     crbn=="GLW"~ NA
-      )) %>% 
+      )) |> 
   mutate(fr = case_when(
     crbn=="GW"~exp(0.135)*MB_conc^4.42,
     crbn=="GLW"~exp(0.0342)*MB_conc^6.36
-  )) %>% 
+  )) |> 
   ggplot(aes(x=MB_conc,y=MB_q))+
   geom_point()+
   geom_point(aes(x=MB_conc,y=fr),color="blue")+
@@ -1228,26 +1196,26 @@ Microtrac BEL社がweb上で公開している資料( @bel )を参考に、t-plo
 #| warning: false
 
 # GLCのデータ読み込み
-GLC_bel_lines <- readLines("data/GLC1203.txt") %>% 
+GLC_bel_lines <- readLines("data/GLC1203.txt") |> 
   stringr::str_split('\t')
-GLC_df <- GLC_bel_lines[37:83] %>% #現実的妥協（汗）
-  unlist() %>% 
-  matrix(ncol=6,byrow = TRUE) %>% 
-  as.data.frame.array() %>% 
-  select(-c("V1","V6")) %>% 
-  `colnames<-`(c("Pe","P0","Vd","V")) %>% 
+GLC_df <- GLC_bel_lines[37:83] |> #現実的妥協（汗）
+  unlist() |> 
+  matrix(ncol=6,byrow = TRUE) |> 
+  as.data.frame.array() |> 
+  select(-c("V1","V6")) |> 
+  `colnames<-`(c("Pe","P0","Vd","V")) |> 
   mutate_all(as.numeric)
 rm(GLC_bel_lines)
 
 # GWのデータ読み込み
-GW_bel_lines <- readLines("data/GW1203.txt") %>% 
+GW_bel_lines <- readLines("data/GW1203.txt") |> 
   stringr::str_split('\t')
-GW_df <- GW_bel_lines[37:74] %>% #現実的妥協（汗）
-  unlist() %>% 
-  matrix(ncol=6,byrow = TRUE) %>% 
-  as.data.frame.array() %>% 
-  select(-c("V1","V6")) %>% 
-  `colnames<-`(c("Pe","P0","Vd","V")) %>% 
+GW_df <- GW_bel_lines[37:74] |> #現実的妥協（汗）
+  unlist() |> 
+  matrix(ncol=6,byrow = TRUE) |> 
+  as.data.frame.array() |> 
+  select(-c("V1","V6")) |> 
+  `colnames<-`(c("Pe","P0","Vd","V")) |> 
   mutate_all(as.numeric)
 rm(GW_bel_lines)
 
@@ -1257,12 +1225,12 @@ de_Boer <- function(P, P0){
   return(354 * (-5 / log(P / P0)) ^ (1/3) / 100) #pm->nm
 }
 
-GLC_df <- GLC_df %>% 
+GLC_df <- GLC_df |> 
   mutate(sample = "GLC",
          prsr = Pe / P0,
          t_nm = de_Boer(Pe, P0),
          BET = Pe / (V * (P0 - Pe)))
-GW_df <- GW_df %>% 
+GW_df <- GW_df |> 
   mutate(sample = "GW",
          prsr = Pe / P0,
          t_nm = de_Boer(Pe, P0),
@@ -1272,10 +1240,10 @@ GW_df <- GW_df %>%
 ```{r tbl-bel-raw}
 #| tbl-cap: "吸着等温線の生データ"
 
-rbind(GLC_df,GW_df) %>% 
-  select(c("Pe","P0","Vd","V","sample")) %>% 
-  group_by(sample) %>% 
-  gt() %>% 
+rbind(GLC_df,GW_df) |> 
+  select(c("Pe","P0","Vd","V","sample")) |> 
+  group_by(sample) |> 
+  gt() |> 
   tab_options(latex.use_longtable = TRUE)
 ```
 
@@ -1283,7 +1251,7 @@ rbind(GLC_df,GW_df) %>%
 #| warning: false
 #| fig-cap: "2種の活性炭の吸着等温線"
 
-isthm_plt <- rbind(GLC_df, GW_df) %>% 
+isthm_plt <- rbind(GLC_df, GW_df) |> 
   ggplot(mapping=aes(x=prsr, y=V, color=sample))+
   geom_point()+
   labs(
@@ -1300,7 +1268,7 @@ isthm_plt
 #| warning: false
 #| fig-cap: "2種の活性炭のt-プロット"
 
-rbind(GLC_df, GW_df) %>% 
+rbind(GLC_df, GW_df) |> 
   ggplot(mapping = aes(x=t_nm,y=V,color=sample))+
   geom_point()+
   labs(
@@ -1350,10 +1318,10 @@ evap_update <-
           "120min",1,
           "24hrs",(500-90-18.91*24/22)/500)
 
-abs_evap_update <- abs_calc %>% 
-  left_join(evap_update,by="time") %>% 
-  mutate(MB_conc = MB_conc * evap_const) %>% 
-  select(-evap_const) %>% 
+abs_evap_update <- abs_calc |> 
+  left_join(evap_update,by="time") |> 
+  mutate(MB_conc = MB_conc * evap_const) |> 
+  select(-evap_const) |> 
   getqe()
 ```
 
@@ -1361,9 +1329,9 @@ abs_evap_update <- abs_calc %>%
 #| warning: false
 #| fig-cap: "修正後のラングミュアプロット"
 
-abs_evap_update %>% 
-  filter(time==1440) %>% 
-  mutate(ce_qe = MB_conc / MB_q) %>% 
+abs_evap_update |> 
+  filter(time==1440) |> 
+  mutate(ce_qe = MB_conc / MB_q) |> 
   ggplot(aes(x=MB_conc,y=ce_qe))+
   geom_point()+
   geom_smooth(method = lm, color="black", linetype=3)+
@@ -1382,10 +1350,10 @@ abs_evap_update %>%
 #| warning: false
 #| fig-cap: "修正後のフロイントリッヒプロット"
 
-abs_evap_update %>% 
-  filter(time==1440) %>% 
+abs_evap_update |> 
+  filter(time==1440) |> 
   mutate(log_qe = log(MB_q),
-         log_ce = log(MB_conc)) %>% 
+         log_ce = log(MB_conc)) |> 
   ggplot(aes(x=log_ce,y=log_qe))+
   geom_point()+
   geom_smooth(method = lm, color="black", linetype=3)+
@@ -1460,15 +1428,15 @@ Belsorpによる解析の結果、GW活性炭の全部比表面積が1411.6(m\^2
 ozn_calib <- read.csv("data/ozone_calib.csv")
 
 # 検量線用の希釈列データの表組み
-ozn_calib %>% 
-  filter(班==3) %>% 
-  arrange(メチレンブルー濃度.mg.L.) %>% 
-  select(-c("班")) %>% 
-  gt() %>% 
+ozn_calib |> 
+  filter(班==3) |> 
+  arrange(メチレンブルー濃度.mg.L.) |> 
+  select(-c("班")) |> 
+  gt() |> 
   cols_align(
     align="center",
     columns=everything()
-  ) %>% 
+  ) |> 
   cols_label(メチレンブルー濃度.mg.L.="MB濃度(mg/L)",
              吸光度="665nm吸光度")
 ```
@@ -1482,8 +1450,8 @@ ozn_calib %>%
 #| fig-cap: "メチレンブルー濃度の検量線"
 
 # 検量線プロット
-ozn_calib %>% 
-  filter(班==3) %>% 
+ozn_calib |> 
+  filter(班==3) |> 
   ggplot(mapping = aes(x=メチレンブルー濃度.mg.L., y=吸光度))+
   geom_point()+
   geom_smooth(method="lm",color="black")+
@@ -1516,7 +1484,7 @@ $$ {#eq-LOQ}
 ```{r calc-MB-conc}
 #検量線を用いて濃度を算出する。吸光度測定時の希釈倍率も考慮。
 # 回帰モデルの作成
-lm_ozn_dat <- ozn_calib %>% 
+lm_ozn_dat <- ozn_calib |> 
   filter(班==3) 
 lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.,
              model = TRUE)
@@ -1525,24 +1493,24 @@ lm_ozn <- lm(lm_ozn_dat$吸光度 ~ lm_ozn_dat$メチレンブルー濃度.mg.L.
 
 # 実験データの読み込みと検量線モデル適用
 ozone <- read.csv("data/ozone.csv")
-ozone <- ozone %>% 
-  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn)) %>% 
-  unnest(ozn_mdlfit) %>% 
+ozone <- ozone |> 
+  mutate(ozn_mdlfit = map(吸光度, inverse_pred, lm_mod = lm_ozn)) |> 
+  unnest(ozn_mdlfit) |> 
   mutate(MB_conc = MB_conc * 吸光度_希釈)
 ```
 
 ```{r calc-ozone-TOC}
 # TOCデータ読み込みと抽出
 TOC_1_2 <- read.csv("data/TOC_ozone_1_2.csv", header = FALSE)
-TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) %>% 
-  filter(V4=="NPOC") %>% 
-  select(c("V3", "V9")) %>% 
-  `colnames<-`(c("TOC_vial","TOC_conc")) %>% 
-  mutate_all(as.numeric) #%>% 
+TOC_3_4 <- read.csv("data/TOC_ozone_3_4.csv", header = FALSE) |> 
+  filter(V4=="NPOC") |> 
+  select(c("V3", "V9")) |> 
+  `colnames<-`(c("TOC_vial","TOC_conc")) |> 
+  mutate_all(as.numeric) #|> 
   #mutate(TOC_filename = "1_2")
 
 # 実験ノートのデータと統合
-ozone <- ozone %>% 
+ozone <- ozone |> 
   left_join(TOC_3_4, by="TOC_vial")
 ```
 
@@ -1550,27 +1518,27 @@ ozone <- ozone %>%
 #| tbl-cap: "オゾン処理時の各水質指標の測定結果"
 
 # 実験データの表組み
-ozone %>%
-  filter(班==3) %>% 
-  select(-c("班","TOC_vial","TOC_filename")) %>% 
-  group_by(条件) %>% 
-  gt() %>% 
+ozone |>
+  filter(班==3) |> 
+  select(-c("班","TOC_vial","TOC_filename")) |> 
+  group_by(条件) |> 
+  gt() |> 
   text_transform(
     locations = cells_body(columns = starts_with("MB_"),
                            rows = MB_info == "<LOD"),
     fn = function(x) {x = "定量限界以下"}
-  ) %>% 
+  ) |> 
   fmt_number(decimals = 1,
-             columns = c("MB_conc", "TOC_conc")) %>% 
+             columns = c("MB_conc", "TOC_conc")) |> 
   tab_spanner(label = "メチレンブルー濃度測定",
-              columns = c("吸光度","吸光度_希釈","MB_conc")) %>% 
-  cols_hide(columns = c("MB_info")) %>% 
+              columns = c("吸光度","吸光度_希釈","MB_conc")) |> 
+  cols_hide(columns = c("MB_info")) |> 
   cols_label(時間.分. = "時刻(分)",
              吸光度_希釈 = "希釈倍率",
              MB_conc = "濃度(mg/L)",
              O3_conc = "オゾン濃度(mg/L)",
-             TOC_conc = "TOC濃度(mg/L)") %>% 
-  cols_align(align = "center", columns = everything()) %>% 
+             TOC_conc = "TOC濃度(mg/L)") |> 
+  cols_align(align = "center", columns = everything()) |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -1582,9 +1550,9 @@ ozone %>%
 #| warning: false
 #| fig-cap: "メチレンブルー濃度の経時変化"
 
-ozone %>% 
-  filter(班==3) %>% 
-  select(c("時間.分.","MB_conc","条件")) %>% 
+ozone |> 
+  filter(班==3) |> 
+  select(c("時間.分.","MB_conc","条件")) |> 
   ggplot(mapping=aes(x=時間.分. , y=MB_conc, color=条件)) +
   geom_point(size =2) +
   geom_line(linetype = 3, linewidth = 1) +
@@ -1631,25 +1599,25 @@ colony <- read.csv("data/colony.csv")
 #| tbl-cap: "大腸菌コロニー数の計数結果(塩素消毒)"
 
 # table formatting
-colony %>% 
-  mutate(班=paste0(班,"班")) %>% 
-  filter(実験名=="塩素") %>% 
-  select(-"実験名") %>% 
-  group_by(班,サンプル名,採水時刻,希釈倍率) %>%
-  mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
-  summarise(コロニー数=unique(コロニー数)) %>% 
+colony |> 
+  mutate(班=paste0(班,"班")) |> 
+  filter(実験名=="塩素") |> 
+  select(-"実験名") |> 
+  group_by(班,サンプル名,採水時刻,希釈倍率) |>
+  mutate(コロニー数=paste(コロニー数,collapse = "/")) |> 
+  summarise(コロニー数=unique(コロニー数)) |> 
   mutate(コロニー数=paste0(
     "\\textbf{",コロニー数,"}","(×$10^",希釈倍率,"$)"
     ),
-    コロニー数=paste0(コロニー数, collapse=", ")) %>% 
-  summarise(コロニー数=unique(コロニー数)) %>% 
-  gt() %>% 
-  #tab_header(title="大腸菌コロニー数の計数結果") %>% 
+    コロニー数=paste0(コロニー数, collapse=", ")) |> 
+  summarise(コロニー数=unique(コロニー数)) |> 
+  gt() |> 
+  #tab_header(title="大腸菌コロニー数の計数結果") |> 
   fmt_passthrough(
     columns = コロニー数,
     escape=FALSE
-  ) %>% 
-  cols_align(align="center", columns=c("コロニー数","採水時刻")) %>% 
+  ) |> 
+  cols_align(align="center", columns=c("コロニー数","採水時刻")) |> 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -1665,25 +1633,25 @@ colony %>%
 chlorine <- read.csv("data/chlorine.csv")
 
 # k'の計算
-chlorine <- chlorine %>% 
+chlorine <- chlorine |> 
   mutate(k_dash = - (60/t4) * log(cl_aftr / cl_bef))
 
 # 遊離塩素濃度の表組み
-chlorine %>% 
-  mutate(班 = paste0(班,"班")) %>% 
-  group_by(班) %>% 
-  gt() %>% 
+chlorine |> 
+  mutate(班 = paste0(班,"班")) |> 
+  group_by(班) |> 
+  gt() |> 
   cols_label(cl_bef = "実験前",
              cl_aftr = "実験後",
              t4 = "測定時刻(s)",
              サンプル名 = "溶液",
-             k_dash = "k'(/min)") %>% 
+             k_dash = "k'(/min)") |> 
   tab_spanner(columns = c("t1","t2","t3"),
-              label = "採水時刻(s)") %>% 
+              label = "採水時刻(s)") |> 
   tab_spanner(columns = c("cl_bef","cl_aftr","t4"),
-              label = "遊離塩素濃度(mg/L)") %>% 
+              label = "遊離塩素濃度(mg/L)") |> 
   fmt_scientific(columns = "k_dash",
-                 n_sigfig = 2) %>% 
+                 n_sigfig = 2) |> 
   sub_missing(missing_text = "-")
 ```
 
@@ -1694,43 +1662,43 @@ chlorine %>%
 #| fig-cap: "対数不活化率とCt値"
 
 # まずはCt値を計算
-chlorine_ct <- chlorine %>% 
-  mutate(k_dash = case_when(is.na(k_dash)~ 0.5175782, .default = k_dash)) %>% # 3班の緩衝液Bのk'を他の平均値で埋める
+chlorine_ct <- chlorine |> 
+  mutate(k_dash = case_when(is.na(k_dash)~ 0.5175782, .default = k_dash)) |> # 3班の緩衝液Bのk'を他の平均値で埋める
   pivot_longer(cols = c("t1","t2","t3"),
                names_to = "採水時刻",
-               values_to = "t_sampling") %>% 
-  mutate(ct = cl_bef * (1/k_dash) * (1 - exp(-k_dash * (t_sampling/60)))) %>% # 単位はmg/L/min
+               values_to = "t_sampling") |> 
+  mutate(ct = cl_bef * (1/k_dash) * (1 - exp(-k_dash * (t_sampling/60)))) |> # 単位はmg/L/min
   select(c("班","サンプル名","採水時刻","ct")) # 他3列は菌数との照合用
 
 # 大腸菌濃度を計算(各サンプルの量は10mLとする)
-colony_ct <- colony %>% 
-  filter(実験名=="塩素", 採用希釈倍率=="*") %>% 
-  select(-実験名) %>% 
-  left_join(chlorine_ct, by=c("班","サンプル名","採水時刻")) %>% 
+colony_ct <- colony |> 
+  filter(実験名=="塩素", 採用希釈倍率=="*") |> 
+  select(-実験名) |> 
+  left_join(chlorine_ct, by=c("班","サンプル名","採水時刻")) |> 
   mutate(ct = case_when(採水時刻=="t0" ~ 0,
-                        .default = ct)) %>% 
+                        .default = ct)) |> 
   # グラフ表示用に計算していく
   mutate(コロニー数 = case_when(コロニー数=="<1"~0,
                            .default = as.numeric(コロニー数)),
-         coli_conc = コロニー数 * 10^希釈倍率) %>% 
-  group_by(班,サンプル名,採水時刻) %>% 
+         coli_conc = コロニー数 * 10^希釈倍率) |> 
+  group_by(班,サンプル名,採水時刻) |> 
   summarise(coli_conc = mean(coli_conc),
             ct = unique(ct),
-            .groups = "drop") %>% 
-  group_by(班,サンプル名) %>% 
+            .groups = "drop") |> 
+  group_by(班,サンプル名) |> 
   reframe(surv = coli_conc / max(coli_conc),
           ct = ct,
           採水時刻 = 採水時刻)
 
 # 不活化速度定数算出のためのプロット
-colony_ct %>%
-  filter(班!=4) %>% 
+colony_ct |>
+  filter(班!=4) |> 
   mutate(班=paste0(班,"班"),
-         surv_log= -log10(surv)) %>% 
+         surv_log= -log10(surv)) |> 
   mutate(サンプル名 = case_when(
     サンプル名 == "水道水" ~ "水道水(pH約7)",
     サンプル名 == "緩衝液A" ~ "緩衝液A(pH約6.5)",
-    サンプル名 == "緩衝液B" ~ "緩衝液B(pH約8.5)")) %>% 
+    サンプル名 == "緩衝液B" ~ "緩衝液B(pH約8.5)")) |> 
   ggplot(aes(x=ct,y=surv_log))+
   geom_point(aes(shape=班),size=3)+
   #geom_smooth(method="lm",linetype=3)+
@@ -1762,29 +1730,29 @@ colony_ct %>%
 #| message: false
 #| tbl-cap: "不活化速度定数kの推定値"
 
-cl_k_calc <- colony_ct %>% 
-  filter(班!=4) %>% 
-  mutate(surv_log = -log10(surv)) %>% 
-  select(-surv) %>% 
+cl_k_calc <- colony_ct |> 
+  filter(班!=4) |> 
+  mutate(surv_log = -log10(surv)) |> 
+  select(-surv) |> 
   filter((サンプル名=="水道水" & 採水時刻%in%c("t0","t1")) |
            (サンプル名=="緩衝液A" & 採水時刻%in%c("t0","t1")) |
-           (サンプル名=="緩衝液B" & 班!=1)) %>% 
-  group_by(サンプル名,班) %>% 
-  nest() %>% 
+           (サンプル名=="緩衝液B" & 班!=1)) |> 
+  group_by(サンプル名,班) |> 
+  nest() |> 
   mutate(lm = map(data, function(df) lm(df$surv_log ~ df$ct))) 
 
 # 表組み(回帰モデルの傾きを表示)
-cl_k_calc <- cl_k_calc %>% 
+cl_k_calc <- cl_k_calc |> 
   mutate(k_val = map(lm,function(mod){
     format(unname(mod$coefficients[2]),digits=3)
-                         })) %>% 
-  select(c("班","サンプル名","k_val")) %>% 
+                         })) |> 
+  select(c("班","サンプル名","k_val")) |> 
   mutate(k_val = as.numeric(k_val)) 
 
-cl_k_calc %>% 
+cl_k_calc |> 
   pivot_wider(names_from = "班",
-              values_from = "k_val") %>% 
-  gt() %>% 
+              values_from = "k_val") |> 
+  gt() |> 
   fmt_scientific(columns = everything(),
                  n_sigfig = 2)
 ```
@@ -1793,10 +1761,10 @@ cl_k_calc %>%
 #| warning: false
 #| fig-cap: "不活化速度定数kの条件間での違い"
 
-cl_k_calc %>% 
-  group_by(サンプル名) %>% 
+cl_k_calc |> 
+  group_by(サンプル名) |> 
   summarise(mean = mean(k_val),
-            sd=sd(k_val)) %>% 
+            sd=sd(k_val)) |> 
   ggplot()+
   geom_bar(aes(x=サンプル名,y=mean),stat="identity",fill="skyblue")+
   geom_errorbar(aes(x=サンプル名,ymin=mean-sd,ymax=mean+sd),
@@ -1836,9 +1804,9 @@ $$ {#eq-hocl}
 #### 実務におけるCt値のコントロール
 
 ```{r calc-}
-k_val_ph8.5 <- cl_k_calc %>% 
-  filter(サンプル名=="緩衝液B") %>% 
-  pull(k_val) %>% 
+k_val_ph8.5 <- cl_k_calc |> 
+  filter(サンプル名=="緩衝液B") |> 
+  pull(k_val) |> 
   mean()
 
 s_target <- c(1,2,3)
@@ -1910,25 +1878,25 @@ x_sols <- sapply(s_target,
 #| tbl-cap: "大腸菌コロニー数の計数結果(紫外線消毒)"
 
 # table formatting
-colony %>% 
-  filter(実験名=="紫外線") %>% 
-  select(-実験名) %>% 
-  mutate(班=paste0(班,"班")) %>% 
-  group_by(班,サンプル名,採水時刻,希釈倍率) %>%
-  mutate(コロニー数=paste(コロニー数,collapse = "/")) %>% 
-  summarise(コロニー数=unique(コロニー数)) %>% 
+colony |> 
+  filter(実験名=="紫外線") |> 
+  select(-実験名) |> 
+  mutate(班=paste0(班,"班")) |> 
+  group_by(班,サンプル名,採水時刻,希釈倍率) |>
+  mutate(コロニー数=paste(コロニー数,collapse = "/")) |> 
+  summarise(コロニー数=unique(コロニー数)) |> 
   mutate(コロニー数=paste0(
     "\\textbf{",コロニー数,"}","(×$10^",希釈倍率,"$)"
     ),
-    コロニー数=paste0(コロニー数, collapse=", ")) %>% 
-  summarise(コロニー数=unique(コロニー数)) %>% 
-  gt() %>% 
-  #tab_header(title="大腸菌コロニー数の計数結果") %>% 
+    コロニー数=paste0(コロニー数, collapse=", ")) |> 
+  summarise(コロニー数=unique(コロニー数)) |> 
+  gt() |> 
+  #tab_header(title="大腸菌コロニー数の計数結果") |> 
   fmt_passthrough(
     columns = コロニー数,
     escape=FALSE
-  ) %>% 
-  cols_align(align="center", columns=c("コロニー数","採水時刻")) %>% 
+  ) |> 
+  cols_align(align="center", columns=c("コロニー数","採水時刻")) |> 
   tab_options(
     latex.use_longtable = TRUE
   )
@@ -1955,17 +1923,17 @@ $$ {#eq-lambert-integral}
 
 depth <- 40 / (4.3^2 * pi) # シャーレ(半径4.3cm)内の深さ
 
-uv <- read.csv("data/uv.csv") %>% 
+uv <- read.csv("data/uv.csv") |> 
   mutate(uv_ave = (uv_1+uv_2+uv_3+uv_4+uv_5) / 5,
          i_ave = # Lambert-Beer則を積分した式
            uv_ave / (abs*depth*log(10)) * (1 - 10^(-abs*depth))) 
   
 
 # 表組み
-uv %>% 
-  group_by(班) %>% 
-  mutate(班=paste(班,"班")) %>% 
-  gt(rowname_col = "サンプル名") %>% 
+uv |> 
+  group_by(班) |> 
+  mutate(班=paste(班,"班")) |> 
+  gt(rowname_col = "サンプル名") |> 
    cols_label(uv_1="1回目",
              uv_2="2回目",
              uv_3="3回目",
@@ -1973,19 +1941,19 @@ uv %>%
              uv_5="5回目",
              uv_ave="平均",
              abs="吸光度",
-             i_ave="平均線量率") %>% 
+             i_ave="平均線量率") |> 
   tab_spanner(columns = c("t1","t2","t3"),
-              label = "採水時刻(s)") %>% 
+              label = "採水時刻(s)") |> 
   tab_spanner(columns = starts_with("uv"),
-              label = "透過前の紫外線線量率(mW/cm^2)") %>% 
+              label = "透過前の紫外線線量率(mW/cm^2)") |> 
   text_transform(locations = cells_body(columns=c("uv_1","uv_2",
                                                   "uv_4","uv_5","uv_ave"),
                                         rows = c(starts_with("uvr"),
                                                  starts_with("phr"))),
                  fn = function(x) ""
-                 ) %>% 
+                 ) |> 
   text_transform(locations = cells_body(columns = "uv_3", rows =  c(starts_with("uvr"), starts_with("phr"))),
-                 fn = function(x) "同上") %>% 
+                 fn = function(x) "同上") |> 
   fmt_number(columns = i_ave, decimals=2)
 ```
 
@@ -1995,39 +1963,39 @@ uv %>%
 #| warning: false
 #| fig-cap: "対数不活化率と線量I"
 
-uv_I <- uv %>% 
-  select(-starts_with("uv"),-abs) %>% 
+uv_I <- uv |> 
+  select(-starts_with("uv"),-abs) |> 
   pivot_longer(cols = starts_with("t"),
                names_to = "採水時刻",
-               values_to = "t_sampling") %>% 
-  mutate(i_val = i_ave * t_sampling) %>% 
+               values_to = "t_sampling") |> 
+  mutate(i_val = i_ave * t_sampling) |> 
   select(-c("i_ave","t_sampling"))
 
-colony_uv <- colony %>% 
-  filter(実験名=="紫外線", 採用希釈倍率=="*") %>% 
-  select(-実験名,-採用希釈倍率) %>% 
+colony_uv <- colony |> 
+  filter(実験名=="紫外線", 採用希釈倍率=="*") |> 
+  select(-実験名,-採用希釈倍率) |> 
   mutate(コロニー数 = case_when(コロニー数 == "<1" ~ 1,
                            .default = as.numeric(コロニー数)),
-         coli_conc = コロニー数 * 10^希釈倍率) %>%
-  select(-c("希釈倍率","コロニー数")) %>% 
-  left_join(uv_I, by=c("班","サンプル名","採水時刻")) %>% 
+         coli_conc = コロニー数 * 10^希釈倍率) |>
+  select(-c("希釈倍率","コロニー数")) |> 
+  left_join(uv_I, by=c("班","サンプル名","採水時刻")) |> 
   mutate(i_val = case_when(採水時刻=="t0" ~ 0,
                            .default = i_val),
-         班=paste0(班,"班")) %>% 
-  group_by(班,サンプル名,採水時刻) %>% 
+         班=paste0(班,"班")) |> 
+  group_by(班,サンプル名,採水時刻) |> 
   summarise(coli_conc = mean(coli_conc),
             i_val = unique(i_val),
-            .groups = "drop") %>% 
-  group_by(班,サンプル名) %>% 
+            .groups = "drop") |> 
+  group_by(班,サンプル名) |> 
   reframe(surv = coli_conc / max(coli_conc),
           i_val = i_val,
           採水時刻 = 採水時刻)
   
-colony_uv %>% 
+colony_uv |> 
   mutate(surv_log = -log(surv),
          サンプル名=case_when(サンプル名=="phr"~"Δphr",
                               サンプル名=="uvr"~"Δuvr",
-                         .default = "BW")) %>% 
+                         .default = "BW")) |> 
   ggplot(aes(x=i_val,y=surv_log))+
   geom_point(aes(shape=班),size=3)+
   #geom_smooth(method="lm",linetype=3)+
@@ -2058,28 +2026,28 @@ colony_uv %>%
 ```{r tbl-uv-k}
 #| tbl-cap: "不活化速度定数kの算出結果"
 
-uv_k_calc <- colony_uv %>% 
-  mutate(surv_log = -log(surv)) %>% 
-  select(-surv) %>% 
+uv_k_calc <- colony_uv |> 
+  mutate(surv_log = -log(surv)) |> 
+  select(-surv) |> 
   filter((サンプル名=="BW" & (班=="1班" | 採水時刻%in%c("t0","t1","t2"))) |
            (サンプル名=="phr" & (班!="4班" | 採水時刻%in%c("t0","t1","t2"))) |
-           (サンプル名=="uvr" & (班!="4班" | 採水時刻%in%c("t0","t1")))) %>% 
-  group_by(サンプル名,班) %>% 
-  nest() %>% 
+           (サンプル名=="uvr" & (班!="4班" | 採水時刻%in%c("t0","t1")))) |> 
+  group_by(サンプル名,班) |> 
+  nest() |> 
   mutate(lm = map(data, function(df) lm(df$surv_log ~ df$i_val))) 
 
 # 表組み(回帰モデルの傾きを表示)
-uv_k_calc <- uv_k_calc %>% 
+uv_k_calc <- uv_k_calc |> 
   mutate(k_val = map(lm,function(mod){
     format(unname(mod$coefficients[2]),digits=3)
-                         })) %>% 
-  select(c("班","サンプル名","k_val")) %>% 
+                         })) |> 
+  select(c("班","サンプル名","k_val")) |> 
   mutate(k_val = as.numeric(k_val)) 
 
-uv_k_calc %>% 
+uv_k_calc |> 
   pivot_wider(names_from = "班",
-              values_from = "k_val") %>% 
-  gt() %>% 
+              values_from = "k_val") |> 
+  gt() |> 
   fmt_scientific(columns = everything(),
                  n_sigfig = 2)
 ```
@@ -2088,10 +2056,10 @@ uv_k_calc %>%
 #| warning: false
 #| fig-cap: "不活化速度定数kの株間での違い"
 
-uv_k_calc %>% 
-  group_by(サンプル名) %>% 
+uv_k_calc |> 
+  group_by(サンプル名) |> 
   summarise(mean = mean(k_val),
-            sd=sd(k_val)) %>% 
+            sd=sd(k_val)) |> 
   ggplot()+
   geom_bar(aes(x=サンプル名,y=mean),stat="identity",fill="skyblue")+
   geom_errorbar(aes(x=サンプル名,ymin=mean-sd,ymax=mean+sd),

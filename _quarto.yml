@@ -1,0 +1,9 @@
+project:
+  title: "浄水処理実験 実験レポート"
+  pre-render: utils/read_data.R
+  output-dir: output
+author: "03250114 大隅伸明"
+toc: true
+bibliography: references.bib
+format: html
+editor: visual

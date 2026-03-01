@@ -4,3 +4,6 @@
 .Ruserdata
 .DS_Store
 wtrwks_rpt.Rproj
+
+/.quarto/
+**/*.quarto_ipynb
